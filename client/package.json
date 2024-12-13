@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@clerk/clerk-react": "^5.20.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -43,6 +44,6 @@
     "@tailwindcss/typography": "^0.5.15",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.15"
+    "tailwindcss": "^3.4.16"
   }
 }

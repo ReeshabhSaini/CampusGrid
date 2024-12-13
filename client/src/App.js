@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
-import "./styles/tailwind.css";
 
 const App = () => {
     return (
