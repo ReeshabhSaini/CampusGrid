@@ -5,7 +5,7 @@ import StartUpImage from "../assets/startup-image.png";
 const RegisterPage = () => {
   return (
     <div class="min-h-screen flex items-center">
-      <div class="w-full max-w-3xl">
+      <div class="w-full max-w-3xl ">
         {/* Left section with the form */}
 
         <div class="md:w-1/2 md:pr-8 ml-20">
