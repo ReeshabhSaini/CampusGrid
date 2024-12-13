@@ -57,7 +57,7 @@ const LoginPage = () => {
 </button>
 
           <div className="register">
-            Don't have an account yet? <a href="#">Register</a>
+            Don't have an account yet? <a href="./Register">Register</a>
           </div>
         </form>
       </div>
