@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import CampusGridLogo from "../assets/Logo.png";
+import StartUpImage from "../assets/startup-image.png";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -22,18 +23,21 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-start min-h-screen bg-cover bg-no-repeat bg-local" style={{ backgroundImage: `url('/background_image.png')` }}>
+    <div class ="flex flex-col md:flex-row items-center justify-start min-h-screen bg-cover bg-no-repeat bg-local">
       <div className="w-full max-w-md p-8 bg-white bg-opacity-15 shadow-lg rounded-lg ml-10">
-        
         {/* LEFT SECTION */}
-        
+
         {/* Title */}
-        <h1 className="text-2xl font-bold text-center text-indigo-600 mb-6">Login</h1>
-        
+        <h1 className="text-2xl font-bold text-center text-indigo-600 mb-6">
+          Login
+        </h1>
+
         <form onSubmit={handleLogin}>
           {/* Email input */}
           <div className="mb-4">
-            <label className="block mb-2 text-sm font-medium text-indigo-600">Email</label>
+            <label className="block mb-2 text-sm font-medium text-indigo-600">
+              Email
+            </label>
             <input
               type="email"
               placeholder="username@gmail.com"
@@ -46,7 +50,9 @@ const LoginPage = () => {
 
           {/* Password input */}
           <div className="mb-4">
-            <label className="block mb-2 text-sm font-medium text-indigo-600">Password</label>
+            <label className="block mb-2 text-sm font-medium text-indigo-600">
+              Password
+            </label>
             <input
               type="password"
               placeholder="Password"
@@ -59,7 +65,9 @@ const LoginPage = () => {
 
           {/* Forgot password */}
           <div className="text-right mb-4">
-            <a href="#" className="text-sm text-indigo-600 hover:underline">Forgot Password?</a>
+            <a href="#" className="text-sm text-indigo-600 font-medium hover:underline">
+              Forgot Password?
+            </a>
           </div>
 
           {/* Submit button */}
@@ -71,8 +79,10 @@ const LoginPage = () => {
           </button>
 
           {/* Divider */}
-          <div className="text-center text-sm text-indigo-600 mb-4">or continue with</div>
-          
+          <div className="text-center text-sm text-indigo-600 mb-4">
+            or continue with
+          </div>
+
           {/*  Google Sign In  */}
           <button
             type="button"
@@ -88,10 +98,13 @@ const LoginPage = () => {
 
           {/* Register */}
           <div className="text-center text-sm text-indigo-600">
-            Don't have an account yet? <a href="./Register" className="font-medium hover:underline">Register</a>
+            Don't have an account yet?{" "}
+            <a href="./Register" className="font-medium hover:underline">
+              Register
+            </a>
           </div>
         </form>
-        
+
         {/*  Logo  */}
         <div class="absolute bottom-20 right-20 w-40 h-40 mr-10">
           <img src={CampusGridLogo} alt="Campus Grid Logo" className="ml-10" />
@@ -100,6 +113,12 @@ const LoginPage = () => {
             &nbsp;
             <span className="text-gray-600">Grid</span>
           </p>
+        </div>
+
+        {/* Right section with image */}
+
+        <div class="absolute top-0 right-0 w-1/2 h-full bg-contain bg-no-repeat bg-right">
+          <img src={StartUpImage} alt="Campus Grid Start Up image" />
         </div>
       </div>
     </div>
