@@ -15,19 +15,28 @@ const Register = () => {
   });
 
   const handleChange = (event) => {
-    const name = event.target.name;
-    const value = event.target.value;
+    const { name, value } = event.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-    setFormData((formData) => ({ ...formData, [name]: value }));
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+    // Add API call logic to submit formData here
+    console.log("Form submitted", formData);
   };
 
   return (
-    <div class="flex flex-col md:flex-row items-center justify-start min-h-screen bg-cover bg-no-repeat bg-local">
-      <div className="w-full max-w-md p-8 bg-white bg-opacity-15 rounded-lg ml-10">
+    <div className="flex flex-col md:flex-row items-center justify-center min-h-screen bg-cover bg-no-repeat bg-local">
+      <div className="w-full max-w-md p-8 bg-white bg-opacity-90 shadow-lg rounded-lg">
         <h1 className="text-2xl font-bold text-center text-indigo-600 mb-6">
           Create a New Account
         </h1>
-        <form>
+        <form onSubmit={handleSubmit}>
+          {/* Role */}
           <div className="mb-4">
             <label className="block mb-2 text-sm font-medium text-indigo-600">
               Role
@@ -43,12 +52,15 @@ const Register = () => {
               <option value="professor">Professor</option>
             </select>
           </div>
+
+          {/* First Name */}
           <div className="mb-4">
             <label className="block mb-2 text-sm font-medium text-indigo-600">
               First Name
             </label>
             <input
-              type="name"
+              type="text"
+              name="first_name"
               placeholder="First Name"
               onChange={handleChange}
               value={formData.first_name}
@@ -56,59 +68,74 @@ const Register = () => {
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             />
           </div>
+
+          {/* Last Name */}
           <div className="mb-4">
             <label className="block mb-2 text-sm font-medium text-indigo-600">
               Last Name
             </label>
             <input
-              type="name"
+              type="text"
+              name="last_name"
               placeholder="Last Name"
               onChange={handleChange}
               value={formData.last_name}
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             />
           </div>
+
+          {/* Email */}
           <div className="mb-4">
             <label className="block mb-2 text-sm font-medium text-indigo-600">
               Email
             </label>
             <input
               type="email"
+              name="email"
+              placeholder="username@pec.edu.in"
               onChange={handleChange}
               value={formData.email}
-              placeholder="username@pec.edu.in"
               required
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             />
           </div>
+
+          {/* Password */}
           <div className="mb-4">
             <label className="block mb-2 text-sm font-medium text-indigo-600">
               Password
             </label>
             <input
               type="password"
+              name="password"
+              placeholder="Password"
               onChange={handleChange}
               value={formData.password}
-              placeholder="Password"
               required
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             />
           </div>
+
+          {/* Confirm Password */}
           <div className="mb-4">
             <label className="block mb-2 text-sm font-medium text-indigo-600">
               Confirm Password
             </label>
             <input
               type="password"
+              name="confirmPassword"
+              placeholder="Confirm Password"
               onChange={handleChange}
               value={formData.confirmPassword}
-              placeholder="Confirm Password"
               required
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             />
           </div>
+
+          {/* Conditional Student Fields */}
           {formData.role === "student" && (
             <>
+              {/* Branch */}
               <div className="mb-4">
                 <label className="block mb-2 text-sm font-medium text-indigo-600">
                   Branch
@@ -134,6 +161,8 @@ const Register = () => {
                   <option value="EE">Electrical</option>
                 </select>
               </div>
+
+              {/* Year */}
               <div className="mb-4">
                 <label className="block mb-2 text-sm font-medium text-indigo-600">
                   Year
@@ -154,6 +183,8 @@ const Register = () => {
                   <option value="4th">4th</option>
                 </select>
               </div>
+
+              {/* Student ID */}
               <div className="mb-4">
                 <label className="block mb-2 text-sm font-medium text-indigo-600">
                   Student ID
@@ -161,21 +192,25 @@ const Register = () => {
                 <input
                   type="text"
                   name="studentId"
+                  placeholder="Enter your Student ID"
                   onChange={handleChange}
                   value={formData.studentId}
-                  className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
-                  placeholder="Enter your Student ID"
                   required
+                  className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
                 />
               </div>
             </>
           )}
+
+          {/* Submit Button */}
           <button
             type="submit"
             className="w-full py-3 mb-4 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
           >
             Register
           </button>
+
+          {/* Forgot Password */}
           <div className="text-right mb-4">
             <a
               href="#"
@@ -184,33 +219,26 @@ const Register = () => {
               Forgot Password?
             </a>
           </div>
-          <div className="text-center text-sm text-indigo-600 mb-4">
-            or continue with
-          </div>
-          <button
-            type="button"
-            className="flex items-center justify-center w-full py-3 mb-4 text-black bg-white rounded-lg hover:bg-gray-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-black-300"
-          >
-            Sign in with Google
-          </button>
+
+          {/* Login Link */}
           <div className="text-center text-sm text-indigo-600">
-            Already have an account yet?{" "}
+            Already have an account?{" "}
             <a href="/" className="font-medium hover:underline">
               Login
             </a>
           </div>
         </form>
-        <div className="absolute bottom-20 right-20 w-40 h-40 mr-10">
-          <img src={assets.Logo} alt="Campus Grid Logo" className="ml-10" />
-          <p className="font-sans mt-3 text-4xl font-extrabold ">
-            <span className="text-green-700">Campus</span>
-            &nbsp;
-            <span className="text-gray-600">Grid</span>
-          </p>
-        </div>
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-contain bg-no-repeat bg-right">
-          <img src={assets.StartImage} alt="Campus Grid Start Up image" />
-        </div>
+      </div>
+
+      {/* Right Side Image and Logo */}
+      <div className="absolute top-0 right-0 w-1/2 h-full bg-contain bg-no-repeat">
+        <img src={assets.StartImage} alt="Campus Grid Startup Image" />
+      </div>
+      <div className="absolute bottom-10 left-10">
+        <img src={assets.Logo} alt="Campus Grid Logo" className="w-20" />
+        <p className="mt-3 text-4xl font-extrabold text-gray-600">
+          <span className="text-green-700">Campus</span> Grid
+        </p>
       </div>
     </div>
   );
