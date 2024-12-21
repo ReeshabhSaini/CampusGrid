@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { assets } from "../../assets/assets";
 
 const Register = () => {
@@ -19,19 +20,57 @@ const Register = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // Check if passwords match
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-    // Add API call logic to submit formData here
-    console.log("Form submitted", formData);
+
+    try {
+      // Sending data to the backend
+      const response = await axios.post(
+        "http://localhost:4000/api/auth/register",
+        {
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role,
+          studentId: formData.studentId,
+          branch: formData.branch,
+          year: formData.year,
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Registration successful!");
+        console.log("Response Data:", response.data);
+        setFormData({
+          first_name: "",
+          last_name: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+          role: "student",
+          branch: "",
+          year: "",
+          studentId: "",
+        });
+      } else {
+        alert("Something went wrong!");
+      }
+    } catch (error) {
+      console.error("Error during registration:", error);
+      alert("Failed to register. Please try again.");
+    }
   };
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-cover bg-no-repeat bg-local">
-      <div className="w-full max-w-md p-8 bg-opacity-90 rounded-lg ml-5">
+      <div className="w-full max-w-md p-8 bg-opacity-90 rounded-lg m-5">
         <h1 className="text-2xl font-bold text-center text-indigo-600 mb-6">
           Create a New Account
         </h1>
@@ -177,10 +216,10 @@ const Register = () => {
                   <option value="" disabled>
                     Select Year
                   </option>
-                  <option value="1st">1st</option>
-                  <option value="2nd">2nd</option>
-                  <option value="3rd">3rd</option>
-                  <option value="4th">4th</option>
+                  <option value="1">1st</option>
+                  <option value="2">2nd</option>
+                  <option value="3">3rd</option>
+                  <option value="4">4th</option>
                 </select>
               </div>
 
@@ -237,7 +276,7 @@ const Register = () => {
 
       {/* Fixed Bottom-Right Logo */}
       <div className="fixed bottom-10 right-10">
-        <img src={assets.Logo} alt="Campus Grid Logo" className="w-20" />
+        <img src={assets.Logo} alt="Campus Grid Logo" className="w-20 ml-10" />
         <p className="mt-3 text-4xl font-extrabold text-gray-600">
           <span className="text-green-700">Campus</span> Grid
         </p>
