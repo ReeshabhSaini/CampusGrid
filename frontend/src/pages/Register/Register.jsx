@@ -30,15 +30,15 @@ const Register = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-center min-h-screen bg-cover bg-no-repeat bg-local">
-      <div className="w-full max-w-md p-8 bg-white bg-opacity-90 shadow-lg rounded-lg">
+    <div className="flex flex-col md:flex-row min-h-screen bg-cover bg-no-repeat bg-local">
+      <div className="w-full max-w-md p-8 bg-opacity-90 rounded-lg ml-5">
         <h1 className="text-2xl font-bold text-center text-indigo-600 mb-6">
           Create a New Account
         </h1>
         <form onSubmit={handleSubmit}>
           {/* Role */}
           <div className="mb-4">
-            <label className="block mb-2 text-sm font-medium text-indigo-600">
+            <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
               Role
             </label>
             <select
@@ -55,7 +55,7 @@ const Register = () => {
 
           {/* First Name */}
           <div className="mb-4">
-            <label className="block mb-2 text-sm font-medium text-indigo-600">
+            <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
               First Name
             </label>
             <input
@@ -71,7 +71,7 @@ const Register = () => {
 
           {/* Last Name */}
           <div className="mb-4">
-            <label className="block mb-2 text-sm font-medium text-indigo-600">
+            <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
               Last Name
             </label>
             <input
@@ -86,7 +86,7 @@ const Register = () => {
 
           {/* Email */}
           <div className="mb-4">
-            <label className="block mb-2 text-sm font-medium text-indigo-600">
+            <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
               Email
             </label>
             <input
@@ -102,7 +102,7 @@ const Register = () => {
 
           {/* Password */}
           <div className="mb-4">
-            <label className="block mb-2 text-sm font-medium text-indigo-600">
+            <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
               Password
             </label>
             <input
@@ -118,7 +118,7 @@ const Register = () => {
 
           {/* Confirm Password */}
           <div className="mb-4">
-            <label className="block mb-2 text-sm font-medium text-indigo-600">
+            <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
               Confirm Password
             </label>
             <input
@@ -137,7 +137,7 @@ const Register = () => {
             <>
               {/* Branch */}
               <div className="mb-4">
-                <label className="block mb-2 text-sm font-medium text-indigo-600">
+                <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
                   Branch
                 </label>
                 <select
@@ -164,7 +164,7 @@ const Register = () => {
 
               {/* Year */}
               <div className="mb-4">
-                <label className="block mb-2 text-sm font-medium text-indigo-600">
+                <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
                   Year
                 </label>
                 <select
@@ -186,7 +186,7 @@ const Register = () => {
 
               {/* Student ID */}
               <div className="mb-4">
-                <label className="block mb-2 text-sm font-medium text-indigo-600">
+                <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
                   Student ID
                 </label>
                 <input
@@ -230,11 +230,13 @@ const Register = () => {
         </form>
       </div>
 
-      {/* Right Side Image and Logo */}
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-contain bg-no-repeat">
+      {/* Fixed Right Image */}
+      <div className="fixed top-0 right-0 w-1/2 h-full bg-contain bg-no-repeat">
         <img src={assets.StartImage} alt="Campus Grid Startup Image" />
       </div>
-      <div className="absolute bottom-10 left-10">
+
+      {/* Fixed Bottom-Right Logo */}
+      <div className="fixed bottom-10 right-10">
         <img src={assets.Logo} alt="Campus Grid Logo" className="w-20" />
         <p className="mt-3 text-4xl font-extrabold text-gray-600">
           <span className="text-green-700">Campus</span> Grid
