@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { assets } from "../../assets/assets";
 
-const LoginPage = () => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -68,7 +68,7 @@ const LoginPage = () => {
             </a>
           </div>
         </form>
-        <div class="absolute bottom-20 right-20 w-40 h-40 mr-10">
+        <div className="absolute bottom-20 right-20 w-40 h-40 mr-10">
           <img src={assets.Logo} alt="Campus Grid Logo" className="ml-10" />
           <p className="font-sans mt-3 text-4xl font-extrabold ">
             <span className="text-green-700">Campus</span>
@@ -76,7 +76,7 @@ const LoginPage = () => {
             <span className="text-gray-600">Grid</span>
           </p>
         </div>
-        <div class="absolute top-0 right-0 w-1/2 h-full bg-contain bg-no-repeat bg-right">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-contain bg-no-repeat bg-right">
           <img src={assets.StartImage} alt="Campus Grid Start Up image" />
         </div>
       </div>
@@ -84,4 +84,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default Login;
