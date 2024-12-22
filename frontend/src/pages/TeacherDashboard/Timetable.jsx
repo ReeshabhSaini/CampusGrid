@@ -5,6 +5,12 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useNavigate } from "react-router-dom";
 
 const localizer = momentLocalizer(moment);
+const minTime = new Date();
+minTime.setHours(8, 0, 0, 0); // Set minimum time to 8:00 AM on any day
+
+const maxTime = new Date();
+maxTime.setHours(17, 0, 0, 0); // Set maximum time to 5:00 PM on any day
+
 
 const Timetable = () => {
   const [events, setEvents] = useState([]);
@@ -109,8 +115,8 @@ const Timetable = () => {
             views={["month", "week", "day", "agenda"]}
             defaultView="week"
             formats={formats}
-            min={new Date(2024, 11, 22, 8, 0)} // Set minimum time to 8 AM
-            max={new Date(2024, 11, 22, 17, 0)} // Set maximum time to 5 PM
+            min={minTime} 
+            max={maxTime}
           />
         </div>
       </div>
