@@ -11,7 +11,7 @@ const Register = () => {
     confirmPassword: "",
     role: "student",
     branch: "",
-    year: "",
+    semester: "",
     studentId: "",
   });
 
@@ -41,7 +41,7 @@ const Register = () => {
           role: formData.role,
           studentId: formData.studentId,
           branch: formData.branch,
-          year: formData.year,
+          semester: formData.semester,
         }
       );
 
@@ -56,7 +56,7 @@ const Register = () => {
           confirmPassword: "",
           role: "student",
           branch: "",
-          year: "",
+          semester: "",
           studentId: "",
         });
       } else {
@@ -204,22 +204,26 @@ const Register = () => {
               {/* Year */}
               <div className="mb-4">
                 <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
-                  Year
+                  Semester
                 </label>
                 <select
                   name="year"
                   onChange={handleChange}
-                  value={formData.year}
+                  value={formData.semester}
                   className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
                   required
                 >
                   <option value="" disabled>
-                    Select Year
+                    Select Semester
                   </option>
                   <option value="1">1st</option>
                   <option value="2">2nd</option>
                   <option value="3">3rd</option>
                   <option value="4">4th</option>
+                  <option value="5">5th</option>
+                  <option value="6">6th</option>
+                  <option value="7">7th</option>
+                  <option value="8">8th</option>
                 </select>
               </div>
 

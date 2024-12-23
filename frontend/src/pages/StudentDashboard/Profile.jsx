@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 const Profile = () => {
   return (
@@ -14,11 +14,15 @@ const Profile = () => {
         <div className="flex-1">
           <p className="text-xl font-semibold text-gray-800">John Doe</p>
           <p className="text-sm text-gray-500 mb-4">johndoe@example.com</p>
-          
+
           {/* Profile Details */}
           <div className="text-gray-700">
-            <p><strong>Location:</strong> New York, USA</p>
-            <p><strong>Skills:</strong> Web Development, JavaScript, React</p>
+            <p>
+              <strong>Location:</strong> New York, USA
+            </p>
+            <p>
+              <strong>Subjects:</strong> Web Development, JavaScript, React
+            </p>
           </div>
 
           {/* Edit Button (you can add functionality later) */}

@@ -6,7 +6,7 @@ const router = express.Router();
 
 // POST: Register a user
 router.post("/register", async (req, res) => {
-    const { first_name, last_name, email, password, role, student_id, branch, year } = req.body;
+    const { first_name, last_name, email, password, role, student_id, branch, semester } = req.body;
 
     try {
         // 1. Check if the user already exists
@@ -33,7 +33,7 @@ router.post("/register", async (req, res) => {
         const { data, error } = await supabase
             .from("users")
             .insert([
-                { first_name, last_name, email, password: hashedPassword, role, student_id, branch, year }
+                { first_name, last_name, email, password: hashedPassword, role, student_id, branch, semester }
             ]);
 
         if (error) {

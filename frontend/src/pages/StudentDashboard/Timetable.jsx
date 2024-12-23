@@ -6,19 +6,25 @@ import axios from "axios";
 
 const localizer = momentLocalizer(moment);
 
-const Timetable = () => {
+const Timetable = ({ branch, semester }) => {
   const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchTimetable = async () => {
       try {
-        const response = await axios.get("/api/student/timetable"); // Fetch timetable from backend
+        const response = await axios.get(
+          "http://localhost:4000/api/student/timetable",
+          {
+            params: { branch, semester },
+          }
+        ); // Fetch timetable from backend
         const formattedEvents = response.data.map((event) => ({
           id: event.id,
-          title: `${event.courseName} - Lecture Hall ${event.lectureHall}`,
-          start: new Date(event.startTime),
-          end: new Date(event.endTime),
-          lectureHall: event.lectureHall,
+          title: `${event.course_id} - Lecture Hall ${event.lecture_hall}`,
+          start: new Date(event.start_time),
+          end: new Date(event.end_time),
         }));
         setEvents(formattedEvents);
       } catch (error) {
