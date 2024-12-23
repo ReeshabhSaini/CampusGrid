@@ -201,13 +201,13 @@ const Register = () => {
                 </select>
               </div>
 
-              {/* Year */}
+              {/* semester */}
               <div className="mb-4">
                 <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
                   Semester
                 </label>
                 <select
-                  name="year"
+                  name="semester"
                   onChange={handleChange}
                   value={formData.semester}
                   className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
