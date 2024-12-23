@@ -14,28 +14,29 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:4000/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "http://localhost:4000/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
 
       // Save token to localStorage
       localStorage.setItem("token", response.data.token);
 
       alert("Login successful!");
       // Redirect or update UI as needed
-    }
-    catch (err) {
+    } catch (err) {
       console.error("Error details:", {
-          message: err.message,
-          response: err.response,
-          status: err.response?.status,
-          data: err.response?.data,
+        message: err.message,
+        response: err.response,
+        status: err.response?.status,
+        data: err.response?.data,
       });
-  
+
       setError(err.response?.data?.message || "An error occurred");
-  }
-   finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -73,9 +74,7 @@ const Login = () => {
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             />
           </div>
-          {error && (
-            <div className="mb-4 text-sm text-red-600">{error}</div>
-          )}
+          {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
           <button
             type="submit"
             disabled={loading}
