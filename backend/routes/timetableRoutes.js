@@ -17,8 +17,24 @@ router.get("/timetable", async (req, res) => {
 
         // Fetch data from time_table, courses, and lecture_hall
         const { data, error } = await supabase
-            .from("courses")
-            .select("*")
+            .from("time_table")
+            .select(`
+                id,
+                day_of_week,
+                start_time,
+                end_time,
+                courses (
+                    course_code,
+                    course_name,
+                    branch,
+                    semester
+                ),
+                lecture_halls (
+                    hall_name
+                )
+            `)
+            .eq("courses.branch", branch)
+            .eq("courses.semester", parseInt(semester, 10));
 
 
         if (error) {

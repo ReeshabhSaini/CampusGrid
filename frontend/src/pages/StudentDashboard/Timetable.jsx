@@ -11,6 +11,16 @@ const Timetable = ({ branch, semester }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const daysOfWeek = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ];
+
   useEffect(() => {
     const fetchTimetable = async () => {
       try {
@@ -20,20 +30,48 @@ const Timetable = ({ branch, semester }) => {
             params: { branch, semester },
           }
         ); // Fetch timetable from backend
-        const formattedEvents = response.data.map((event) => ({
-          id: event.id,
-          title: `${event.course_id} - Lecture Hall ${event.lecture_hall}`,
-          start: new Date(event.start_time),
-          end: new Date(event.end_time),
-        }));
+        const formattedEvents = response.timetable.map((event) => {
+          // Convert the day of the week to the correct date in the week
+          const dayIndex = daysOfWeek.indexOf(event.day_of_week);
+          const startDate = moment()
+            .startOf("week")
+            .add(dayIndex, "days")
+            .set({
+              hour: new Date(event.start_time).getHours(),
+              minute: new Date(event.start_time).getMinutes(),
+            });
+
+          const endDate = moment(startDate)
+            .add(
+              new Date(event.end_time).getHours() -
+                new Date(event.start_time).getHours(),
+              "hours"
+            )
+            .add(
+              new Date(event.end_time).getMinutes() -
+                new Date(event.start_time).getMinutes(),
+              "minutes"
+            );
+
+          return {
+            id: event.id,
+            title: `${event.courses.course_name} - Lecture Hall ${event.lecture_halls.hall_name}`,
+            start: startDate.toDate(),
+            end: endDate.toDate(),
+          };
+        });
+
         setEvents(formattedEvents);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching timetable:", error);
+        setError("Failed to fetch timetable.");
+        setLoading(false);
       }
     };
 
     fetchTimetable();
-  }, []);
+  }, [branch, semester]);
 
   const eventStyleGetter = (event, start, end, isSelected) => ({
     style: {
@@ -52,6 +90,9 @@ const Timetable = ({ branch, semester }) => {
     eventTimeRangeFormat: () => "",
     agendaTimeRangeFormat: () => "",
   };
+
+  if (loading) return <div>Loading timetable...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="flex">

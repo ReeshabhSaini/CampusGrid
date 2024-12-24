@@ -1,70 +1,114 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import axios from "axios";
 import { assets } from "../../assets/assets";
+import { StoreContext } from "../../context/StoreContext";
 
 const Register = () => {
-  const [formData, setFormData] = useState({
-    first_name: "",
-    last_name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    role: "student",
-    branch: "",
-    semester: "",
-    studentId: "",
-  });
+  const {
+    studentData,
+    setStudentData,
+    professorData,
+    setProfessorData,
+    roleData,
+    setRoleData,
+    url,
+  } = useContext(StoreContext);
 
   const handleChange = (event) => {
+    if (roleData.role === "student") {
+      const { name, value } = event.target;
+      setStudentData((prev) => ({ ...prev, [name]: value }));
+    }
+    if (roleData.role === "professor") {
+      const { name, value } = event.target;
+      setProfessorData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleRoleChange = (event) => {
     const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setRoleData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Check if passwords match
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-
-    try {
-      // Sending data to the backend
-      const response = await axios.post(
-        "http://localhost:4000/api/auth/register",
-        {
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-          email: formData.email,
-          password: formData.password,
-          role: formData.role,
-          studentId: formData.studentId,
-          branch: formData.branch,
-          semester: formData.semester,
-        }
-      );
-
-      if (response.status === 200) {
-        alert("Registration successful!");
-        console.log("Response Data:", response.data);
-        setFormData({
-          first_name: "",
-          last_name: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-          role: "student",
-          branch: "",
-          semester: "",
-          studentId: "",
-        });
-      } else {
-        alert("Something went wrong!");
+    if (roleData.role === "student") {
+      // Check if passwords match
+      if (studentData.password !== studentData.confirmPassword) {
+        alert("Passwords do not match!");
+        return;
       }
-    } catch (error) {
-      console.error("Error during registration:", error);
-      alert("Failed to register. Please try again.");
+
+      try {
+        // Sending data to the backend
+        const response = await axios.post(`${url}/api/auth/student/register`, {
+          first_name: studentData.first_name,
+          last_name: studentData.last_name,
+          email: studentData.email,
+          password: studentData.password,
+          student_id: studentData.student_id,
+          branch: studentData.branch,
+          semester: studentData.semester,
+        });
+
+        if (response.status === 200) {
+          alert("Registration successful!");
+          console.log("Response Data:", response.data);
+          setStudentData({
+            first_name: "",
+            last_name: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+            branch: "",
+            semester: "",
+            student_id: "",
+          });
+        } else {
+          alert("Something went wrong!");
+        }
+      } catch (error) {
+        console.log("Error during registration:", error);
+        alert("Failed to register. Please try again.");
+      }
+    }
+    if (roleData.role === "professor") {
+      // Check if passwords match
+      if (professorData.password !== professorData.confirmPassword) {
+        alert("Passwords do not match!");
+        return;
+      }
+
+      try {
+        // Sending data to the backend
+        const response = await axios.post(
+          `${url}/api/auth/professor/register`,
+          {
+            first_name: professorData.first_name,
+            last_name: professorData.last_name,
+            email: professorData.email,
+            password: professorData.password,
+          }
+        );
+
+        if (response.status === 200) {
+          alert("Registration successful!");
+          console.log("Response Data:", response.data);
+          setProfessorData({
+            first_name: "",
+            last_name: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+          });
+        } else {
+          alert("Something went wrong!");
+        }
+      } catch (error) {
+        console.log("Error during registration:", error);
+        alert("Failed to register. Please try again.");
+      }
     }
   };
 
@@ -82,8 +126,8 @@ const Register = () => {
             </label>
             <select
               name="role"
-              onChange={handleChange}
-              value={formData.role}
+              onChange={handleRoleChange}
+              value={roleData.role}
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
               required
             >
@@ -102,7 +146,11 @@ const Register = () => {
               name="first_name"
               placeholder="First Name"
               onChange={handleChange}
-              value={formData.first_name}
+              value={
+                roleData.role === "student"
+                  ? studentData.first_name
+                  : professorData.first_name
+              }
               required
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             />
@@ -118,7 +166,11 @@ const Register = () => {
               name="last_name"
               placeholder="Last Name"
               onChange={handleChange}
-              value={formData.last_name}
+              value={
+                roleData.role === "student"
+                  ? studentData.last_name
+                  : professorData.last_name
+              }
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             />
           </div>
@@ -133,7 +185,11 @@ const Register = () => {
               name="email"
               placeholder="username@pec.edu.in"
               onChange={handleChange}
-              value={formData.email}
+              value={
+                roleData.role === "student"
+                  ? studentData.email
+                  : professorData.email
+              }
               required
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             />
@@ -149,7 +205,11 @@ const Register = () => {
               name="password"
               placeholder="Password"
               onChange={handleChange}
-              value={formData.password}
+              value={
+                roleData.role === "student"
+                  ? studentData.password
+                  : professorData.password
+              }
               required
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             />
@@ -165,14 +225,18 @@ const Register = () => {
               name="confirmPassword"
               placeholder="Confirm Password"
               onChange={handleChange}
-              value={formData.confirmPassword}
+              value={
+                roleData.role === "student"
+                  ? studentData.confirmPassword
+                  : professorData.confirmPassword
+              }
               required
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             />
           </div>
 
           {/* Conditional Student Fields */}
-          {formData.role === "student" && (
+          {roleData.role === "student" && (
             <>
               {/* Branch */}
               <div className="mb-4">
@@ -182,7 +246,7 @@ const Register = () => {
                 <select
                   name="branch"
                   onChange={handleChange}
-                  value={formData.branch}
+                  value={studentData.branch}
                   className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
                   required
                 >
@@ -209,7 +273,7 @@ const Register = () => {
                 <select
                   name="semester"
                   onChange={handleChange}
-                  value={formData.semester}
+                  value={studentData.semester}
                   className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
                   required
                 >
@@ -234,10 +298,10 @@ const Register = () => {
                 </label>
                 <input
                   type="text"
-                  name="studentId"
+                  name="student_id"
                   placeholder="Enter your Student ID"
                   onChange={handleChange}
-                  value={formData.studentId}
+                  value={studentData.student_id}
                   required
                   className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
                 />
