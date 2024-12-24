@@ -12,16 +12,13 @@ const Profile = () => {
           className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
         />
         <div className="flex-1">
-          <p className="text-xl font-semibold text-gray-800">John Doe</p>
-          <p className="text-sm text-gray-500 mb-4">johndoe@example.com</p>
+          <p className="text-xl font-semibold text-gray-800">User</p>
+          <p className="text-sm text-gray-500 mb-4">test@example.com</p>
 
           {/* Profile Details */}
           <div className="text-gray-700">
             <p>
-              <strong>Location:</strong> New York, USA
-            </p>
-            <p>
-              <strong>Subjects:</strong> Web Development, JavaScript, React
+              <strong>Subjects:</strong> Course Names
             </p>
           </div>
 
