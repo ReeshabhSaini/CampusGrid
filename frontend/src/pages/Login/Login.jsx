@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import axios from "axios";
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../context/StoreContext";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -17,6 +18,8 @@ const Login = () => {
     setRoleData,
     url,
   } = useContext(StoreContext);
+
+  const navigate = useNavigate();
 
   const handleRoleChange = (event) => {
     const { name, value } = event.target;
@@ -37,6 +40,7 @@ const Login = () => {
 
         // Save token to localStorage
         localStorage.setItem("token", response.data.token);
+
         setStudentData({
           first_name: response.data.requiredData.first_name,
           last_name: response.data.requiredData.last_name,
@@ -47,7 +51,7 @@ const Login = () => {
         });
 
         alert("Login successful!");
-        // Redirect or update UI as needed
+        navigate("/sdashboard");
       } catch (err) {
         console.error("Error details:", {
           message: err.message,
@@ -71,6 +75,7 @@ const Login = () => {
 
         // Save token to localStorage
         localStorage.setItem("token", response.data.token);
+
         setProfessorData({
           first_name: response.data.requiredData.first_name,
           last_name: response.data.requiredData.last_name,
@@ -78,7 +83,7 @@ const Login = () => {
         });
 
         alert("Login successful!");
-        // Redirect or update UI as needed
+        navigate("/tdashboard");
       } catch (err) {
         console.error("Error details:", {
           message: err.message,

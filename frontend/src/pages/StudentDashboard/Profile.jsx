@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
+import { StoreContext } from "../../context/StoreContext";
 
 const Profile = () => {
+  const { studentData } = useContext(StoreContext);
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h2 className="text-3xl font-bold text-center mb-6">Profile Section</h2>
@@ -12,8 +14,11 @@ const Profile = () => {
           className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
         />
         <div className="flex-1">
-          <p className="text-xl font-semibold text-gray-800">User</p>
-          <p className="text-sm text-gray-500 mb-4">test@example.com</p>
+          <p className="text-xl font-semibold text-gray-800">
+            <span>{studentData.first_name}</span>
+            <span>{studentData.last_name}</span>
+          </p>
+          <p className="text-sm text-gray-500 mb-4">{studentData.email}</p>
 
           {/* Profile Details */}
           <div className="text-gray-700">

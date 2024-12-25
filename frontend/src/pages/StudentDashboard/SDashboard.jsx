@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import Profile from './Profile';
-import Timetable from './Timetable';
+import React, { useContext, useState } from "react";
+import Profile from "./Profile";
+import Timetable from "./Timetable";
 
 const SDashboard = () => {
-  const [activeSection, setActiveSection] = useState('Profile');
+  const [activeSection, setActiveSection] = useState("Profile");
 
   const renderSection = () => {
     switch (activeSection) {
-      case 'Profile':
+      case "Profile":
         return <Profile />;
-      case 'Timetable':
+      case "Timetable":
         return <Timetable />;
       default:
         return <Profile />;
@@ -23,23 +23,27 @@ const SDashboard = () => {
         <div className="flex h-full flex-col">
           <div className="flex h-14 items-center border-b border-transparent px-4">
             <a href="/" className="font-bold text-lg">
-              Student<span className="text-blue-600">Dashboard</span>
+              Student <span className="text-blue-600">Dashboard</span>
             </a>
           </div>
           <nav className="flex-1 p-4 space-y-4">
             <button
               className={`block w-full text-left px-4 py-2 rounded-md ${
-                activeSection === 'Profile' ? 'bg-blue-100 text-blue-600' : 'hover:bg-transparent'
+                activeSection === "Profile"
+                  ? "bg-blue-100 text-blue-600"
+                  : "hover:bg-transparent"
               }`}
-              onClick={() => setActiveSection('Profile')}
+              onClick={() => setActiveSection("Profile")}
             >
               Profile
             </button>
             <button
               className={`block w-full text-left px-4 py-2 rounded-md ${
-                activeSection === 'Timetable' ? 'bg-blue-100 text-blue-600' : 'hover:bg-transparent'
+                activeSection === "Timetable"
+                  ? "bg-blue-100 text-blue-600"
+                  : "hover:bg-transparent"
               }`}
-              onClick={() => setActiveSection('Timetable')}
+              onClick={() => setActiveSection("Timetable")}
             >
               Timetable
             </button>
