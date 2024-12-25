@@ -94,46 +94,90 @@ router.post("/professor/register", async (req, res) => {
     }
 });
 
-// POST: Login a user
-router.post("/login", async (req, res) => {
+// POST: Login a Student
+router.post("/student/login", async (req, res) => {
     const { email, password } = req.body;
 
     try {
         // Fetch user by email
-        const { data: user, error } = await supabase
-            .from("users")
+        const { data: student, error } = await supabase
+            .from("students")
             .select("*")
             .eq("email", email)
             .single();
 
-        if (error || !user) {
-            return res.status(401).json({ message: "Invalid email or password" });
+        if (error || !student) {
+            return res.status(401).json({ status: false, message: "Invalid email or password" });
         }
 
         // Compare passwords
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(password, student.password);
         if (!isMatch) {
-            return res.status(401).json({ message: "Invalid email or password" });
+            return res.status(401).json({ status: false, message: "Invalid email or password" });
         }
 
         // Generate JWT
         const token = jwt.sign(
-            { id: user.id, email: user.email, role: user.role },
+            { id: student.id, email: student.email, role: student.role },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
 
         const requiredData = {
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "email": user.email,
-            "role": user.role
+            "first_name": student.first_name,
+            "last_name": student.last_name,
+            "email": student.email,
+            "branch": student.branch,
+            "semester": student.semester,
+            "student_id": student.student_id,
         }
 
-        return res.status(200).json({ message: "Login successful", token, requiredData });
+        return res.status(200).json({ status: true, message: "Login successful", token, requiredData });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Server error", err });
+        res.status(500).json({ status: false, message: "Server error", err });
+    }
+});
+
+// POST: Login a Professor
+router.post("/professor/login", async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        // Fetch user by email
+        const { data: professor, error } = await supabase
+            .from("professors")
+            .select("*")
+            .eq("email", email)
+            .single();
+
+        if (error || !professor) {
+            return res.status(401).json({ status: false, message: "Invalid email or password" });
+        }
+
+        // Compare passwords
+        const isMatch = await bcrypt.compare(password, professor.password);
+        if (!isMatch) {
+            return res.status(401).json({ status: false, message: "Invalid email or password" });
+        }
+
+        // Generate JWT
+        const token = jwt.sign(
+            { id: professor.id, email: professor.email, role: professor.role },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        );
+
+        const requiredData = {
+            "first_name": professor.first_name,
+            "last_name": professor.last_name,
+            "email": professor.email,
+        }
+
+        return res.status(200).json({ status: true, message: "Login successful", token, requiredData });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ status: false, message: "Server error", err });
     }
 });
 

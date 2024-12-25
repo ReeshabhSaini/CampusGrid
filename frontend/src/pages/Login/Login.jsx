@@ -1,43 +1,96 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import axios from "axios";
 import { assets } from "../../assets/assets";
+import { StoreContext } from "../../context/StoreContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const {
+    studentData,
+    setStudentData,
+    professorData,
+    setProfessorData,
+    roleData,
+    setRoleData,
+    url,
+  } = useContext(StoreContext);
+
+  const handleRoleChange = (event) => {
+    const { name, value } = event.target;
+    setRoleData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    try {
-      const response = await axios.post(
-        "http://localhost:4000/api/auth/login",
-        {
+    if (roleData.role === "student") {
+      try {
+        const response = await axios.post(`${url}/api/auth/student/login`, {
           email,
           password,
-        }
-      );
+        });
 
-      // Save token to localStorage
-      localStorage.setItem("token", response.data.token);
+        // Save token to localStorage
+        localStorage.setItem("token", response.data.token);
+        setStudentData({
+          first_name: response.data.requiredData.first_name,
+          last_name: response.data.requiredData.last_name,
+          email: response.data.requiredData.email,
+          branch: response.data.requiredData.branch,
+          semester: response.data.requiredData.semester,
+          student_id: response.data.requiredData.student_id,
+        });
 
-      alert("Login successful!");
-      // Redirect or update UI as needed
-    } catch (err) {
-      console.error("Error details:", {
-        message: err.message,
-        response: err.response,
-        status: err.response?.status,
-        data: err.response?.data,
-      });
+        alert("Login successful!");
+        // Redirect or update UI as needed
+      } catch (err) {
+        console.error("Error details:", {
+          message: err.message,
+          response: err.response,
+          status: err.response?.status,
+          data: err.response?.data,
+        });
 
-      setError(err.response?.data?.message || "An error occurred");
-    } finally {
-      setLoading(false);
+        setError(err.response?.data?.message || "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (roleData.role === "professor") {
+      try {
+        const response = await axios.post(`${url}/api/auth/professor/login`, {
+          email,
+          password,
+        });
+
+        // Save token to localStorage
+        localStorage.setItem("token", response.data.token);
+        setProfessorData({
+          first_name: response.data.requiredData.first_name,
+          last_name: response.data.requiredData.last_name,
+          email: response.data.requiredData.email,
+        });
+
+        alert("Login successful!");
+        // Redirect or update UI as needed
+      } catch (err) {
+        console.error("Error details:", {
+          message: err.message,
+          response: err.response,
+          status: err.response?.status,
+          data: err.response?.data,
+        });
+
+        setError(err.response?.data?.message || "An error occurred");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -48,6 +101,21 @@ const Login = () => {
           Login
         </h1>
         <form onSubmit={handleLogin}>
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+              Role
+            </label>
+            <select
+              name="role"
+              onChange={handleRoleChange}
+              value={roleData.role}
+              className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
+              required
+            >
+              <option value="student">Student</option>
+              <option value="professor">Professor</option>
+            </select>
+          </div>
           <div className="mb-4">
             <label className="block mb-2 text-sm font-medium text-indigo-600">
               Email
