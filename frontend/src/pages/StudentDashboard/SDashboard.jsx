@@ -1,9 +1,13 @@
 import React, { useContext, useState } from "react";
 import Profile from "./Profile";
 import Timetable from "./Timetable";
+import { StoreContext } from "../../context/StoreContext";
+import { useNavigate } from "react-router-dom";
 
 const SDashboard = () => {
   const [activeSection, setActiveSection] = useState("Profile");
+  const { token, setToken } = useContext(StoreContext);
+  const navigate = useNavigate();
 
   const renderSection = () => {
     switch (activeSection) {
@@ -14,6 +18,12 @@ const SDashboard = () => {
       default:
         return <Profile />;
     }
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setToken("");
+    navigate("/");
   };
 
   return (
@@ -76,7 +86,10 @@ const SDashboard = () => {
           {/* User Menu and Logout Button */}
           <div className="flex items-center space-x-4 ml-auto">
             <div className="w-8 h-8 bg-transparent rounded-full" />
-            <button className="text-sm font-medium px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600 transition duration-300 ease-in-out">
+            <button
+              onClick={logout}
+              className="text-sm font-medium px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600 transition duration-300 ease-in-out"
+            >
               Log out
             </button>
           </div>

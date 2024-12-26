@@ -96,7 +96,7 @@ router.post("/professor/register", async (req, res) => {
 
 // POST: Login a Student
 router.post("/student/login", async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, roleData } = req.body;
 
     try {
         // Fetch user by email
@@ -118,7 +118,7 @@ router.post("/student/login", async (req, res) => {
 
         // Generate JWT
         const token = jwt.sign(
-            { id: student.id, email: student.email, role: student.role },
+            { id: student.id, email: student.email, role: roleData },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
@@ -141,7 +141,7 @@ router.post("/student/login", async (req, res) => {
 
 // POST: Login a Professor
 router.post("/professor/login", async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, roleData } = req.body;
 
     try {
         // Fetch user by email
@@ -163,7 +163,7 @@ router.post("/professor/login", async (req, res) => {
 
         // Generate JWT
         const token = jwt.sign(
-            { id: professor.id, email: professor.email, role: professor.role },
+            { id: professor.id, email: professor.email, role: roleData },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );

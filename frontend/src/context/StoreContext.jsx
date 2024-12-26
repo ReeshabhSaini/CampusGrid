@@ -3,6 +3,7 @@ import { createContext, useState } from "react";
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
+  const [token, setToken] = useState("");
   const [roleData, setRoleData] = useState({ role: "student" });
   const url = "http://localhost:4000";
   const [studentData, setStudentData] = useState({
@@ -32,6 +33,8 @@ const StoreContextProvider = (props) => {
     roleData,
     setRoleData,
     url,
+    token,
+    setToken,
   };
 
   return (

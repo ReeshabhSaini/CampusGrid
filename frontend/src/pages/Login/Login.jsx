@@ -17,6 +17,8 @@ const Login = () => {
     roleData,
     setRoleData,
     url,
+    token,
+    setToken,
   } = useContext(StoreContext);
 
   const navigate = useNavigate();
@@ -36,10 +38,12 @@ const Login = () => {
         const response = await axios.post(`${url}/api/auth/student/login`, {
           email,
           password,
+          roleData,
         });
 
         // Save token to localStorage
         localStorage.setItem("token", response.data.token);
+        setToken(response.data.token);
 
         setStudentData({
           first_name: response.data.requiredData.first_name,
@@ -71,10 +75,12 @@ const Login = () => {
         const response = await axios.post(`${url}/api/auth/professor/login`, {
           email,
           password,
+          roleData,
         });
 
         // Save token to localStorage
         localStorage.setItem("token", response.data.token);
+        setToken(response.data.token);
 
         setProfessorData({
           first_name: response.data.requiredData.first_name,
