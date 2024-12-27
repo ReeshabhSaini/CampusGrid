@@ -8,8 +8,25 @@ import { useNavigate } from "react-router-dom";
 const TDashboard = () => {
   const [activeSection, setActiveSection] = useState("Profile");
   const [selectedEvent, setSelectedEvent] = useState(null); // State to handle selected event for rescheduling
-  const { token, setToken } = useContext(StoreContext);
+  const { setProfessorData, setToken, url, decodedToken } =
+    useContext(StoreContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchProfessorDetails = async () => {
+      const professor_id = decodedToken.id;
+      const response = await axios.post(`${url}/api/auth/professor/details`, {
+        professor_id,
+      });
+      setProfessorData({
+        first_name: response.data.requiredData.first_name,
+        last_name: response.data.requiredData.last_name,
+        email: response.data.requiredData.email,
+      });
+    };
+
+    fetchProfessorDetails();
+  }, []);
 
   const renderSection = () => {
     switch (activeSection) {

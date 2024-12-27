@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Navigate } from "react-router-dom";
 
-// Manual JWT Decoder
 function decodeJWT(token) {
   try {
     const base64Url = token.split(".")[1];
@@ -23,6 +22,7 @@ const ProtectedRoute = ({ children }) => {
   }
 
   const decodedToken = decodeJWT(token);
+
   if (!decodedToken) {
     // Redirect to login if token is invalid
     return <Navigate to="/login" replace />;

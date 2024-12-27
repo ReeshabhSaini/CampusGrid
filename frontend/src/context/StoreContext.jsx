@@ -4,8 +4,11 @@ export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
   const [token, setToken] = useState("");
+
   const [roleData, setRoleData] = useState({ role: "student" });
+
   const url = "http://localhost:4000";
+
   const [studentData, setStudentData] = useState({
     first_name: "",
     last_name: "",

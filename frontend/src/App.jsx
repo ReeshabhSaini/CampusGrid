@@ -1,17 +1,11 @@
-import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import React, { useContext } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import SDashboard from "./pages/StudentDashboard/SDashboard";
 import TDashboard from "./pages/TeacherDashboard/TDashboard";
 
-// Manual JWT Decoder
 function decodeJWT(token) {
   try {
     const base64Url = token.split(".")[1];
@@ -33,7 +27,7 @@ const App = () => {
     }
 
     const decodedToken = decodeJWT(token);
-    console.log(decodedToken);
+
     if (!decodedToken) {
       return "/login"; // If token is invalid, redirect to login
     }
@@ -46,7 +40,7 @@ const App = () => {
     }
 
     // Redirect based on user role
-    const role = decodedToken.role.role; // Assumes `role` is present in token payload
+    const role = decodedToken.role; // Assumes `role` is present in token payload
     if (role === "student") {
       return "/sdashboard";
     } else if (role === "professor") {

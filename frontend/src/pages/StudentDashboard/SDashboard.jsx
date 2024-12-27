@@ -1,13 +1,78 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Profile from "./Profile";
 import Timetable from "./Timetable";
 import { StoreContext } from "../../context/StoreContext";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+function decodeJWT(token) {
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = atob(base64);
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Invalid token or decoding failed:", error);
+    return null;
+  }
+}
 
 const SDashboard = () => {
   const [activeSection, setActiveSection] = useState("Profile");
-  const { token, setToken } = useContext(StoreContext);
+  const { studentData, setStudentData, url, setToken } =
+    useContext(StoreContext);
   const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    const fetchStudentDetails = async () => {
+      try {
+        const decodedToken = decodeJWT(token);
+        if (!decodedToken) {
+          setToken("");
+          navigate("/login");
+          return;
+        }
+
+        const { id: id } = decodedToken;
+
+        const response = await axios.post(`${url}/api/auth/student/details`, {
+          id,
+        });
+
+        if (response.data.status) {
+          const { requiredData } = response.data;
+
+          setStudentData({
+            first_name: requiredData.first_name,
+            last_name: requiredData.last_name,
+            email: requiredData.email,
+            branch: requiredData.branch,
+            semester: requiredData.semester,
+            student_id: requiredData.student_id,
+          });
+        } else {
+          console.error(
+            "Error Fetching Student Details",
+            response.data.message
+          );
+          alert("Failed to fetch student details.");
+        }
+      } catch (error) {
+        console.error("Error in fetching student details:", error);
+        alert("An error occurred. Please try again.");
+        logout();
+      }
+    };
+
+    fetchStudentDetails();
+  }, [token, setStudentData, navigate, url]);
 
   const renderSection = () => {
     switch (activeSection) {
@@ -22,7 +87,6 @@ const SDashboard = () => {
 
   const logout = () => {
     localStorage.removeItem("token");
-    setToken("");
     navigate("/");
   };
 

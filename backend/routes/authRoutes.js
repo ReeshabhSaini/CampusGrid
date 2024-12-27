@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-
 // POST: Register a Student
 router.post("/student/register", async (req, res) => {
     const { first_name, last_name, email, password, student_id, branch, semester } = req.body;
@@ -118,21 +117,12 @@ router.post("/student/login", async (req, res) => {
 
         // Generate JWT
         const token = jwt.sign(
-            { id: student.id, email: student.email, role: roleData },
+            { id: student.id, role: roleData.role },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
 
-        const requiredData = {
-            "first_name": student.first_name,
-            "last_name": student.last_name,
-            "email": student.email,
-            "branch": student.branch,
-            "semester": student.semester,
-            "student_id": student.student_id,
-        }
-
-        return res.status(200).json({ status: true, message: "Login successful", token, requiredData });
+        return res.status(200).json({ status: true, message: "Login successful", token });
     } catch (err) {
         console.error(err);
         res.status(500).json({ status: false, message: "Server error", err });
@@ -163,23 +153,76 @@ router.post("/professor/login", async (req, res) => {
 
         // Generate JWT
         const token = jwt.sign(
-            { id: professor.id, email: professor.email, role: roleData },
+            { id: professor.id, role: roleData.role },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
 
-        const requiredData = {
-            "first_name": professor.first_name,
-            "last_name": professor.last_name,
-            "email": professor.email,
-        }
-
-        return res.status(200).json({ status: true, message: "Login successful", token, requiredData });
+        return res.status(200).json({ status: true, message: "Login successful", token });
     } catch (err) {
         console.error(err);
         res.status(500).json({ status: false, message: "Server error", err });
     }
 });
+
+// POST: Fetching Details of Student
+router.post("/student/details", async (req, res) => {
+    const { id } = req.body
+
+    try {
+        const { data: student, error } = await supabase
+            .from("students")
+            .select("id, first_name, last_name, email, branch, semester, student_id")
+            .eq("id", id)
+            .single();
+
+        if (error || !student) {
+            return res.status(401).json({ status: false, message: "Invalid email or password" });
+        }
+
+        const requiredData = {
+            first_name: student.first_name,
+            last_name: student.last_name,
+            email: student.email,
+            branch: student.branch,
+            semester: student.semester,
+            student_id: student.student_id
+        }
+
+        return res.status(200).json({ status: true, message: "Fetch Successful", requiredData });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ status: false, message: "Server error", err });
+    }
+})
+
+// POST: Fetching Details of Professor
+router.post("/professor/details", async (req, res) => {
+    const { professor_id } = req.body
+
+    try {
+        const { data: professor, error } = await supabase
+            .from("professors")
+            .select("id, first_name, last_name, email")
+            .eq("id", professor_id)
+            .single();
+
+        if (error || !professor) {
+            return res.status(401).json({ status: false, message: "Invalid email or password" });
+        }
+
+        const requiredData = {
+            first_name: professor.first_name,
+            last_name: professor.last_name,
+            email: professor.email,
+        }
+
+        return res.status(200).json({ status: true, message: "Login successful", requiredData });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ status: false, message: "Server error", err });
+    }
+})
 
 export default router;
 

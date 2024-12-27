@@ -9,17 +9,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const {
-    studentData,
-    setStudentData,
-    professorData,
-    setProfessorData,
-    roleData,
-    setRoleData,
-    url,
-    token,
-    setToken,
-  } = useContext(StoreContext);
+  const { roleData, setRoleData, url, setToken } = useContext(StoreContext);
 
   const navigate = useNavigate();
 
@@ -45,16 +35,6 @@ const Login = () => {
         localStorage.setItem("token", response.data.token);
         setToken(response.data.token);
 
-        setStudentData({
-          first_name: response.data.requiredData.first_name,
-          last_name: response.data.requiredData.last_name,
-          email: response.data.requiredData.email,
-          branch: response.data.requiredData.branch,
-          semester: response.data.requiredData.semester,
-          student_id: response.data.requiredData.student_id,
-        });
-
-        alert("Login successful!");
         navigate("/sdashboard");
       } catch (err) {
         console.error("Error details:", {
@@ -82,13 +62,6 @@ const Login = () => {
         localStorage.setItem("token", response.data.token);
         setToken(response.data.token);
 
-        setProfessorData({
-          first_name: response.data.requiredData.first_name,
-          last_name: response.data.requiredData.last_name,
-          email: response.data.requiredData.email,
-        });
-
-        alert("Login successful!");
         navigate("/tdashboard");
       } catch (err) {
         console.error("Error details:", {
