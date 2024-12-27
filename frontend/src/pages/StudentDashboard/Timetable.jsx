@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import axios from "axios";
+import { StoreContext } from "../../context/StoreContext";
 
 const localizer = momentLocalizer(moment);
 
-const Timetable = ({ branch, semester }) => {
+const Timetable = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const { url, studentData } = useContext(StoreContext);
+
+  // Days of the week array for mapping
   const daysOfWeek = [
     "sunday",
     "monday",
@@ -24,38 +28,46 @@ const Timetable = ({ branch, semester }) => {
   useEffect(() => {
     const fetchTimetable = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:4000/api/student/timetable",
-          {
-            params: { branch, semester },
-          }
-        ); // Fetch timetable from backend
-        const formattedEvents = response.timetable.map((event) => {
-          // Convert the day of the week to the correct date in the week
-          const dayIndex = daysOfWeek.indexOf(event.day_of_week);
+        // Fetching branch and semester from the context
+        const branch = "ECE";
+        const semester = "3";
+
+        const response = await axios.post(`${url}/api/student/timetable`, {
+          branch,
+          semester,
+        });
+
+        if (
+          !response.data ||
+          !response.data.classes ||
+          response.data.classes.length === 0
+        ) {
+          throw new Error(
+            "No classes found for the given branch and semester."
+          );
+        }
+
+        // Formatting the data into Big Calendar event format
+        const formattedEvents = response.data.classes.map((event) => {
+          const dayIndex = daysOfWeek.indexOf(event.day_of_week.toLowerCase());
+
+          // Start and end date-time creation
           const startDate = moment()
             .startOf("week")
             .add(dayIndex, "days")
             .set({
-              hour: new Date(event.start_time).getHours(),
-              minute: new Date(event.start_time).getMinutes(),
+              hour: moment(event.start_time, "HH:mm:ss").hours(),
+              minute: moment(event.start_time, "HH:mm:ss").minutes(),
             });
 
-          const endDate = moment(startDate)
-            .add(
-              new Date(event.end_time).getHours() -
-                new Date(event.start_time).getHours(),
-              "hours"
-            )
-            .add(
-              new Date(event.end_time).getMinutes() -
-                new Date(event.start_time).getMinutes(),
-              "minutes"
-            );
+          const endDate = moment(startDate).set({
+            hour: moment(event.end_time, "HH:mm:ss").hours(),
+            minute: moment(event.end_time, "HH:mm:ss").minutes(),
+          });
 
           return {
             id: event.id,
-            title: `${event.courses.course_name} - Lecture Hall ${event.lecture_halls.hall_name}`,
+            title: `${event.courses.course_name} - Lecture Hall: ${event.lecture_halls.hall_name}`,
             start: startDate.toDate(),
             end: endDate.toDate(),
           };
@@ -64,15 +76,16 @@ const Timetable = ({ branch, semester }) => {
         setEvents(formattedEvents);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching timetable:", error);
-        setError("Failed to fetch timetable.");
+        console.error("Error fetching timetable:", error.message || error);
+        setError("Failed to fetch timetable. Please try again later.");
         setLoading(false);
       }
     };
 
     fetchTimetable();
-  }, [branch, semester]);
+  }, [url, studentData]);
 
+  // Style for individual events
   const eventStyleGetter = (event, start, end, isSelected) => ({
     style: {
       backgroundColor: isSelected ? "#1d4ed8" : "#3174ad",
@@ -84,6 +97,7 @@ const Timetable = ({ branch, semester }) => {
     },
   });
 
+  // Customizing time and event formatting
   const formats = {
     timeGutterFormat: (date, culture, localizer) =>
       localizer.format(date, "hh:mm A", culture),
@@ -115,8 +129,8 @@ const Timetable = ({ branch, semester }) => {
             views={["month", "week", "day", "agenda"]}
             defaultView="week"
             formats={formats}
-            min={new Date(2024, 11, 22, 8, 0)} // Set minimum time to 8 AM
-            max={new Date(2024, 11, 22, 17, 0)} // Set maximum time to 5 PM
+            min={new Date(2024, 11, 22, 8, 0)} // Minimum time (8:00 AM)
+            max={new Date(2024, 11, 22, 17, 0)} // Maximum time (5:00 PM)
           />
         </div>
       </div>

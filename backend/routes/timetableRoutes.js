@@ -3,8 +3,8 @@ import supabase from "../config/supabaseClient.js"
 
 const router = express.Router();
 
-router.get("/timetable", async (req, res) => {
-    const { branch, semester } = req.query;
+router.post("/timetable", async (req, res) => {
+    const { branch, semester } = req.body;
 
     // Validate required query parameters
     if (!branch || !semester) {
@@ -12,11 +12,8 @@ router.get("/timetable", async (req, res) => {
     }
 
     try {
-        // Logging the Input
-        console.log("Branch:", branch, "Semester:", semester);
-
         // Fetch data from time_table, courses, and lecture_hall
-        const { data, error } = await supabase
+        const { data: classes, error } = await supabase
             .from("time_table")
             .select(`
                 id,
@@ -43,14 +40,14 @@ router.get("/timetable", async (req, res) => {
         }
 
         // Debug: Log data returned by query
-        console.log("Fetched Data:", data);
+        console.log("Fetched Data:", classes);
 
-        if (data.length === 0) {
+        if (classes.length === 0) {
             return res.status(404).json({ message: "No timetable found for the given branch and semester." });
         }
 
         // Return fetched timetable
-        return res.status(200).json({ message: "Timetable fetched successfully", timetable: data });
+        return res.status(200).json({ message: "Timetable fetched successfully", classes });
     } catch (err) {
         console.error("Server Error:", err);
         return res.status(500).json({ message: "Server error", error: err.message });
