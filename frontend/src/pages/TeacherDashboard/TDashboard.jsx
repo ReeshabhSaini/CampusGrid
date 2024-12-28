@@ -4,13 +4,26 @@ import Timetable from "./Timetable";
 import ReschedulePage from "./Reschedule";
 import { StoreContext } from "../../context/StoreContext";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
+function decodeJWT(token) {
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = atob(base64);
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Invalid token or decoding failed:", error);
+    return null;
+  }
+}
 const TDashboard = () => {
   const [activeSection, setActiveSection] = useState("Profile");
   const [selectedEvent, setSelectedEvent] = useState(null); // State to handle selected event for rescheduling
   const { setProfessorData, setToken, url, decodedToken } =
     useContext(StoreContext);
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchProfessorDetails = async () => {
