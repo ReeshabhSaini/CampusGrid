@@ -32,19 +32,43 @@ const TDashboard = () => {
       return;
     }
     const fetchProfessorDetails = async () => {
-      const professor_id = decodedToken.id;
-      const response = await axios.post(`${url}/api/auth/professor/details`, {
-        professor_id,
+      try{
+        const decodedToken=decodeJWT(token);
+        if (!decodedToken) {
+          setToken("");
+          navigate("/login");
+          return;
+        }
+        const { professor_id: id } = decodedToken;
+        const response = await axios.post(`${url}/api/auth/professor/details`, {
+          professor_id,
       });
+      if (response.data.status) {
+        const { requiredData } = response.data;
+     
+      
       setProfessorData({
         first_name: response.data.requiredData.first_name,
         last_name: response.data.requiredData.last_name,
         email: response.data.requiredData.email,
       });
-    };
+    } else{
+      console.error(
+        "Error Fetching Professor Details",
+        response.data.message
+      );
+      alert("Failed to fetch student details.");
+    }
+  }
+  catch (error) {
+    console.error("Error in fetching student details:", error);
+    alert("An error occurred. Please try again.");
+    logout();
+  }
+};
 
     fetchProfessorDetails();
-  }, []);
+  }, [token,setProfessorData,navigate, url ]);
 
   const renderSection = () => {
     switch (activeSection) {
