@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Profile from "./Profile";
 import Timetable from "./Timetable";
 import ReschedulePage from "./Reschedule";
@@ -17,6 +17,7 @@ function decodeJWT(token) {
     return null;
   }
 }
+
 const TDashboard = () => {
   const [activeSection, setActiveSection] = useState("Profile");
   const [selectedEvent, setSelectedEvent] = useState(null); // State to handle selected event for rescheduling
@@ -24,51 +25,59 @@ const TDashboard = () => {
     useContext(StoreContext);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  console.log("Token:", token);  // Check if token exists
 
-  
   useEffect(() => {
     if (!token) {
       navigate("/login");
       return;
     }
+
     const fetchProfessorDetails = async () => {
-      try{
-        const decodedToken=decodeJWT(token);
+      try {
+        const decodedToken = decodeJWT(token);
+        console.log("Decoded Token:", decodedToken);
+
         if (!decodedToken) {
           setToken("");
           navigate("/login");
           return;
         }
+
         const { professor_id: id } = decodedToken;
-        const response = await axios.post(`${url}/api/auth/professor/details`, {
-          professor_id,
-      });
-      if (response.data.status) {
-        const { requiredData } = response.data;
-     
-      
-      setProfessorData({
-        first_name: response.data.requiredData.first_name,
-        last_name: response.data.requiredData.last_name,
-        email: response.data.requiredData.email,
-      });
-    } else{
-      console.error(
-        "Error Fetching Professor Details",
-        response.data.message
-      );
-      alert("Failed to fetch student details.");
-    }
-  }
-  catch (error) {
-    console.error("Error in fetching student details:", error);
-    alert("An error occurred. Please try again.");
-    logout();
-  }
-};
+        const response = await axios.post(
+          `${url}/api/auth/professor/details`,
+          { professor_id: decodedToken.id },  
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,  
+
+            },
+          }
+        );
+
+        console.log("API Response:", response);
+
+        if (response.data.status) {
+          const { requiredData } = response.data;
+          setProfessorData({
+            first_name: requiredData.first_name,
+            last_name: requiredData.last_name,
+            email: requiredData.email,
+          });
+        } else {
+          console.error("Error Fetching Professor Details", response.data.message);
+          alert("Failed to fetch professor details.");
+        }
+      } catch (error) {
+        console.error("Error in fetching professor details:", error);
+        alert("An error occurred. Please try again.");
+        logout();
+      }
+    };
 
     fetchProfessorDetails();
-  }, [token,setProfessorData,navigate, url ]);
+  }, [token, setProfessorData, navigate, url]);
 
   const renderSection = () => {
     switch (activeSection) {
@@ -98,7 +107,7 @@ const TDashboard = () => {
   const logout = () => {
     localStorage.removeItem("token");
     setToken("");
-    navigate("/");
+    navigate("/login");
   };
 
   return (
@@ -113,21 +122,13 @@ const TDashboard = () => {
           </div>
           <nav className="flex-1 p-4 space-y-4">
             <button
-              className={`block w-full text-left px-4 py-2 rounded-md ${
-                activeSection === "Profile"
-                  ? "bg-blue-100 text-blue-600"
-                  : "hover:bg-transparent"
-              }`}
+              className={`block w-full text-left px-4 py-2 rounded-md ${activeSection === "Profile" ? "bg-blue-100 text-blue-600" : "hover:bg-transparent"}`}
               onClick={() => setActiveSection("Profile")}
             >
               Profile
             </button>
             <button
-              className={`block w-full text-left px-4 py-2 rounded-md ${
-                activeSection === "Timetable"
-                  ? "bg-blue-100 text-blue-600"
-                  : "hover:bg-transparent"
-              }`}
+              className={`block w-full text-left px-4 py-2 rounded-md ${activeSection === "Timetable" ? "bg-blue-100 text-blue-600" : "hover:bg-transparent"}`}
               onClick={() => setActiveSection("Timetable")}
             >
               Timetable
@@ -140,25 +141,11 @@ const TDashboard = () => {
       <div className="flex flex-col">
         {/* Header */}
         <header className="flex h-14 items-center justify-between border-b border-transparent px-4">
-          {/* Mobile Menu Button */}
           <button className="md:hidden p-2 rounded-md hover:bg-transparent">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-
-          {/* User Menu and Logout Button */}
           <div className="flex items-center space-x-4 ml-auto">
             <div className="w-8 h-8 bg-transparent rounded-full" />
             <button
@@ -180,3 +167,4 @@ const TDashboard = () => {
 };
 
 export default TDashboard;
+
