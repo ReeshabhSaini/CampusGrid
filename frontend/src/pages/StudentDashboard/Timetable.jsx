@@ -11,6 +11,7 @@ const Timetable = ({ branch, semester }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const { url, studentData } = useContext(StoreContext);
 
@@ -73,6 +74,16 @@ const Timetable = ({ branch, semester }) => {
               title: `${event.courses.course_name} - Lecture Hall ${event.lecture_halls.hall_name}`,
               start: startDate.toDate(),
               end: endDate.toDate(),
+              details: {
+                courseName: event.courses.course_name,
+                branch: event.courses.branch,
+                semester: event.courses.semester,
+                courseCode: event.courses.course_code,
+                lectureHall: event.lecture_halls.hall_name,
+                dayOfWeek: event.day_of_week,
+                startTime: event.start_time,
+                endTime: event.end_time,
+              },
             });
           });
         }
@@ -91,6 +102,17 @@ const Timetable = ({ branch, semester }) => {
             title: `${event.courses.course_name} (Rescheduled) - Lecture Hall ${event.lecture_halls.hall_name}`,
             start: startDate.toDate(),
             end: endDate.toDate(),
+            details: {
+              courseName: event.courses.course_name,
+              branch: event.courses.branch,
+              semester: event.courses.semester,
+              courseCode: event.courses.course_code,
+              lectureHall: event.lecture_halls.hall_name,
+              originalDate: event.original_date,
+              rescheduledDate: event.rescheduled_date,
+              reason: event.reason,
+              newTime: event.new_time,
+            },
           };
         });
 
@@ -117,6 +139,14 @@ const Timetable = ({ branch, semester }) => {
 
     fetchTimetable();
   }, [studentData.branch, studentData.semester, url]);
+
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+  };
+
+  const closeModal = () => {
+    setSelectedEvent(null);
+  };
 
   const eventStyleGetter = (event, start, end, isSelected) => ({
     style: {
@@ -160,11 +190,59 @@ const Timetable = ({ branch, semester }) => {
             views={["month", "week", "day", "agenda"]}
             defaultView="week"
             formats={formats}
+            onSelectEvent={handleEventClick}
             min={new Date(2024, 11, 22, 8, 0)} // Set minimum time to 8 AM
             max={new Date(2024, 11, 22, 17, 0)} // Set maximum time to 5 PM
           />
         </div>
       </div>
+
+      {/* Modal for Event Details */}
+      {selectedEvent && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+            <h3 className="text-xl font-bold mb-4">Class Details</h3>
+            <p>
+              <strong>Course Name:</strong> {selectedEvent.details.courseName}
+            </p>
+            <p>
+              <strong>Branch:</strong> {selectedEvent.details.branch}
+            </p>
+            <p>
+              <strong>Semester:</strong> {selectedEvent.details.semester}
+            </p>
+            <p>
+              <strong>Course Code:</strong> {selectedEvent.details.courseCode}
+            </p>
+            <p>
+              <strong>Lecture Hall:</strong> {selectedEvent.details.lectureHall}
+            </p>
+            {selectedEvent.details.originalDate && (
+              <p>
+                <strong>Original Date:</strong>{" "}
+                {selectedEvent.details.originalDate}
+              </p>
+            )}
+            {selectedEvent.details.rescheduledDate && (
+              <p>
+                <strong>Rescheduled Date:</strong>{" "}
+                {selectedEvent.details.rescheduledDate}
+              </p>
+            )}
+            {selectedEvent.details.reason && (
+              <p>
+                <strong>Reason:</strong> {selectedEvent.details.reason}
+              </p>
+            )}
+            <button
+              onClick={closeModal}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
