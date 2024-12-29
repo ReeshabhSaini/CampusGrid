@@ -5,6 +5,7 @@ import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import SDashboard from "./pages/StudentDashboard/SDashboard";
 import TDashboard from "./pages/TeacherDashboard/TDashboard";
+import ReschedulePage from "./pages/TeacherDashboard/Reschedule";
 
 function decodeJWT(token) {
   try {
@@ -76,6 +77,14 @@ const App = () => {
         element={
           <ProtectedRoute>
             <TDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/tdashboard/reschedule"
+        element={
+          <ProtectedRoute>
+            <ReschedulePage />
           </ProtectedRoute>
         }
       />

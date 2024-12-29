@@ -7,6 +7,8 @@ const StoreContextProvider = (props) => {
 
   const [roleData, setRoleData] = useState({ role: "student" });
 
+  const [selectedClass, setSelectedClass] = useState({});
+
   const url = "http://localhost:4000";
 
   const [studentData, setStudentData] = useState({
@@ -36,6 +38,8 @@ const StoreContextProvider = (props) => {
     roleData,
     setRoleData,
     url,
+    selectedClass,
+    setSelectedClass,
     token,
     setToken,
   };
