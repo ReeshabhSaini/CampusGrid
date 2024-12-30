@@ -174,7 +174,7 @@ const Timetable = () => {
   };
 
   const handleRescheduleClick = () => {
-    navigate("/professor/reschedule", { state: { event: selectedEvent } });
+    navigate("/tdashboard/reschedule", { state: { event: selectedEvent } });
   };
 
   const eventStyleGetter = (event, start, end, isSelected) => ({
