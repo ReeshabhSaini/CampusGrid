@@ -44,13 +44,13 @@ const ReschedulePage = ({ event, onBack }) => {
     const rescheduledEvent = {
       id: event.id,
       title: event.title,
-      start: new Date(${selectedDate.toDateString()} ${selectedTime.split(" - ")[0]}),
-      end: new Date(${selectedDate.toDateString()} ${selectedTime.split(" - ")[1]}),
+      start: new Date(`${selectedDate.toDateString()} ${selectedTime.split(" - ")[0]}`),
+      end: new Date(`${selectedDate.toDateString()} ${selectedTime.split(" - ")[1]}`),
       lectureHall: selectedHall,
     };
 
     console.log("Rescheduling event:", rescheduledEvent);
-    alert(Event "${event.title}" rescheduled successfully!);
+    alert(`Event "${event.title}" rescheduled successfully!`);
     onBack();
   };
 
@@ -155,4 +155,5 @@ const ReschedulePage = ({ event, onBack }) => {
     </div>
   );
 };
+
 export default ReschedulePage;
