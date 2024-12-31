@@ -112,6 +112,13 @@ router.post("/get/available/halls", async (req, res) => {
             return res.status(400).json({ error: "Missing required fields." });
         }
 
+        // Convert selected date to day of the week
+        const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+        const selectedDay = daysOfWeek[new Date(selectedDate).getDay()];
+
+        console.log(selectedDay);
+
+        // Parse selected time slot to start and end time
         const [startTime, endTime] = selectedTimeSlot.split(" - ");
         if (!startTime || !endTime) {
             return res.status(400).json({ error: "Invalid time slot format." });
@@ -120,11 +127,11 @@ router.post("/get/available/halls", async (req, res) => {
         // Get all lecture halls
         const { data: allHalls, error: hallsError } = await supabase
             .from("lecture_halls")
-            .select("id, name");
+            .select("id, hall_name");
 
         if (hallsError) throw hallsError;
 
-        // Fetch busy halls
+        // Fetch busy halls from timetable for the selected day and time slot
         const { data: busyHallsFromTimeTable, error: timetableError } = await supabase
             .from("time_table")
             .select("lecture_hall_id")
@@ -133,6 +140,7 @@ router.post("/get/available/halls", async (req, res) => {
 
         if (timetableError) throw timetableError;
 
+        // Fetch busy halls from rescheduling for the selected date and time slot
         const { data: busyHallsFromRescheduling, error: rescheduleError } = await supabase
             .from("class_rescheduling")
             .select("lecture_hall_id")
@@ -141,18 +149,24 @@ router.post("/get/available/halls", async (req, res) => {
 
         if (rescheduleError) throw rescheduleError;
 
+        // Combine all busy hall IDs from timetable and rescheduling
         const busyHallIds = new Set([
             ...busyHallsFromTimeTable.map(hall => hall.lecture_hall_id),
             ...busyHallsFromRescheduling.map(hall => hall.lecture_hall_id),
         ]);
 
+        // Filter out the busy halls from all available halls
         const availableHalls = allHalls.filter(hall => !busyHallIds.has(hall.id));
 
-        res.status(200).json({ availableHalls: availableHalls.map(hall => hall.name) });
+        // Send available halls in the response
+        res.status(200).json({
+            availableHalls: availableHalls.map(hall => hall.hall_name) // Returning hall names
+        });
     } catch (error) {
         console.error("Error fetching available halls:", error.message);
         res.status(500).json({ error: "Failed to fetch available lecture halls." });
     }
 });
+
 
 export default router;
