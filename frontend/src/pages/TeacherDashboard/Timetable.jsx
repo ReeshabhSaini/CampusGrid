@@ -26,7 +26,8 @@ const Timetable = () => {
   const [error, setError] = useState("");
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  const { url, setToken } = useContext(StoreContext);
+  const { url, setToken, rescheduleRequest, setRescheduleRequest } =
+    useContext(StoreContext);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -100,11 +101,13 @@ const Timetable = () => {
               start: startDate.toDate(),
               end: endDate.toDate(),
               details: {
+                courseId: event.courses.id,
                 courseName: event.courses.course_name,
                 branch: event.courses.branch,
                 semester: event.courses.semester,
                 courseCode: event.courses.course_code,
                 lectureHall: event.lecture_halls.hall_name,
+                lectureHallId: event.lecture_halls.id,
                 dayOfWeek: event.day_of_week,
                 startTime: event.start_time,
                 endTime: event.end_time,
@@ -128,11 +131,13 @@ const Timetable = () => {
             start: startDate.toDate(),
             end: endDate.toDate(),
             details: {
+              courseId: event.courses.id,
               courseName: event.courses.course_name,
               branch: event.courses.branch,
               semester: event.courses.semester,
               courseCode: event.courses.course_code,
               lectureHall: event.lecture_halls.hall_name,
+              lectureHallId: event.lecture_halls.id,
               originalDate: event.original_date,
               rescheduledDate: event.rescheduled_date,
               reason: event.reason,
@@ -167,10 +172,14 @@ const Timetable = () => {
 
   const handleEventClick = (event) => {
     setSelectedEvent(event);
+    setRescheduleRequest(event);
   };
 
   const closeModal = () => {
+    console.log(selectedEvent);
     setSelectedEvent(null);
+    console.log(rescheduleRequest);
+    setRescheduleRequest(null);
   };
 
   const handleRescheduleClick = () => {
@@ -226,6 +235,7 @@ const Timetable = () => {
             <h3 className="text-xl font-bold mb-4">Class Details</h3>
             <p>
               <strong>Course Name:</strong> {selectedEvent.details.courseName}
+              {rescheduleRequest.details.courseName}
             </p>
             <p>
               <strong>Branch:</strong> {selectedEvent.details.branch}

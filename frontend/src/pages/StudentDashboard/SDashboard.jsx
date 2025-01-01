@@ -50,6 +50,7 @@ const SDashboard = () => {
           const { requiredData } = response.data;
 
           setStudentData({
+            id: requiredData.id,
             first_name: requiredData.first_name,
             last_name: requiredData.last_name,
             email: requiredData.email,

@@ -12,6 +12,7 @@ const StoreContextProvider = (props) => {
   const url = "http://localhost:4000";
 
   const [studentData, setStudentData] = useState({
+    id: "",
     first_name: "",
     last_name: "",
     email: "",
@@ -23,12 +24,15 @@ const StoreContextProvider = (props) => {
   });
 
   const [professorData, setProfessorData] = useState({
+    id: "",
     first_name: "",
     last_name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+
+  const [rescheduleRequest, setRescheduleRequest] = useState({});
 
   const contextValue = {
     studentData,
@@ -42,6 +46,8 @@ const StoreContextProvider = (props) => {
     setSelectedClass,
     token,
     setToken,
+    rescheduleRequest,
+    setRescheduleRequest,
   };
 
   return (
