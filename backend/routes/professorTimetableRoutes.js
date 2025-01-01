@@ -20,12 +20,14 @@ router.post("/timetable", async (req, res) => {
                 start_time,
                 end_time,
                 courses (
+                    id,
                     course_code,
                     course_name,
                     branch,
                     semester
                 ),
                 lecture_halls (
+                    id,
                     hall_name
                 ),
                 professors (

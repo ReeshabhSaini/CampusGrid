@@ -109,7 +109,7 @@ router.post("/get/available/halls", async (req, res) => {
         const { selectedDate, selectedTimeSlot } = req.body;
 
         if (!selectedDate || !selectedTimeSlot) {
-            return res.status(400).json({ error: "Missing required fields." });
+            return res.status(400).json({ error: "Missing required fields." }); { }
         }
 
         // Convert selected date to day of the week
@@ -165,6 +165,68 @@ router.post("/get/available/halls", async (req, res) => {
     } catch (error) {
         console.error("Error fetching available halls:", error.message);
         res.status(500).json({ error: "Failed to fetch available lecture halls." });
+    }
+});
+
+router.post('/post/reschedule/request', async (req, res) => {
+    const {
+        course_id,
+        original_date,
+        rescheduled_date,
+        reason,
+        professor_id,
+        lecture_hall_id,
+        selected_time,
+    } = req.body;
+
+    // Validate the request body
+    if (
+        !course_id ||
+        !original_date ||
+        !rescheduled_date ||
+        !reason ||
+        !professor_id ||
+        !lecture_hall_id ||
+        !selected_time
+    ) {
+        return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    // Parse selected time slot to start and end time
+    const [new_time, endTime] = selected_time.split(" - ");
+    if (!new_time || !endTime) {
+        return res.status(400).json({ error: "Invalid time slot format." });
+    }
+
+    try {
+        // Insert the rescheduling request into the database
+        const { data, error } = await supabase
+            .from('class_rescheduling')
+            .insert([
+                {
+                    course_id,
+                    original_date,
+                    rescheduled_date,
+                    reason,
+                    professor_id,
+                    lecture_hall_id,
+                    new_time,
+                },
+            ])
+            .select('id') // Return the inserted ID
+
+        if (error) {
+            console.error('Supabase insert error:', error);
+            return res.status(500).json({ error: 'Failed to add reschedule request.' });
+        }
+
+        res.status(201).json({
+            message: 'Class rescheduling request added successfully.',
+            rescheduleId: data[0].id,
+        });
+    } catch (error) {
+        console.error('Unexpected error inserting reschedule request:', error);
+        res.status(500).json({ error: 'An unexpected error occurred.' });
     }
 });
 

@@ -181,6 +181,7 @@ router.post("/student/details", async (req, res) => {
         }
 
         const requiredData = {
+            id: student.id,
             first_name: student.first_name,
             last_name: student.last_name,
             email: student.email,
@@ -212,12 +213,13 @@ router.post("/professor/details", async (req, res) => {
         }
 
         const requiredData = {
+            id: professor.id,
             first_name: professor.first_name,
             last_name: professor.last_name,
             email: professor.email,
         }
 
-        return res.status(200).json({ status: true, message: "Login successful", requiredData });
+        return res.status(200).json({ status: true, message: "Fetch successful", requiredData });
     } catch (err) {
         console.error(err);
         res.status(500).json({ status: false, message: "Server error", err });
