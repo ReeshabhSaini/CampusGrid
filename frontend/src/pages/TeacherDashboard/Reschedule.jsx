@@ -91,23 +91,20 @@ const ReschedulePage = ({ event }) => {
       return;
     }
 
-    const requestData = {
-      course_id: rescheduleRequest.details.courseId, // This should come from the `event` object or selection
-      original_date: moment(rescheduleRequest.start).format("YYYY-MM-DD"),
-      rescheduled_date: moment(selectedDate).format("YYYY-MM-DD"),
-      reason: reason,
-      professor_id: professorData.id, // Adjust based on your logged-in user
-      lecture_hall_id: rescheduleRequest.details.lectureHallId,
-      selected_time: selectedTime,
-    };
-
     try {
       try {
-        const response = await axios.post(
-          `${url}/post/reschedule/request`,
-          requestData
-        );
+        const response = await axios.post(`${url}/api/reschedule/request`, {
+          course_id: rescheduleRequest.details.courseId, // This should come from the `event` object or selection
+          original_date: moment(rescheduleRequest.start).format("YYYY-MM-DD"),
+          rescheduled_date: moment(selectedDate).format("YYYY-MM-DD"),
+          reason: reason,
+          professor_id: professorData.id, // Adjust based on your logged-in user
+          lecture_hall_id: rescheduleRequest.details.lectureHallId,
+          selected_time: selectedTime,
+        });
+
         console.log("Reschedule request response:", response);
+
         alert("Reschedule request submitted successfully!");
         navigate("/tdashboard"); // Redirect after successful submission
       } catch (error) {

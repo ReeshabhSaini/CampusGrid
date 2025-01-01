@@ -168,7 +168,7 @@ router.post("/get/available/halls", async (req, res) => {
     }
 });
 
-router.post('/post/reschedule/request', async (req, res) => {
+router.post('/reschedule/request', async (req, res) => {
     const {
         course_id,
         original_date,
@@ -199,6 +199,7 @@ router.post('/post/reschedule/request', async (req, res) => {
     }
 
     try {
+        console.log(new_time);
         // Insert the rescheduling request into the database
         const { data, error } = await supabase
             .from('class_rescheduling')
