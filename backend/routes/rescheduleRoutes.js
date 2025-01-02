@@ -1,8 +1,6 @@
 import express from "express";
 import supabase from "../config/supabaseClient.js";
-
 const router = express.Router();
-
 // Utility to add one hour to a time
 const addHour = (time) => {
     const [hour, minute, second] = time.split(":").map(Number);

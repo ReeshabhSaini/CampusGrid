@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import Login from "./pages/Login/Login";
@@ -6,8 +6,10 @@ import Register from "./pages/Register/Register";
 import SDashboard from "./pages/StudentDashboard/SDashboard";
 import TDashboard from "./pages/TeacherDashboard/TDashboard";
 import ReschedulePage from "./pages/TeacherDashboard/Reschedule";
+import EditProfile from "./pages/StudentDashboard/editProfile"; // Import EditProfile
 
-function decodeJWT(token) {
+const decodeJWT = (token) => {
+  if (!token) return null;
   try {
     const base64Url = token.split(".")[1];
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
@@ -17,50 +19,40 @@ function decodeJWT(token) {
     console.error("Invalid token or decoding failed:", error);
     return null;
   }
-}
+};
+
+const getRedirectPath = (token) => {
+  if (!token) return "/login";
+
+  const decodedToken = decodeJWT(token);
+  if (!decodedToken) return "/login";
+
+  const currentTime = Math.floor(Date.now() / 1000);
+  if (decodedToken.exp && decodedToken.exp < currentTime) {
+    console.log("Token has expired");
+    localStorage.removeItem("token");
+    return "/login";
+  }
+
+  const role = decodedToken.role;
+  return role === "student"
+    ? "/sdashboard"
+    : role === "professor"
+    ? "/tdashboard"
+    : "/login";
+};
 
 const App = () => {
   const token = localStorage.getItem("token");
-
-  const getRedirectPath = () => {
-    if (!token) {
-      return "/login"; // If no token, redirect to login
-    }
-
-    const decodedToken = decodeJWT(token);
-
-    if (!decodedToken) {
-      return "/login"; // If token is invalid, redirect to login
-    }
-
-    const currentTime = Date.now() / 1000; // Current time in seconds
-    if (decodedToken.exp && decodedToken.exp < currentTime) {
-      console.log("Token has expired");
-      localStorage.removeItem("token");
-      return "/login"; // If token has expired, redirect to login
-    }
-
-    // Redirect based on user role
-    const role = decodedToken.role; // Assumes `role` is present in token payload
-    if (role === "student") {
-      return "/sdashboard";
-    } else if (role === "professor") {
-      return "/tdashboard";
-    }
-
-    return "/login"; // Fallback to login if role is unknown
-  };
-
-  const redirectPath = getRedirectPath();
+  const redirectPath = getRedirectPath(token);
 
   return (
     <Routes>
-      {/* Redirect from "/" based on token */}
+      {/* Redirect root path based on token */}
       <Route path="/" element={<Navigate to={redirectPath} replace />} />
 
-      {/* Login Page */}
+      {/* Public Routes */}
       <Route path="/login" element={<Login />} />
-      {/* Register Page */}
       <Route path="/register" element={<Register />} />
 
       {/* Protected Routes */}
@@ -85,6 +77,14 @@ const App = () => {
         element={
           <ProtectedRoute>
             <ReschedulePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/edit-profile"
+        element={
+          <ProtectedRoute>
+            <EditProfile />
           </ProtectedRoute>
         }
       />
