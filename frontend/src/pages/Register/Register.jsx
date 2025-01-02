@@ -2,8 +2,7 @@ import React, { useContext } from "react";
 import axios from "axios";
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../context/StoreContext";
-
-const Register = () => {
+  const Register = () => {
   const {
     studentData,
     setStudentData,

@@ -1,19 +1,51 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { StoreContext } from "../../context/StoreContext";
 
 const EditProfile = () => {
   const { studentData, setStudentData } = useContext(StoreContext);
   const [formData, setFormData] = useState({
-    first_name: studentData.first_name || "",
-    last_name: studentData.last_name || "",
-    email: studentData.email || "",
+    first_name: "",
+    last_name: "",
+    email: "",
     password: "",
     confirmPassword: "",
-    branch: studentData.branch || "",
-    semester: studentData.semester || "",
-    student_id: studentData.student_id || "",
+    branch: "",
+    semester: "",
+    student_id: "",
   });
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const savedStudentData = localStorage.getItem("studentData");
+    const initialData = savedStudentData ? JSON.parse(savedStudentData) : studentData;
+  
+    if (studentData) {
+      setFormData({
+        first_name: studentData.first_name || "",
+        last_name: studentData.last_name || "",
+        email: studentData.email || "",
+        password: "",
+        confirmPassword: "",
+        branch: studentData.branch || "",
+        semester: studentData.semester || "",
+        student_id: studentData.student_id || "",
+      });
+    } else {
+      setFormData({
+        first_name: initialData.first_name || "",
+        last_name: initialData.last_name || "",
+        email: initialData.email || "",
+        password: "",
+        confirmPassword: "",
+        branch: initialData.branch || "",
+        semester: initialData.semester || "",
+        student_id: initialData.student_id || "",
+      });
+    }
+  }, [studentData]);
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,23 +54,34 @@ const EditProfile = () => {
       [name]: value,
     }));
   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-  
-    // Check if passwords match
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-  
-   
-    setStudentData(formData);
-  localStorage.setItem("studentData", JSON.stringify(formData));
-  alert("Profile updated successfully!");
-  navigate("/profile");
-  };
-  
+  if (formData.password !== formData.confirmPassword) {
+    alert("Passwords do not match!");
+    return;
+  }
+
+  // Proceed with the profile update
+  await updateProfile(formData);
+};
+
+// Async function to update profile data in context and localStorage
+const updateProfile = async (data) => {
+  try {
+    // Update student data in context (this ensures other components using context are updated)
+    setStudentData(data);  // This updates the context state with new form data
+
+    // Update the data in localStorage (this persists the data even after a page refresh)
+    localStorage.setItem("studentData", JSON.stringify(data));
+
+    alert("Profile updated successfully!");
+    navigate("/sdashboard"); // Navigate to the dashboard after successful update
+  } catch (error) {
+    console.error("Error updating profile:", error);
+  }
+};
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h2 className="text-3xl font-bold text-center mb-6">Edit Profile</h2>
@@ -203,3 +246,4 @@ const EditProfile = () => {
 };
 
 export default EditProfile;
+
