@@ -98,6 +98,7 @@ const Login = () => {
             >
               <option value="student">Student</option>
               <option value="professor">Professor</option>
+              <option value="admin">Admin</option>
             </select>
           </div>
           <div className="mb-4">

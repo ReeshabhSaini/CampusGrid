@@ -42,6 +42,8 @@ const getRedirectPath = (token) => {
     ? "/sdashboard"
     : role === "professor"
     ? "/tdashboard"
+    : role === "admin"
+    ? "/admin-dashboard"
     : "/login";
 };
 
@@ -91,9 +93,30 @@ const App = () => {
           </ProtectedRoute>
         }
       />
-      <Route path="/admin-dashboard" element={<AdminDashboard />} />
-      <Route path="/admin-dashboard-timetable" element={<TimetableUpload />} />
-      <Route path="/admin-dashboard-holidays" element={<HolidaysUpload />} />
+      <Route
+        path="/admin-dashboard"
+        element={
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin-dashboard-timetable"
+        element={
+          <ProtectedRoute>
+            <TimetableUpload />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin-dashboard-holidays"
+        element={
+          <ProtectedRoute>
+            <HolidaysUpload />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 };

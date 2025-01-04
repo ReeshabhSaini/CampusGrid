@@ -21,24 +21,24 @@ const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState("Timetable");
   const { setToken, url } = useContext(StoreContext);
   const navigate = useNavigate();
-  //   const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
-  //   useEffect(() => {
-  //     if (!token) {
-  //       navigate("/login");
-  //       return;
-  //     }
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
-  //     const validateAdminToken = () => {
-  //       const decodedToken = decodeJWT(token);
-  //       if (!decodedToken || decodedToken.role !== "admin") {
-  //         alert("Unauthorized access! Only admins are allowed.");
-  //         logout();
-  //       }
-  //     };
+    const validateAdminToken = () => {
+      const decodedToken = decodeJWT(token);
+      if (!decodedToken || decodedToken.role !== "admin") {
+        alert("Unauthorized access! Only admins are allowed.");
+        logout();
+      }
+    };
 
-  //     validateAdminToken();
-  //   }, [token, navigate]);
+    validateAdminToken();
+  }, [token, navigate]);
 
   const renderSection = () => {
     switch (activeSection) {
