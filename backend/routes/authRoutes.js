@@ -355,6 +355,7 @@ router.post("/student/update-profile", async (req, res) => {
         });
     }
 });
+
 router.post("/professor/update-profile", async (req, res) => {
     try {
         const {
@@ -379,7 +380,7 @@ router.post("/professor/update-profile", async (req, res) => {
                 first_name,
                 last_name,
                 email,
-                
+
             })
             .eq("id", id);
 
