@@ -1,18 +1,10 @@
 import React, { useState, useContext } from "react";
 import { StoreContext } from "../../context/StoreContext";
-import EditProfile from "./editProfile";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const { professorData } = useContext(StoreContext);
-  const [isEditing, setIsEditing] = useState(false);
-
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
-
-  const handleClose = () => {
-    setIsEditing(false);
-  };
+  const navigate = useNavigate();
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -35,14 +27,13 @@ const Profile = () => {
             </p>
           </div>
           <button
-            onClick={handleEditClick}
+            onClick={() => navigate("/professor/edit-profile")}
             className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none"
           >
             Edit Profile
           </button>
         </div>
       </div>
-      {isEditing && <EditProfile onClose={handleClose} />}
     </div>
   );
 };

@@ -7,7 +7,7 @@ import SDashboard from "./pages/StudentDashboard/SDashboard";
 import TDashboard from "./pages/TeacherDashboard/TDashboard";
 import ReschedulePage from "./pages/TeacherDashboard/Reschedule";
 import EditStudentProfile from "./pages/StudentDashboard/editProfile";
-import EditTeacherProfile from "./pages/TeacherDashboard/editProfile";
+import EditProfessorProfile from "./pages/TeacherDashboard/editProfile";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
 import TimetableUpload from "./pages/AdminDashboard/TimeTableUpload";
 import HolidaysUpload from "./pages/AdminDashboard/HolidaysUpload";
@@ -95,10 +95,10 @@ const App = () => {
         }
       />
       <Route
-        path="/teacher/edit-profile"
+        path="/professor/edit-profile"
         element={
           <ProtectedRoute>
-            <EditTeacherProfile />
+            <EditProfessorProfile />
           </ProtectedRoute>
         }
       />

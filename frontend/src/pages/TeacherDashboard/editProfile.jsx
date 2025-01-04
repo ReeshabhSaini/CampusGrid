@@ -21,7 +21,6 @@ const EditProfessorProfile = () => {
     first_name: "",
     last_name: "",
     email: "",
-   
   });
 
   const navigate = useNavigate();
@@ -58,7 +57,6 @@ const EditProfessorProfile = () => {
             first_name: requiredData.first_name || "",
             last_name: requiredData.last_name || "",
             email: requiredData.email || "",
-            
           }));
         } else {
           console.error(
@@ -70,8 +68,6 @@ const EditProfessorProfile = () => {
       } catch (error) {
         console.error("Error fetching professor details:", error);
         alert("An error occurred. Please try again.");
-        localStorage.removeItem("token");
-        navigate("/login");
       }
     };
 
@@ -177,8 +173,6 @@ const EditProfessorProfile = () => {
           />
         </div>
 
-
-
         {/* Submit Button */}
         <button
           type="submit"
@@ -191,7 +185,7 @@ const EditProfessorProfile = () => {
         <button
           type="button"
           className="w-full py-3 text-white bg-gray-600 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300"
-          onClick={() => navigate("/pdashboard")}
+          onClick={() => navigate("/tdashboard")}
         >
           Back
         </button>

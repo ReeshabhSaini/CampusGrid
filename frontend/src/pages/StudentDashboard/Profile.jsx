@@ -33,7 +33,7 @@ const Profile = () => {
           {/* Edit Button */}
           <button
             className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none"
-            onClick={() => navigate("/edit-profile")}
+            onClick={() => navigate("/student/edit-profile")}
           >
             Edit Profile
           </button>

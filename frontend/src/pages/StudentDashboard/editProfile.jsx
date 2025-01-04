@@ -15,7 +15,7 @@ function decodeJWT(token) {
   }
 }
 
-const EditProfile = () => {
+const EditStudentProfile = () => {
   const { url } = useContext(StoreContext);
   const [formData, setFormData] = useState({
     first_name: "",
@@ -273,4 +273,4 @@ const EditProfile = () => {
   );
 };
 
-export default EditProfile;
+export default EditStudentProfile;
