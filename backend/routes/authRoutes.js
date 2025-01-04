@@ -355,6 +355,51 @@ router.post("/student/update-profile", async (req, res) => {
         });
     }
 });
+router.post("/professor/update-profile", async (req, res) => {
+    try {
+        const {
+            first_name,
+            last_name,
+            email,
+            id,
+        } = req.body;
+
+        // Validate required fields
+        if (!id || !first_name || !last_name || !email) {
+            return res.status(400).json({
+                status: false,
+                message: "Missing required fields.",
+            });
+        }
+
+        // Perform the update
+        const response = await supabase
+            .from("professors")
+            .update({
+                first_name,
+                last_name,
+                email,
+                
+            })
+            .eq("id", id);
+
+        if (response.error) {
+            throw response.error;
+        }
+
+        res.status(200).json({
+            status: true,
+            message: "Profile updated successfully!",
+        });
+    } catch (error) {
+        console.error("Error saving/updating professor profile:", error);
+        res.status(500).json({
+            status: false,
+            message: "Failed to update profile. Please try again.",
+        });
+    }
+});
+
 
 export default router;
 
