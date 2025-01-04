@@ -224,7 +224,57 @@ router.post("/professor/details", async (req, res) => {
         console.error(err);
         res.status(500).json({ status: false, message: "Server error", err });
     }
-})
+});
+
+router.post("/student/update-profile", async (req, res) => {
+    try {
+        const {
+            first_name,
+            last_name,
+            email,
+            branch,
+            semester,
+            student_id,
+            id,
+        } = req.body;
+
+        // Validate required fields
+        if (!id || !first_name || !last_name || !email) {
+            return res.status(400).json({
+                status: false,
+                message: "Missing required fields.",
+            });
+        }
+
+        // Perform the update
+        const response = await supabase
+            .from("students")
+            .update({
+                first_name,
+                last_name,
+                email,
+                branch,
+                semester,
+                student_id,
+            })
+            .eq("id", id);
+
+        if (response.error) {
+            throw response.error;
+        }
+
+        res.status(200).json({
+            status: true,
+            message: "Profile updated successfully!",
+        });
+    } catch (error) {
+        console.error("Error saving/updating student profile:", error);
+        res.status(500).json({
+            status: false,
+            message: "Failed to update profile. Please try again.",
+        });
+    }
+});
 
 export default router;
 
