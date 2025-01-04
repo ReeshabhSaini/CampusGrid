@@ -76,6 +76,33 @@ const Login = () => {
         setLoading(false);
       }
     }
+
+    if (roleData.role === "admin") {
+      try {
+        const response = await axios.post(`${url}/api/auth/admin/login`, {
+          email,
+          password,
+          roleData,
+        });
+
+        // Save token to localStorage
+        localStorage.setItem("token", response.data.token);
+        setToken(response.data.token);
+
+        navigate("/admin-dashboard");
+      } catch (err) {
+        console.error("Error details:", {
+          message: err.message,
+          response: err.response,
+          status: err.response?.status,
+          data: err.response?.data,
+        });
+
+        setError(err.response?.data?.message || "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   return (
