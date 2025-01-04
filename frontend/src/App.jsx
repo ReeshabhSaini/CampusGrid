@@ -7,6 +7,9 @@ import SDashboard from "./pages/StudentDashboard/SDashboard";
 import TDashboard from "./pages/TeacherDashboard/TDashboard";
 import ReschedulePage from "./pages/TeacherDashboard/Reschedule";
 import EditProfile from "./pages/StudentDashboard/editProfile"; // Import EditProfile
+import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
+import TimetableUpload from "./pages/AdminDashboard/TimeTableUpload";
+import HolidaysUpload from "./pages/AdminDashboard/HolidaysUpload";
 
 const decodeJWT = (token) => {
   if (!token) return null;
@@ -88,6 +91,9 @@ const App = () => {
           </ProtectedRoute>
         }
       />
+      <Route path="/admin-dashboard" element={<AdminDashboard />} />
+      <Route path="/admin-dashboard-timetable" element={<TimetableUpload />} />
+      <Route path="/admin-dashboard-holidays" element={<HolidaysUpload />} />
     </Routes>
   );
 };
