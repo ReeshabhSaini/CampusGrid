@@ -3,28 +3,17 @@ import { createContext, useState, useEffect } from "react";
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
-  // Load initial student data from localStorage if available
-  const [studentData, setStudentData] = useState(() => {
-    const storedData = localStorage.getItem("studentData");
-    return storedData
-      ? JSON.parse(storedData)
-      : {
-          id: "",
-          first_name: "",
-          last_name: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-          branch: "",
-          semester: "",
-          student_id: "",
-        };
+  const [studentData, setStudentData] = useState({
+    id: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    branch: "",
+    semester: "",
+    student_id: "",
   });
-
-  // Persist studentData to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("studentData", JSON.stringify(studentData));
-  }, [studentData]);
 
   const [token, setToken] = useState("");
 

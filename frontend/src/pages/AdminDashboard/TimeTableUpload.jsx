@@ -16,6 +16,7 @@ const TimetableUpload = () => {
     "friday",
     "saturday",
   ]);
+
   const [courses, setCourses] = useState([]);
   const [lectureHalls, setLectureHalls] = useState([]);
   const [professors, setProfessors] = useState([]);
@@ -25,6 +26,8 @@ const TimetableUpload = () => {
   // Form State
   const [formData, setFormData] = useState({
     day_of_week: "",
+    branch: "",
+    semester: "",
     courses_id: "",
     start_time: "",
     end_time: "",
@@ -36,13 +39,11 @@ const TimetableUpload = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [coursesRes, lectureHallsRes, professorsRes] = await Promise.all([
-          axios.get(`${url}/api/admin/get-courses`), // API to fetch all courses
+        const [lectureHallsRes, professorsRes] = await Promise.all([
           axios.get(`${url}/api/admin/get-lecture-halls`), // API to fetch all lecture halls
           axios.get(`${url}/api/admin/get-professors`), // API to fetch all professors
         ]);
 
-        setCourses(coursesRes.data.data);
         setLectureHalls(lectureHallsRes.data.data);
         setProfessors(professorsRes.data.data);
       } catch (error) {
@@ -53,6 +54,31 @@ const TimetableUpload = () => {
 
     fetchData();
   }, []);
+
+  // Fetch courses when semester is selected
+  useEffect(() => {
+    if (formData.branch && formData.semester) {
+      const fetchCourses = async () => {
+        try {
+          const branch = formData.branch;
+          const semester = formData.semester;
+          const response = await axios.post(`${url}/api/admin/get-courses`, {
+            branch,
+            semester,
+          });
+          setCourses(response.data.data);
+          setFormData({ ...formData, courses_id: "" }); // Reset course
+        } catch (error) {
+          console.error("Error fetching courses:", error);
+          alert("Failed to load courses. Please try again.");
+        }
+      };
+
+      fetchCourses();
+    } else {
+      setCourses([]);
+    }
+  }, [formData.branch, formData.semester]);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -75,12 +101,16 @@ const TimetableUpload = () => {
         // Reset form after successful submission
         setFormData({
           day_of_week: "",
+          branch: "",
+          semester: "",
           courses_id: "",
           start_time: "",
           end_time: "",
           lecture_hall_id: "",
           professor_id: "",
         });
+        setSemesters([]);
+        setCourses([]);
       } else {
         alert("Failed to add timetable entry.");
       }
@@ -113,6 +143,55 @@ const TimetableUpload = () => {
           </select>
         </div>
 
+        {/* Branch */}
+        <div>
+          <label className="block font-medium mb-2">Branch</label>
+          <select
+            name="branch"
+            value={formData.branch}
+            onChange={handleChange}
+            className="border px-2 py-1 rounded-md w-full"
+            required
+          >
+            <option value="" disabled>
+              Select Your Branch
+            </option>
+            <option value="CSE">Computer Science and Engineering</option>
+            <option value="CSE-DS">
+              Computer Science and Engineering (Data Science)
+            </option>
+            <option value="CSE-AI">
+              Computer Science and Engineering (Artificial Intelligence)
+            </option>
+            <option value="ECE">Electronics and Communication</option>
+            <option value="EE">Electrical</option>
+          </select>
+        </div>
+
+        {/* Semester */}
+        <div>
+          <label className="block font-medium mb-2">Semester</label>
+          <select
+            name="semester"
+            value={formData.semester}
+            onChange={handleChange}
+            className="border px-2 py-1 rounded-md w-full"
+            required
+          >
+            <option value="" disabled>
+              Select Semester
+            </option>
+            <option value="1">1st</option>
+            <option value="2">2nd</option>
+            <option value="3">3rd</option>
+            <option value="4">4th</option>
+            <option value="5">5th</option>
+            <option value="6">6th</option>
+            <option value="7">7th</option>
+            <option value="8">8th</option>
+          </select>
+        </div>
+
         {/* Course */}
         <div>
           <label className="block font-medium mb-2">Course</label>
@@ -126,8 +205,7 @@ const TimetableUpload = () => {
             <option value="">Select Course</option>
             {courses.map((course) => (
               <option key={course.id} value={course.id}>
-                {course.course_name} ({course.course_code}) - {course.branch},{" "}
-                Semester {course.semester}
+                {course.course_name} ({course.course_code})
               </option>
             ))}
           </select>

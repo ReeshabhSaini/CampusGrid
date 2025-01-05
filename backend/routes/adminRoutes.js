@@ -3,9 +3,10 @@ import supabase from "../config/supabaseClient.js"
 
 const router = express.Router();
 
-router.get("/get-courses", async (req, res) => {
+router.post("/get-courses", async (req, res) => {
     try {
-        const response = await supabase.from("courses").select("*");
+        const { branch, semester } = req.body;
+        const response = await supabase.from("courses").select("*").eq("branch", branch).eq("semester", parseInt(semester, 10));
 
         if (response.error) {
             throw response.error;

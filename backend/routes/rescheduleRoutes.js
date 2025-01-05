@@ -57,10 +57,16 @@ router.post("/get/available/slots", async (req, res) => {
             ...professorRescheduledSlots.map(slot => ({ start: slot.new_time, end: addHour(slot.new_time) })),
         ];
 
+        console.log("Professor Time Slots:")
+
+        console.log(professorBusySlots)
+        console.log(professorRescheduledSlots)
+        console.log(allProfessorBusySlots)
+
         // Fetch student's busy slots
         const { data: studentBusySlots, error: studentBusyError } = await supabase
             .from("time_table")
-            .select("start_time, end_time, courses(id)")
+            .select("start_time, end_time, courses(id, branch, semester)")
             .eq("day_of_week", selectedDay)
             .eq("courses.branch", branch)
             .eq("courses.semester", semester);
@@ -69,7 +75,7 @@ router.post("/get/available/slots", async (req, res) => {
 
         const { data: studentRescheduledSlots, error: studentRescheduleError } = await supabase
             .from("class_rescheduling")
-            .select("new_time, courses(id)")
+            .select("new_time, courses(id, branch, semester)")
             .eq("rescheduled_date", selectedDate)
             .eq("courses.branch", branch)
             .eq("courses.semester", semester);
@@ -80,6 +86,12 @@ router.post("/get/available/slots", async (req, res) => {
             ...studentBusySlots.map(slot => ({ start: slot.start_time, end: slot.end_time })),
             ...studentRescheduledSlots.map(slot => ({ start: slot.new_time, end: addHour(slot.new_time) })),
         ];
+
+        console.log("Student Time Slots:")
+
+        console.log(studentBusySlots);
+        console.log(studentRescheduledSlots);
+        console.log(allStudentBusySlots);
 
         // Calculate free slots
         const freeSlots = workingHours.filter(slot => {
