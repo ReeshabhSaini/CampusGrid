@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { StoreContext } from "../../context/StoreContext";
-
 function capitalizeFirstLetter(string) {
-  if (!string) return ""; // Handle empty or undefined strings
+  if (!string) return "";
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 

@@ -41,16 +41,22 @@ const EditProfessorProfile = () => {
           navigate("/login");
           return;
         }
-
-        const { id } = decodedToken;
-
-        const response = await axios.post(`${url}/api/auth/professor/details`, {
-          id,
-        });
-
+    
+        const { id: professor_id } = decodedToken; // Decode the token to get professor_id
+    
+        const response = await axios.post(
+          `${url}/api/auth/professor/details`,
+          { professor_id }, // Send professor_id in the body
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Pass headers correctly
+            },
+          }
+        );
+    
         if (response.data.status && response.data.requiredData) {
           const { requiredData } = response.data;
-
+    
           // Populate form with professor data
           setFormData((prevData) => ({
             ...prevData,
@@ -70,7 +76,7 @@ const EditProfessorProfile = () => {
         alert("An error occurred. Please try again.");
       }
     };
-
+    
     fetchProfessorDetails();
   }, [token, url, navigate]);
 
