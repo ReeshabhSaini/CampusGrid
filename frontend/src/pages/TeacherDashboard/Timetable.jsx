@@ -78,20 +78,20 @@ const Timetable = () => {
               .clone()
               .add(dayIndex, "days")
               .set({
-                hour: parseInt(event.start_time.split(":")[0], 10),
-                minute: parseInt(event.start_time.split(":")[1], 10),
+                hour: parseInt(event.start_time.split(":"), 10),
+                minute: parseInt(event.start_time.split(":"), 10),
               });
 
             const endDate = startDate
               .clone()
               .add(
-                parseInt(event.end_time.split(":")[0], 10) -
-                  parseInt(event.start_time.split(":")[0], 10),
+                parseInt(event.end_time.split(":"), 10) -
+                  parseInt(event.start_time.split(":"), 10),
                 "hours"
               )
               .add(
-                parseInt(event.end_time.split(":")[1], 10) -
-                  parseInt(event.start_time.split(":")[1], 10),
+                parseInt(event.end_time.split(":"), 10) -
+                  parseInt(event.start_time.split(":"), 10),
                 "minutes"
               );
 
@@ -119,8 +119,8 @@ const Timetable = () => {
         // Format rescheduled events
         const rescheduledEvents = rescheduled_classes.map((event) => {
           const startDate = moment(event.rescheduled_date).set({
-            hour: parseInt(event.new_time.split(":")[0], 10),
-            minute: parseInt(event.new_time.split(":")[1], 10),
+            hour: parseInt(event.new_time.split(":"), 10),
+            minute: parseInt(event.new_time.split(":"), 10),
           });
 
           const endDate = moment(startDate).add(1, "hour");
