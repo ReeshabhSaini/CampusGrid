@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { StoreContext } from "../../context/StoreContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -6,7 +6,6 @@ import { assets } from "../../assets/assets";
 
 const ProfilePicture = ({ src, alt }) => {
   const defaultProfileImage = assets.DefProfilePic; 
-
   const imageSrc = src ? src : defaultProfileImage;
 
   return (
@@ -14,17 +13,15 @@ const ProfilePicture = ({ src, alt }) => {
       <img
         src={imageSrc}
         alt={alt}
-        className="w-48 h-48 rounded-full object-cover shadow-md"
+        className="w-48 h-48 rounded-full object-cover shadow-lg border-4 border-indigo-300"
       />
     </div>
   );
 };
 
-
-
 const CoursesList = ({ courses }) => (
-  <div className="bg-yellow-50 shadow-md rounded-full p-4 border border-gray-300 w-3/4 mx-auto">
-    <h3 className="text-2xl font-bold mb-4 text-center">Courses</h3>
+  <div className="bg-yellow-100 shadow-lg rounded-lg p-4 border border-gray-300 w-3/4 mx-auto">
+    <h3 className="text-2xl font-bold mb-4 text-center text-indigo-600">Courses</h3>
     <ul className="list-disc list-inside space-y-2">
       {courses.map((course, index) => (
         <li key={index} className="text-lg text-gray-800">
@@ -69,54 +66,52 @@ const EditProfileModal = ({ professorData, onClose, onSubmit }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="p-6 rounded-lg w-1/2 shadow-md" style={{ backgroundColor: '#f7ffcc' }}>
-
-        <h3 className="text-2xl font-bold mb-4">Edit Profile</h3>
+      <div className="p-6 rounded-lg w-1/2 shadow-lg bg-yellow-50">
+        <h3 className="text-2xl font-bold mb-4 text-indigo-600">Edit Profile</h3>
         <form onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="first_name" className="block text-sm font-medium text-indigo-600">First Name</label>
+          <div className="mb-4">
+            <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">First Name</label>
             <input
               type="text"
               id="first_name"
               name="first_name"
               value={formData.first_name}
               onChange={handleChange}
-              className="w-full p-3 border rounded-md"
+              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
-          <div>
-            <label htmlFor="last_name" className="block text-sm font-medium text-indigo-600">Last Name</label>
+          <div className="mb-4">
+            <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">Last Name</label>
             <input
               type="text"
               id="last_name"
               name="last_name"
               value={formData.last_name}
               onChange={handleChange}
-              className="w-full p-3 border rounded-md"
+              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-indigo-600">Email</label>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
             <input
               type="email"
               id="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full p-3 border rounded-md"
+              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
-          </div>
-          <div className="flex justify-between mt-4">
+          </div> <div className="flex justify-between mt-4">
             <button
               type="button"
               onClick={onClose}
-              className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600"
+              className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-200"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
+              className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
             >
               Save Changes
             </button>
@@ -165,21 +160,20 @@ const Profile = () => {
       alert("An error occurred. Please try again.");
     }
   };
-  
 
   return (
-    <div className="p-6 w-full relative">
+    <div className="p-6 w-full relative ">
       <button
         onClick={openModal}
-        className="absolute top-6 right-6 bg-blue-500 text-white px-6 py-2 rounded-lg text-lg hover:bg-blue-600 focus:outline-none shadow-md"
+        className="absolute top-6 right-6 bg-blue-500 text-white px-6 py-2 rounded-lg text-lg hover:bg-blue-600 focus:outline-none shadow-md transition duration-200"
       >
         Edit Profile
       </button>
-      <h2 className="text-3xl font-bold mb-6 text-left">Profile Section</h2>
-      <div className="bg-transparent shadow-md rounded-lg p-6 flex flex-col items-center space-y-6 border border-gray-300">
-        <div className="flex items-center space-x-6">
+      <h2 className="text-3xl font-bold mb-6 text-center text-indigo-600">Profile Section</h2>
+      <div className="shadow-lg rounded-lg p-6 flex flex-col items-center space-y-6 border border-gray-300 w-3/4 mx-auto bg-green-50">
+        <div className="flex flex-col md:flex-row items-center space-y-6 md:space-y-0 md:space-x-6 w-full ">
           <ProfilePicture src="https://via.placeholder.com/150" alt="Profile" />
-          <div className="text-left border border-gray-300 rounded-lg p-4 shadow-md bg-yellow-50">
+          <div className="w-full md:w-3/4 text-left border border-gray-300 rounded-lg p-6 shadow-md bg-yellow-50">
             <p className="text-lg font-normal text-gray-800">
               <strong>Name:</strong> {professorData.first_name} {professorData.last_name}
             </p>

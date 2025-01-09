@@ -111,7 +111,7 @@ const SDashboard = () => {
             />
             {!isSidebarCollapsed && (
               <span className="ml-2 text-lg font-bold text-blue-600">
-                Dashboard
+                Campus Grid
               </span>
             )}
           </div>

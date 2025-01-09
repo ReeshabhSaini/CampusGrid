@@ -20,7 +20,7 @@ const ProfilePicture = ({ src, alt }) => {
 };
 
 const CoursesList = ({ courses }) => (
-  <div className="bg-yellow-50 shadow-md rounded-full p-4 border border-gray-300 w-full mx-auto">
+  <div className="bg-yellow-50 shadow-md rounded-lg p-4 border border-gray-300 w-full mx-auto">
     <h3 className="text-2xl font-bold mb-4 text-center">Courses</h3>
     <ul className="list-disc list-inside space-y-2">
       {courses.map((course, index) => (
@@ -207,7 +207,7 @@ const Profile = () => {
         Edit Profile
       </button>
       <h2 className="text-3xl font-bold mb-6 text-left">Profile Section</h2>
-      <div className="bg-transparent shadow-md rounded-lg p-6 flex flex-col items-center space-y-6 border border-gray-300 w-full">
+      <div className="bg-gradient-to-r from-yellow-200 to-green-200 shadow-md rounded-lg p-6 flex flex-col items-center space-y-6 border border-gray-300 w-full">
         <div className="flex items-center space-x-6 w-full">
           <ProfilePicture src="https://via.placeholder.com/150" alt="Profile" />
           <div className="text-left border border-gray-300 rounded-lg p-4 shadow-md bg-yellow-50 w-full">
