@@ -4,6 +4,12 @@ import { assets } from "../../assets/assets";
 import { StoreContext } from "../../context/StoreContext";
 import { useNavigate } from "react-router-dom";
 
+const roles = [
+  { name: "Student", value: "student", icon: assets.StudentIcon },
+  { name: "Professor", value: "professor", icon: assets.ProfessorIcon },
+  { name: "Admin", value: "admin", icon: assets.AdminIcon },
+];
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,10 +19,9 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  const handleRoleChange = (event) => {
-    const { name, value } = event.target;
-    setRoleData((prev) => ({ ...prev, [name]: value }));
-  };
+  const handleRoleSelect = (selectedRole) => {
+    setRoleData((prev) => ({ ...prev, role: selectedRole }));
+   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -116,18 +121,43 @@ const Login = () => {
             <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
               Role
             </label>
-            <select
-              name="role"
-              onChange={handleRoleChange}
-              value={roleData.role}
-              className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
-              required
-            >
-              <option value="student">Student</option>
-              <option value="professor">Professor</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
+            <div className="flex justify-around">
+              {roles.map((role) => (
+                <div
+                  key={role.value}
+                  onClick={() => handleRoleSelect(role.value)}
+                  className={`relative w-24 h-24 border rounded-lg cursor-pointer p-2 flex flex-col items-center justify-center ${
+                    roleData.role === role.value
+                      ? "border-indigo-600 bg-indigo-50"
+                      : "border-gray-300"
+                  }`}
+                >
+                  <img src={role.icon} alt={role.name} className="w-12 h-12 mb-2" />
+                  <span className="text-sm font-medium text-center text-gray-700">
+                    {role.name}
+                  </span>
+                  {roleData.role === role.value && (
+                    <div className="absolute top-1 right-1 w-4 h-4 bg-indigo-600 rounded-full flex items-center justify-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="2"
+                        stroke="white"
+                        className="w-3 h-3"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+         </div>
           <div className="mb-4">
             <label className="block mb-2 text-sm font-medium text-indigo-600">
               Email

@@ -2,16 +2,25 @@ import React, { useState, useContext, useEffect } from "react";
 import { StoreContext } from "../../context/StoreContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { assets } from "../../assets/assets";
 
-const ProfilePicture = ({ src, alt }) => (
-  <div className="flex-shrink-0">
-    <img
-      src={src}
-      alt={alt}
-      className="w-48 h-48 rounded-full object-cover shadow-md"
-    />
-  </div>
-);
+const ProfilePicture = ({ src, alt }) => {
+  const defaultProfileImage = assets.DefProfilePic; 
+
+  const imageSrc = src ? src : defaultProfileImage;
+
+  return (
+    <div className="flex-shrink-0">
+      <img
+        src={imageSrc}
+        alt={alt}
+        className="w-48 h-48 rounded-full object-cover shadow-md"
+      />
+    </div>
+  );
+};
+
+
 
 const CoursesList = ({ courses }) => (
   <div className="bg-yellow-50 shadow-md rounded-full p-4 border border-gray-300 w-3/4 mx-auto">
@@ -60,7 +69,8 @@ const EditProfileModal = ({ professorData, onClose, onSubmit }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-6 rounded-lg w-1/2 shadow-md">
+      <div className="p-6 rounded-lg w-1/2 shadow-md" style={{ backgroundColor: '#f7ffcc' }}>
+
         <h3 className="text-2xl font-bold mb-4">Edit Profile</h3>
         <form onSubmit={handleSubmit}>
           <div>
