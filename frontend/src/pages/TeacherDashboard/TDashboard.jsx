@@ -142,36 +142,42 @@ const TDashboard = () => {
             )}
           </div>
           <nav className="flex-1 p-4 space-y-4">
-            <button
-              className={`flex items-center w-full text-left px-4 py-2 rounded-md transition-all duration-300 ${
-                activeSection === "Profile"
-                  ? "bg-blue-100 text-blue-600"
-                  : "hover:bg-transparent"
-              }`}
-              onClick={() => setActiveSection("Profile")}
-            >
+            <div className="flex items-center space-x-2">
               <img
                 src={assets.ProfileIcon}
                 alt="Profile Icon"
-                className="w-5 h-5 object-contain mr-2"
+                className="w-5 h-5 object-contain cursor-pointer"
+                onClick={() => setActiveSection("Profile")}
               />
-              {!isSidebarCollapsed && "Profile"}
-            </button>
-            <button
-              className={`flex items-center w-full text-left px-4 py-2 rounded-md transition-all duration-300 ${
-                activeSection === "Timetable"
-                  ? "bg-blue-100 text-blue-600"
-                  : "hover:bg-transparent"
-              }`}
-              onClick={() => setActiveSection("Timetable")}
-            >
+              <button
+                className={`flex items-center text-left px-4 py-2 rounded-md transition-all duration-300 ${
+                  activeSection === "Profile"
+                    ? "bg-blue-100 text-blue-600"
+                    : "hover:bg-transparent text-gray-600"
+                }`}
+                onClick={() => setActiveSection("Profile")}
+              >
+                {!isSidebarCollapsed && "Profile"}
+              </button>
+            </div>
+            <div className="flex items-center space-x-2">
               <img
                 src={assets.Timetable}
                 alt="Timetable Icon"
-                className="w-5 h-5 object-contain mr-2"
+                className="w-5 h-5 object-contain cursor-pointer"
+                onClick={() => setActiveSection("Timetable")}
               />
-              {!isSidebarCollapsed && "Timetable"}
-            </button>
+              <button
+                className={`flex items-center text-left px-4 py-2 rounded-md transition-all duration-300 ${
+                  activeSection === "Timetable"
+                    ? "bg-blue-100 text-blue-600"
+                    : "hover:bg-transparent text-gray-600"
+                }`}
+                onClick={() => setActiveSection("Timetable")}
+              >
+                {!isSidebarCollapsed && "Timetable"}
+              </button>
+            </div>
           </nav>
         </div>
       </div>
@@ -213,7 +219,6 @@ const TDashboard = () => {
 
         {/* Main Content */}
         <main className="flex flex-1 flex-col  p-4 m-5 border rounded-lg shadow-lg">
-
           {renderSection()}
         </main>
       </div>
