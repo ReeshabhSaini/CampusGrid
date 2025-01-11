@@ -49,22 +49,42 @@ const Timetable = () => {
       return;
     }
 
-    const fetchTimetable = async () => {
-      const decodedToken = decodeJWT(token);
-      if (!decodedToken) {
-        setToken("");
-        navigate("/login");
-        return;
-      }
-
-      const { id } = decodedToken;
-
+    const fetchData = async () => {
       try {
-        const response1 = await axios.post(`${url}/api/professor/timetable`, { id });
-        const response2 = await axios.post(`${url}/api/professor/reschedules`, { id });
+        const decodedToken = decodeJWT(token);
+        if (!decodedToken) {
+          setToken("");
+          navigate("/login");
+          return;
+        }
 
-        const { classes } = response1.data;
-        const { rescheduled_classes } = response2.data;
+        const { id } = decodedToken;
+
+        // Fetch holidays, timetable, and reschedules
+        const holidaysResponse = await axios.get(
+          `${url}/api/professor/holidays`
+        );
+        const timetableResponse = await axios.post(
+          `${url}/api/professor/timetable`,
+          { id }
+        );
+        const reschedulesResponse = await axios.post(
+          `${url}/api/professor/reschedules`,
+          { id }
+        );
+
+        // Process holidays
+        const holidays = holidaysResponse.data.holidays.map((holiday) => ({
+          id: `holiday-${holiday.id}`,
+          title: holiday.description,
+          start: moment(holiday.holiday_date).toDate(),
+          end: moment(holiday.holiday_date).toDate(),
+          allDay: true,
+        }));
+
+        // Process timetable and rescheduled classes
+        const { classes } = timetableResponse.data;
+        const { rescheduled_classes } = reschedulesResponse.data;
 
         const originalEvents = [];
         for (let i = 0; i < 4; i++) {
@@ -82,19 +102,19 @@ const Timetable = () => {
             const endDate = startDate
               .clone()
               .add(
-                parseInt(event.end_time.split(":")[0], 10) - 
+                parseInt(event.end_time.split(":")[0], 10) -
                   parseInt(event.start_time.split(":")[0], 10),
                 "hours"
               )
               .add(
-                parseInt(event.end_time.split(":")[1], 10) - 
+                parseInt(event.end_time.split(":")[1], 10) -
                   parseInt(event.start_time.split(":")[1], 10),
                 "minutes"
               );
 
             originalEvents.push({
               id: `${event.id}-${i}`,
-              title: `${event.courses.course_name} - ${event.lecture_halls.hall_name}`,
+              title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
               start: startDate.toDate(),
               end: endDate.toDate(),
               details: {
@@ -115,7 +135,7 @@ const Timetable = () => {
 
         const rescheduledEvents = rescheduled_classes.map((event) => {
           const startDate = moment(event.rescheduled_date).set({
-            hour: parseInt(event.new_time .split(":")[0], 10),
+            hour: parseInt(event.new_time.split(":")[0], 10),
             minute: parseInt(event.new_time.split(":")[1], 10),
           });
 
@@ -123,10 +143,11 @@ const Timetable = () => {
 
           return {
             id: `rescheduled-${event.id}`,
-            title: `${event.courses.course_name} - ${event.lecture_halls.hall_name} (Rescheduled)`,
+            title: `${event.courses.course_code} - ${event.lecture_halls.hall_name} (Rescheduled)`,
             start: startDate.toDate(),
             end: endDate.toDate(),
             details: {
+              id: event.id,
               courseId: event.courses.id,
               courseName: event.courses.course_name,
               branch: event.courses.branch,
@@ -142,27 +163,32 @@ const Timetable = () => {
           };
         });
 
+        // Filter out the original events that have been rescheduled
         const filteredOriginalEvents = originalEvents.filter((event) => {
           return !rescheduled_classes.some((rescheduled) => {
             const originalDate = moment(rescheduled.original_date).toDate();
             return (
               event.start.toDateString() === originalDate.toDateString() &&
-              event.title.includes(rescheduled.courses.course_name)
+              event.details.courseCode === rescheduled.courses.course_code
             );
           });
         });
 
-        setEvents([...filteredOriginalEvents, ...rescheduledEvents]);
+        setEvents([
+          ...filteredOriginalEvents,
+          ...rescheduledEvents,
+          ...holidays,
+        ]);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching timetable:", error);
-        setError("Failed to fetch timetable.");
+        console.error("Error fetching data:", error);
+        setError("Failed to fetch data.");
         setLoading(false);
       }
     };
 
-    fetchTimetable();
-  }, [token, url]);
+    fetchData();
+  }, [token, url, events]);
 
   const handleEventClick = (event) => {
     setSelectedEvent(event);
@@ -174,12 +200,40 @@ const Timetable = () => {
     setRescheduleRequest(null);
   };
 
+  const handleCancelReschedule = async () => {
+    if (!selectedEvent || !selectedEvent.details.id) {
+      console.error("No reschedule ID provided.");
+      return;
+    }
+
+    try {
+      await axios.delete(`${url}/api/professor/cancel-reschedule`, {
+        data: { rescheduleId: selectedEvent.details.id },
+      });
+
+      setEvents((prevEvents) =>
+        prevEvents.filter((event) => event.id !== selectedEvent.id)
+      );
+
+      closeModal();
+    } catch (error) {
+      console.error("Error canceling reschedule:", error);
+    }
+  };
+
   const handleRescheduleClick = () => {
     navigate("/tdashboard/reschedule", { state: { event: selectedEvent } });
   };
 
   const eventStyleGetter = (event, start, end, isSelected) => {
-    const backgroundColor = event.title.includes("(Rescheduled)") ? "#f59e0b" : (isSelected ? "#1d4ed8" : "#3174ad");
+    let backgroundColor;
+    if (event.id.startsWith("holiday")) {
+      backgroundColor = "#34d399"; // Green for holidays
+    } else if (event.title.includes("(Rescheduled)")) {
+      backgroundColor = "#f59e0b"; // Orange for rescheduled
+    } else {
+      backgroundColor = isSelected ? "#1d4ed8" : "#3174ad";
+    }
     return {
       style: {
         backgroundColor,
@@ -215,9 +269,37 @@ const Timetable = () => {
         <FaArrowRight />
       </button>
       <div className="ml-4">
-        <button onClick={() => { setView("day"); onNavigate("TODAY"); }} className={`px-2 py-1 ${view === "day" ? "bg-blue-600 text-white" : "bg-gray-200"}`}>Day</button>
-        <button onClick={() => { setView("week"); onNavigate("TODAY"); }} className={`px-2 py-1 ${view === "week" ? "bg-blue-600 text-white" : "bg-gray-200"}`}>Week</button>
-        <button onClick={() => { setView("day"); onNavigate("TODAY"); }} className="ml-2 px-2 py-1 bg-blue-600 text-white">Today</button>
+        <button
+          onClick={() => {
+            setView("day");
+            onNavigate("TODAY");
+          }}
+          className={`px-2 py-1 ${
+            view === "day" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+        >
+          Day
+        </button>
+        <button
+          onClick={() => {
+            setView("week");
+            onNavigate("TODAY");
+          }}
+          className={`px-2 py-1 ${
+            view === "week" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+        >
+          Week
+        </button>
+        <button
+          onClick={() => {
+            setView("day");
+            onNavigate("TODAY");
+          }}
+          className="ml-2 px-2 py-1 bg-blue-600 text-white"
+        >
+          Today
+        </button>
       </div>
     </div>
   );
@@ -256,57 +338,91 @@ const Timetable = () => {
         </div>
       </div>
 
-      {selectedEvent && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-96">
-            <h3 className="text-xl font-bold mb-4">Class Details</h3>
-            <p>
-              <strong>Course Name:</strong> {selectedEvent.details.courseName}
-            </p>
-            <p>
-              <strong>Branch:</strong> {selectedEvent.details.branch}
-            </p>
-            <p>
-              <strong>Semester:</strong> {selectedEvent.details.semester}
-            </p>
-            <p>
-              <strong>Course Code:</strong> {selectedEvent.details.courseCode}
-            </p>
-            <p>
-              <strong>Lecture Hall:</strong> {selectedEvent.details.lectureHall}
-            </p>
-            {selectedEvent.details.originalDate && (
+      {selectedEvent &&
+        (selectedEvent.id.startsWith("holiday") ? (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+              <h3 className="text-xl font-bold mb-4">Holiday Details</h3>
               <p>
-                <strong>Original Date:</strong> {selectedEvent.details.originalDate}
+                <strong>Holiday Name:</strong> {selectedEvent.title}
               </p>
-            )}
-            {selectedEvent.details.rescheduledDate && (
               <p>
-                <strong>Rescheduled Date:</strong> {selectedEvent.details.rescheduledDate}
+                <strong>Date:</strong>{" "}
+                {moment(selectedEvent.start).format("YYYY-MM-DD")}
               </p>
-            )}
-            {selectedEvent.details.reason && (
-              <p>
-                <strong>Reason:</strong> {selectedEvent.details.reason}
-              </p>
-            )}
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={handleRescheduleClick}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition duration-200 mr-2"
-              >
-                Reschedule
-              </button>
-              <button
-                onClick={closeModal}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200"
-              >
-                Close
-              </button>
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={closeModal}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+              <h3 className="text-xl font-bold mb-4">Class Details</h3>
+              <p>
+                <strong>Course Name:</strong> {selectedEvent.details.courseName}
+              </p>
+              <p>
+                <strong>Branch:</strong> {selectedEvent.details.branch}
+              </p>
+              <p>
+                <strong>Semester:</strong> {selectedEvent.details.semester}
+              </p>
+              <p>
+                <strong>Course Code:</strong> {selectedEvent.details.courseCode}
+              </p>
+              <p>
+                <strong>Lecture Hall:</strong>{" "}
+                {selectedEvent.details.lectureHall}
+              </p>
+              {selectedEvent.details.originalDate && (
+                <p>
+                  <strong>Original Date:</strong>{" "}
+                  {selectedEvent.details.originalDate}
+                </p>
+              )}
+              {selectedEvent.details.rescheduledDate && (
+                <p>
+                  <strong>Rescheduled Date:</strong>{" "}
+                  {selectedEvent.details.rescheduledDate}
+                </p>
+              )}
+              {selectedEvent.details.reason && (
+                <p>
+                  <strong>Reason:</strong> {selectedEvent.details.reason}
+                </p>
+              )}
+              <div className="mt-4 flex justify-end">
+                {selectedEvent.title.includes("(Rescheduled)") ? (
+                  <button
+                    onClick={handleCancelReschedule}
+                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition duration-200 mr-2"
+                  >
+                    Cancel Reschedule
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleRescheduleClick}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200 mr-2"
+                  >
+                    Reschedule
+                  </button>
+                )}
+                <button
+                  onClick={closeModal}
+                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition duration-200"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
     </div>
   );
 };

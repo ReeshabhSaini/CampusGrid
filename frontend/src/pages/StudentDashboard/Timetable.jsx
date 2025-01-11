@@ -26,7 +26,7 @@ const Timetable = ({ branch, semester }) => {
   ];
 
   useEffect(() => {
-    const fetchTimetable = async () => {
+    const fetchTimetableAndHolidays = async () => {
       try {
         const response1 = await axios.post(`${url}/api/student/timetable`, {
           branch: "ECE",
@@ -38,23 +38,34 @@ const Timetable = ({ branch, semester }) => {
           semester: "3",
         });
 
+        const response3 = await axios.get(`${url}/api/student/holidays`);
+
         const { classes } = response1.data;
         const { rescheduled_classes } = response2.data;
+        const { holidays } = response3.data;
 
-        // Generate weekly recurring events for original timetable
+        // Process holiday dates into a set for quick lookup
+        const holidayDates = new Set(
+          holidays.map((holiday) =>
+            moment(holiday.holiday_date).format("YYYY-MM-DD")
+          )
+        );
+
+        // Process timetable events, excluding those on holidays
         const originalEvents = [];
         for (let i = 0; i < 4; i++) {
-          // Assuming the timetable repeats for 4 weeks
           const weekStart = moment().startOf("week").add(i, "weeks");
           classes.forEach((event) => {
             const dayIndex = daysOfWeek.indexOf(event.day_of_week);
-            const startDate = weekStart
-              .clone()
-              .add(dayIndex, "days")
-              .set({
-                hour: parseInt(event.start_time.split(":")[0], 10),
-                minute: parseInt(event.start_time.split(":")[1], 10),
-              });
+            const classDate = weekStart.clone().add(dayIndex, "days");
+
+            // Skip this class if it falls on a holiday
+            if (holidayDates.has(classDate.format("YYYY-MM-DD"))) return;
+
+            const startDate = classDate.clone().set({
+              hour: parseInt(event.start_time.split(":")[0], 10),
+              minute: parseInt(event.start_time.split(":")[1], 10),
+            });
 
             const endDate = startDate
               .clone()
@@ -71,7 +82,7 @@ const Timetable = ({ branch, semester }) => {
 
             originalEvents.push({
               id: `${event.id}-${i}`,
-              title: `${event.courses.course_name} - Lecture Hall ${event.lecture_halls.hall_name}`,
+              title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
               start: startDate.toDate(),
               end: endDate.toDate(),
               details: {
@@ -88,56 +99,74 @@ const Timetable = ({ branch, semester }) => {
           });
         }
 
-        // Format rescheduled events
-        const rescheduledEvents = rescheduled_classes.map((event) => {
-          const startDate = moment(event.rescheduled_date).set({
-            hour: parseInt(event.new_time.split(":")[0], 10),
-            minute: parseInt(event.new_time.split(":")[1], 10),
+        // Process rescheduled classes, excluding those on holidays
+        const rescheduledEvents = rescheduled_classes
+          .filter(
+            (event) =>
+              !holidayDates.has(
+                moment(event.rescheduled_date).format("YYYY-MM-DD")
+              )
+          )
+          .map((event) => {
+            const startDate = moment(event.rescheduled_date).set({
+              hour: parseInt(event.new_time.split(":")[0], 10),
+              minute: parseInt(event.new_time.split(":")[1], 10),
+            });
+
+            const endDate = moment(startDate).add(1, "hour");
+
+            return {
+              id: `rescheduled-${event.id}`,
+              title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
+              start: startDate.toDate(),
+              end: endDate.toDate(),
+              details: {
+                courseName: event.courses.course_name,
+                branch: event.courses.branch,
+                semester: event.courses.semester,
+                courseCode: event.courses.course_code,
+                lectureHall: event.lecture_halls.hall_name,
+                originalDate: event.original_date,
+                rescheduledDate: event.rescheduled_date,
+                reason: event.reason,
+                newTime: event.new_time,
+              },
+            };
           });
 
-          const endDate = moment(startDate).add(1, "hour"); // Assuming a fixed 1-hour duration for rescheduled classes
+        // Process holiday events
+        const holidayEvents = holidays.map((holiday) => {
+          const holidayDate = moment(holiday.holiday_date);
+          const startDate = holidayDate.clone().set({ hour: 0, minute: 0 });
+          const endDate = holidayDate.clone().set({ hour: 23, minute: 59 });
 
           return {
-            id: `rescheduled-${event.id}`,
-            title: `${event.courses.course_name} (Rescheduled) - Lecture Hall ${event.lecture_halls.hall_name}`,
+            id: `holiday-${holiday.id}`,
+            title: `Holiday: ${holiday.description}`,
             start: startDate.toDate(),
             end: endDate.toDate(),
-            details: {
-              courseName: event.courses.course_name,
-              branch: event.courses.branch,
-              semester: event.courses.semester,
-              courseCode: event.courses.course_code,
-              lectureHall: event.lecture_halls.hall_name,
-              originalDate: event.original_date,
-              rescheduledDate: event.rescheduled_date,
-              reason: event.reason,
-              newTime: event.new_time,
-            },
+            allDay: true,
+            isHoliday: true,
           };
         });
 
-        // Remove overwritten events from originalEvents
-        const filteredOriginalEvents = originalEvents.filter((event) => {
-          return !rescheduled_classes.some((rescheduled) => {
-            const originalDate = moment(rescheduled.original_date).toDate();
-            return (
-              event.start.toDateString() === originalDate.toDateString() &&
-              event.title.includes(rescheduled.courses.course_name)
-            );
-          });
-        });
+        // Combine events (only non-holiday classes + reschedules + holidays)
+        const finalEvents = [
+          ...holidayEvents,
+          ...originalEvents,
+          ...rescheduledEvents,
+        ];
 
-        // Combine original and rescheduled events
-        setEvents([...filteredOriginalEvents, ...rescheduledEvents]);
+        setEvents(finalEvents);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching timetable:", error);
-        setError("Failed to fetch timetable.");
+        console.error("Error fetching timetable and holidays:", error);
+        setError("Failed to fetch timetable or holidays.");
         setLoading(false);
       }
     };
 
-    fetchTimetable();
+    fetchTimetableAndHolidays();
   }, [studentData.branch, studentData.semester, url]);
 
   const handleEventClick = (event) => {
@@ -150,7 +179,11 @@ const Timetable = ({ branch, semester }) => {
 
   const eventStyleGetter = (event, start, end, isSelected) => ({
     style: {
-      backgroundColor: isSelected ? "#1d4ed8" : "#3174ad",
+      backgroundColor: event.isHoliday
+        ? "#d97706"
+        : isSelected
+        ? "#1d4ed8"
+        : "#3174ad",
       color: "white",
       borderRadius: "5px",
       padding: "4px",

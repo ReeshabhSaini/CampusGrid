@@ -16,6 +16,7 @@ router.post("/timetable", async (req, res) => {
         const { data: classes, error } = await supabase
             .from("time_table")
             .select(`
+                id,
                 day_of_week,
                 start_time,
                 end_time,
@@ -103,12 +104,80 @@ router.post("/reschedules", async (req, res) => {
         // Debug: Log data returned by query
         console.log("Fetched Data:", rescheduled_classes);
 
-        if (rescheduled_classes.length === 0) {
-            return res.status(404).json({ message: "No Rescheduled Classes found for the given branch and semester." });
-        }
-
         // Return fetched timetable
         return res.status(200).json({ message: "Timetable fetched successfully", rescheduled_classes });
+    } catch (err) {
+        console.error("Server Error:", err);
+        return res.status(500).json({ message: "Server error", error: err.message });
+    }
+});
+
+router.get("/holidays", async (req, res) => {
+    try {
+        const { data: holidays, error } = await supabase
+            .from("holidays")
+            .select(`
+        id,
+        holiday_date,
+        description
+      `);
+
+        if (error) {
+            console.error("Error fetching holidays:", error);
+            return res.status(500).json({ message: "Failed to fetch holidays", error });
+        }
+
+        if (holidays.length === 0) {
+            return res.status(404).json({ message: "No holidays found." });
+        }
+
+        // Return the fetched holidays
+        return res.status(200).json({ message: "Holidays fetched successfully", holidays });
+    } catch (err) {
+        console.error("Server Error:", err);
+        return res.status(500).json({ message: "Server error", error: err.message });
+    }
+});
+
+router.delete("/cancel-reschedule", async (req, res) => {
+    const { rescheduleId } = req.body;
+
+    if (!rescheduleId) {
+        return res.status(400).json({ message: "Reschedule ID is required" });
+    }
+
+    console.log("Canceling reschedule with ID:", rescheduleId);
+
+    try {
+        // Check if the reschedule exists
+        const { data: existingReschedule, error: fetchError } = await supabase
+            .from("class_rescheduling")
+            .select("*")
+            .eq("id", rescheduleId)
+            .single();
+
+        if (fetchError) {
+            console.error("Error fetching reschedule data:", fetchError);
+            return res.status(500).json({ message: "Failed to fetch reschedule", error: fetchError });
+        }
+
+        if (!existingReschedule) {
+            return res.status(404).json({ message: "Reschedule not found" });
+        }
+
+        // Proceed with deleting the reschedule record
+        const { error } = await supabase
+            .from("class_rescheduling")
+            .delete()
+            .eq("id", rescheduleId);
+
+        if (error) {
+            console.error("Error deleting reschedule:", error);
+            return res.status(500).json({ message: "Failed to cancel reschedule", error });
+        }
+
+        // Successfully canceled reschedule
+        return res.status(200).json({ message: "Reschedule canceled successfully" });
     } catch (err) {
         console.error("Server Error:", err);
         return res.status(500).json({ message: "Server error", error: err.message });

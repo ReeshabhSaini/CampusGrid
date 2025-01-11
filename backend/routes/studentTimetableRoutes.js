@@ -106,5 +106,31 @@ router.post("/reschedules", async (req, res) => {
     }
 });
 
+router.get("/holidays", async (req, res) => {
+    try {
+        const { data: holidays, error } = await supabase
+            .from("holidays")
+            .select(`
+        id,
+        holiday_date,
+        description
+      `);
+
+        if (error) {
+            console.error("Error fetching holidays:", error);
+            return res.status(500).json({ message: "Failed to fetch holidays", error });
+        }
+
+        if (holidays.length === 0) {
+            return res.status(404).json({ message: "No holidays found." });
+        }
+
+        // Return the fetched holidays
+        return res.status(200).json({ message: "Holidays fetched successfully", holidays });
+    } catch (err) {
+        console.error("Server Error:", err);
+        return res.status(500).json({ message: "Server error", error: err.message });
+    }
+});
 
 export default router;
