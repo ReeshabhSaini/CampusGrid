@@ -172,7 +172,7 @@ const Profile = () => {
       <h2 className="text-3xl font-bold mb-6 text-center text-indigo-600">Profile Section</h2>
       <div className="shadow-lg rounded-lg p-6 flex flex-col items-center space-y-6 border border-gray-300 w-3/4 mx-auto bg-green-50">
         <div className="flex flex-col md:flex-row items-center space-y-6 md:space-y-0 md:space-x-6 w-full ">
-          <ProfilePicture src="https://via.placeholder.com/150" alt="Profile" />
+          <ProfilePicture src="https://t3.ftcdn.net/jpg/03/45/75/94/360_F_345759488_gh3cxWU7DEnZJCmDiggHnsuM2zqpkTpG.jpg" alt="Profile" />
           <div className="w-full md:w-3/4 text-left border border-gray-300 rounded-lg p-6 shadow-md bg-yellow-50">
             <p className="text-lg font-normal text-gray-800">
               <strong>Name:</strong> {professorData.first_name} {professorData.last_name}
