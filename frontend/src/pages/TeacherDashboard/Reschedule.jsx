@@ -5,6 +5,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { StoreContext } from "../../context/StoreContext";
+import { toast } from "react-toastify";
 
 const localizer = momentLocalizer(moment);
 
@@ -94,7 +95,7 @@ const ReschedulePage = ({ event }) => {
         selected_time: selectedTime,
       });
 
-      alert("Reschedule request submitted successfully!");
+      toast.success(response.data.message);
       navigate("/tdashboard");
     } catch (error) {
       console.error(
@@ -108,10 +109,7 @@ const ReschedulePage = ({ event }) => {
   };
 
   const dayPropGetter = (date) => {
-    if (
-      selectedDate &&
-      moment(date).isSame(moment(selectedDate), "day")
-    ) {
+    if (selectedDate && moment(date).isSame(moment(selectedDate), "day")) {
       return {
         style: {
           backgroundColor: "#a4cafe",
@@ -149,19 +147,47 @@ const ReschedulePage = ({ event }) => {
       <div className="flex flex-row">
         <div className="flex-1 shadow-lg rounded-lg p-4">
           <h3 className="text-3xl font-bold mb-4 text-blue-600">Details</h3>
-          <p className="text-lg"><strong>Course Name:</strong> {rescheduleRequest.details.courseName}</p>
-          <p className="text-lg"><strong>Branch:</strong> {rescheduleRequest.details.branch}</p>
-          <p className="text-lg"><strong>Semester:</strong> {rescheduleRequest.details.semester}</p>
-          <p className="text-lg"><strong>Course Code:</strong> {rescheduleRequest.details.courseCode}</p>
-          <p className="text-lg"><strong>Lecture Hall:</strong> {rescheduleRequest.details.lectureHallName}</p>
-          <p className="text-lg"><strong>Original Date:</strong> {moment(rescheduleRequest.start).format("DD-MM-YYYY")}</p>
-          <p className="text-lg text-red-500"><strong>Selected Date: {moment(selectedDate).format("DD-MM-YYYY")}</strong></p>
-          {selectedTime && <p className="text-lg text-blue-500"><strong>Selected Time Slot:</strong> {selectedTime}</p>}
-          {selectedHall && <p className="text-lg text-green-500"><strong>Selected Lecture Hall:</strong> {selectedHall}</p>}
+          <p className="text-lg">
+            <strong>Course Name:</strong> {rescheduleRequest.details.courseName}
+          </p>
+          <p className="text-lg">
+            <strong>Branch:</strong> {rescheduleRequest.details.branch}
+          </p>
+          <p className="text-lg">
+            <strong>Semester:</strong> {rescheduleRequest.details.semester}
+          </p>
+          <p className="text-lg">
+            <strong>Course Code:</strong> {rescheduleRequest.details.courseCode}
+          </p>
+          <p className="text-lg">
+            <strong>Lecture Hall:</strong>{" "}
+            {rescheduleRequest.details.lectureHallName}
+          </p>
+          <p className="text-lg">
+            <strong>Original Date:</strong>{" "}
+            {moment(rescheduleRequest.start).format("DD-MM-YYYY")}
+          </p>
+          <p className="text-lg text-red-500">
+            <strong>
+              Selected Date: {moment(selectedDate).format("DD-MM-YYYY")}
+            </strong>
+          </p>
+          {selectedTime && (
+            <p className="text-lg text-blue-500">
+              <strong>Selected Time Slot:</strong> {selectedTime}
+            </p>
+          )}
+          {selectedHall && (
+            <p className="text-lg text-green-500">
+              <strong>Selected Lecture Hall:</strong> {selectedHall}
+            </p>
+          )}
         </div>
 
         <div className="flex-1 shadow-lg rounded-lg p-4">
-          <h3 className="text-3xl font-bold mb-4 text-blue-600">Select New Date:</h3>
+          <h3 className="text-3xl font-bold mb-4 text-blue-600">
+            Select New Date:
+          </h3>
           <Calendar
             localizer={localizer}
             selectable
@@ -184,7 +210,9 @@ const ReschedulePage = ({ event }) => {
                   >
                     &larr;
                   </button>
-                  <span className="font-semibold text-blue-600">{moment(selectedDate).format("MMMM YYYY")}</span>
+                  <span className="font-semibold text-blue-600">
+                    {moment(selectedDate).format("MMMM YYYY")}
+                  </span>
                   <button
                     onClick={() => onNavigate("NEXT")}
                     className="text-blue-500 hover:text-blue-700"
@@ -202,9 +230,13 @@ const ReschedulePage = ({ event }) => {
             <>
               {showTimeSlots && (
                 <div>
-                  <h3 className="text-3xl font-bold text-blue-600">Select a Time Slot:</h3>
+                  <h3 className="text-3xl font-bold text-blue-600">
+                    Select a Time Slot:
+                  </h3>
                   <ul className="space-y-2">
-                    {loadingSlots && <p className="text-blue-500">Loading slots...</p>}
+                    {loadingSlots && (
+                      <p className="text-blue-500">Loading slots...</p>
+                    )}
                     {timeSlots.map((slot, index) => (
                       <li
                         key={index}
@@ -224,9 +256,13 @@ const ReschedulePage = ({ event }) => {
 
               {showLectureHalls && selectedTime && (
                 <div>
-                  <h3 className="text-3xl font-bold text-blue-600">Select a Lecture Hall:</h3>
+                  <h3 className="text-3xl font-bold text-blue-600">
+                    Select a Lecture Hall:
+                  </h3>
                   <ul className="space-y-2">
-                    {loadingHalls && <p className="text-blue-500">Loading halls...</p>}
+                    {loadingHalls && (
+                      <p className="text-blue-500">Loading halls...</p>
+                    )}
                     {lectureHalls.length > 0 ? (
                       lectureHalls.map((hall) => (
                         <li
@@ -242,7 +278,10 @@ const ReschedulePage = ({ event }) => {
                         </li>
                       ))
                     ) : (
-                      <p className="text-red-500">No lecture halls available. Please choose a different time slot.</p>
+                      <p className="text-red-500">
+                        No lecture halls available. Please choose a different
+                        time slot.
+                      </p>
                     )}
                   </ul>
                 </div>
@@ -299,7 +338,9 @@ const ReschedulePage = ({ event }) => {
             </>
           ) : (
             <div className="text-center">
-              <p className="text-blue-500 font-semibold">Fetching available lecture halls...</p>
+              <p className="text-blue-500 font-semibold">
+                Fetching available lecture halls...
+              </p>
               <LoadingSpinner />
             </div>
           )}

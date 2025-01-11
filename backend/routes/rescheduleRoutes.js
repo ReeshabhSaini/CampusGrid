@@ -232,7 +232,8 @@ router.post('/reschedule/request', async (req, res) => {
         }
 
         res.status(201).json({
-            message: 'Class rescheduling request added successfully.',
+            success: true,
+            message: 'Class Rescheduled.',
             rescheduleId: data[0].id,
         });
     } catch (error) {

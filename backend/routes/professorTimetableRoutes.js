@@ -177,7 +177,7 @@ router.delete("/cancel-reschedule", async (req, res) => {
         }
 
         // Successfully canceled reschedule
-        return res.status(200).json({ message: "Reschedule canceled successfully" });
+        return res.status(200).json({ success: true, message: "Reschedule Canceled" });
     } catch (err) {
         console.error("Server Error:", err);
         return res.status(500).json({ message: "Server error", error: err.message });

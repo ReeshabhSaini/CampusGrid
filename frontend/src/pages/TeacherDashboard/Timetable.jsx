@@ -6,6 +6,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { StoreContext } from "../../context/StoreContext";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const localizer = momentLocalizer(moment);
 
@@ -43,111 +44,73 @@ const Timetable = () => {
     "saturday",
   ];
 
-  useEffect(() => {
-    if (!token) {
-      navigate("/login");
-      return;
-    }
+  const fetchData = async () => {
+    try {
+      const decodedToken = decodeJWT(token);
+      if (!decodedToken) {
+        setToken("");
+        navigate("/login");
+        return;
+      }
 
-    const fetchData = async () => {
-      try {
-        const decodedToken = decodeJWT(token);
-        if (!decodedToken) {
-          setToken("");
-          navigate("/login");
-          return;
-        }
+      const { id } = decodedToken;
 
-        const { id } = decodedToken;
+      // Fetch holidays, timetable, and reschedules
+      const holidaysResponse = await axios.get(`${url}/api/professor/holidays`);
+      const timetableResponse = await axios.post(
+        `${url}/api/professor/timetable`,
+        { id }
+      );
+      const reschedulesResponse = await axios.post(
+        `${url}/api/professor/reschedules`,
+        { id }
+      );
 
-        // Fetch holidays, timetable, and reschedules
-        const holidaysResponse = await axios.get(
-          `${url}/api/professor/holidays`
-        );
-        const timetableResponse = await axios.post(
-          `${url}/api/professor/timetable`,
-          { id }
-        );
-        const reschedulesResponse = await axios.post(
-          `${url}/api/professor/reschedules`,
-          { id }
-        );
+      // Process holidays
+      const holidays = holidaysResponse.data.holidays.map((holiday) => ({
+        id: `holiday-${holiday.id}`,
+        title: holiday.description,
+        start: moment(holiday.holiday_date).toDate(),
+        end: moment(holiday.holiday_date).toDate(),
+        allDay: true,
+      }));
 
-        // Process holidays
-        const holidays = holidaysResponse.data.holidays.map((holiday) => ({
-          id: `holiday-${holiday.id}`,
-          title: holiday.description,
-          start: moment(holiday.holiday_date).toDate(),
-          end: moment(holiday.holiday_date).toDate(),
-          allDay: true,
-        }));
+      // Process timetable and rescheduled classes
+      const { classes } = timetableResponse.data;
+      const { rescheduled_classes } = reschedulesResponse.data;
 
-        // Process timetable and rescheduled classes
-        const { classes } = timetableResponse.data;
-        const { rescheduled_classes } = reschedulesResponse.data;
-
-        const originalEvents = [];
-        for (let i = 0; i < 4; i++) {
-          const weekStart = moment().startOf("week").add(i, "weeks");
-          classes.forEach((event) => {
-            const dayIndex = daysOfWeek.indexOf(event.day_of_week);
-            const startDate = weekStart
-              .clone()
-              .add(dayIndex, "days")
-              .set({
-                hour: parseInt(event.start_time.split(":")[0], 10),
-                minute: parseInt(event.start_time.split(":")[1], 10),
-              });
-
-            const endDate = startDate
-              .clone()
-              .add(
-                parseInt(event.end_time.split(":")[0], 10) -
-                  parseInt(event.start_time.split(":")[0], 10),
-                "hours"
-              )
-              .add(
-                parseInt(event.end_time.split(":")[1], 10) -
-                  parseInt(event.start_time.split(":")[1], 10),
-                "minutes"
-              );
-
-            originalEvents.push({
-              id: `${event.id}-${i}`,
-              title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
-              start: startDate.toDate(),
-              end: endDate.toDate(),
-              details: {
-                courseId: event.courses.id,
-                courseName: event.courses.course_name,
-                branch: event.courses.branch,
-                semester: event.courses.semester,
-                courseCode: event.courses.course_code,
-                lectureHall: event.lecture_halls.hall_name,
-                lectureHallId: event.lecture_halls.id,
-                dayOfWeek: event.day_of_week,
-                startTime: event.start_time,
-                endTime: event.end_time,
-              },
+      const originalEvents = [];
+      for (let i = 0; i < 4; i++) {
+        const weekStart = moment().startOf("week").add(i, "weeks");
+        classes.forEach((event) => {
+          const dayIndex = daysOfWeek.indexOf(event.day_of_week);
+          const startDate = weekStart
+            .clone()
+            .add(dayIndex, "days")
+            .set({
+              hour: parseInt(event.start_time.split(":")[0], 10),
+              minute: parseInt(event.start_time.split(":")[1], 10),
             });
-          });
-        }
 
-        const rescheduledEvents = rescheduled_classes.map((event) => {
-          const startDate = moment(event.rescheduled_date).set({
-            hour: parseInt(event.new_time.split(":")[0], 10),
-            minute: parseInt(event.new_time.split(":")[1], 10),
-          });
+          const endDate = startDate
+            .clone()
+            .add(
+              parseInt(event.end_time.split(":")[0], 10) -
+                parseInt(event.start_time.split(":")[0], 10),
+              "hours"
+            )
+            .add(
+              parseInt(event.end_time.split(":")[1], 10) -
+                parseInt(event.start_time.split(":")[1], 10),
+              "minutes"
+            );
 
-          const endDate = moment(startDate).add(1, "hour");
-
-          return {
-            id: `rescheduled-${event.id}`,
-            title: `${event.courses.course_code} - ${event.lecture_halls.hall_name} (Rescheduled)`,
+          originalEvents.push({
+            id: `${event.id}-${i}`,
+            title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
             start: startDate.toDate(),
             end: endDate.toDate(),
             details: {
-              id: event.id,
               courseId: event.courses.id,
               courseName: event.courses.course_name,
               branch: event.courses.branch,
@@ -155,40 +118,72 @@ const Timetable = () => {
               courseCode: event.courses.course_code,
               lectureHall: event.lecture_halls.hall_name,
               lectureHallId: event.lecture_halls.id,
-              originalDate: event.original_date,
-              rescheduledDate: event.rescheduled_date,
-              reason: event.reason,
-              newTime: event.new_time,
+              dayOfWeek: event.day_of_week,
+              startTime: event.start_time,
+              endTime: event.end_time,
             },
-          };
-        });
-
-        // Filter out the original events that have been rescheduled
-        const filteredOriginalEvents = originalEvents.filter((event) => {
-          return !rescheduled_classes.some((rescheduled) => {
-            const originalDate = moment(rescheduled.original_date).toDate();
-            return (
-              event.start.toDateString() === originalDate.toDateString() &&
-              event.details.courseCode === rescheduled.courses.course_code
-            );
           });
         });
-
-        setEvents([
-          ...filteredOriginalEvents,
-          ...rescheduledEvents,
-          ...holidays,
-        ]);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setError("Failed to fetch data.");
-        setLoading(false);
       }
-    };
+
+      const rescheduledEvents = rescheduled_classes.map((event) => {
+        const startDate = moment(event.rescheduled_date).set({
+          hour: parseInt(event.new_time.split(":")[0], 10),
+          minute: parseInt(event.new_time.split(":")[1], 10),
+        });
+
+        const endDate = moment(startDate).add(1, "hour");
+
+        return {
+          id: `rescheduled-${event.id}`,
+          title: `${event.courses.course_code} - ${event.lecture_halls.hall_name} (Rescheduled)`,
+          start: startDate.toDate(),
+          end: endDate.toDate(),
+          details: {
+            id: event.id,
+            courseId: event.courses.id,
+            courseName: event.courses.course_name,
+            branch: event.courses.branch,
+            semester: event.courses.semester,
+            courseCode: event.courses.course_code,
+            lectureHall: event.lecture_halls.hall_name,
+            lectureHallId: event.lecture_halls.id,
+            originalDate: event.original_date,
+            rescheduledDate: event.rescheduled_date,
+            reason: event.reason,
+            newTime: event.new_time,
+          },
+        };
+      });
+
+      // Filter out the original events that have been rescheduled
+      const filteredOriginalEvents = originalEvents.filter((event) => {
+        return !rescheduled_classes.some((rescheduled) => {
+          const originalDate = moment(rescheduled.original_date).toDate();
+          return (
+            event.start.toDateString() === originalDate.toDateString() &&
+            event.details.courseCode === rescheduled.courses.course_code
+          );
+        });
+      });
+
+      setEvents([...filteredOriginalEvents, ...rescheduledEvents, ...holidays]);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setError("Failed to fetch data.");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
     fetchData();
-  }, [token, url, events]);
+  }, [token, url]);
 
   const handleEventClick = (event) => {
     setSelectedEvent(event);
@@ -207,14 +202,19 @@ const Timetable = () => {
     }
 
     try {
-      await axios.delete(`${url}/api/professor/cancel-reschedule`, {
-        data: { rescheduleId: selectedEvent.details.id },
-      });
+      const response = await axios.delete(
+        `${url}/api/professor/cancel-reschedule`,
+        {
+          data: { rescheduleId: selectedEvent.details.id },
+        }
+      );
 
       setEvents((prevEvents) =>
         prevEvents.filter((event) => event.id !== selectedEvent.id)
       );
 
+      toast.success(response.data.message);
+      fetchData();
       closeModal();
     } catch (error) {
       console.error("Error canceling reschedule:", error);
@@ -401,21 +401,21 @@ const Timetable = () => {
                 {selectedEvent.title.includes("(Rescheduled)") ? (
                   <button
                     onClick={handleCancelReschedule}
-                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition duration-200 mr-2"
+                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition duration-200"
                   >
                     Cancel Reschedule
                   </button>
                 ) : (
                   <button
                     onClick={handleRescheduleClick}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200 mr-2"
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200"
                   >
                     Reschedule
                   </button>
                 )}
                 <button
                   onClick={closeModal}
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition duration-200"
+                  className="px-4 py-2 ml-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition duration-200"
                 >
                   Close
                 </button>
