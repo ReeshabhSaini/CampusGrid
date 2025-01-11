@@ -11,6 +11,8 @@ import EditProfessorProfile from "./pages/TeacherDashboard/editProfile";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
 import TimetableUpload from "./pages/AdminDashboard/TimeTableUpload";
 import HolidaysUpload from "./pages/AdminDashboard/HolidaysUpload";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const decodeJWT = (token) => {
   if (!token) return null;
@@ -53,80 +55,83 @@ const App = () => {
   const redirectPath = getRedirectPath(token);
 
   return (
-    <Routes>
-      {/* Redirect root path based on token */}
-      <Route path="/" element={<Navigate to={redirectPath} replace />} />
+    <div>
+      <ToastContainer />
+      <Routes>
+        {/* Redirect root path based on token */}
+        <Route path="/" element={<Navigate to={redirectPath} replace />} />
 
-      {/* Public Routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-      {/* Protected Routes */}
-      <Route
-        path="/sdashboard"
-        element={
-          <ProtectedRoute>
-            <SDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/tdashboard"
-        element={
-          <ProtectedRoute>
-            <TDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/tdashboard/reschedule"
-        element={
-          <ProtectedRoute>
-            <ReschedulePage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/student/edit-profile"
-        element={
-          <ProtectedRoute>
-            <EditStudentProfile />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/professor/edit-profile"
-        element={
-          <ProtectedRoute>
-            <EditProfessorProfile />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin-dashboard"
-        element={
-          <ProtectedRoute>
-            <AdminDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin-dashboard-timetable"
-        element={
-          <ProtectedRoute>
-            <TimetableUpload />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin-dashboard-holidays"
-        element={
-          <ProtectedRoute>
-            <HolidaysUpload />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+        {/* Protected Routes */}
+        <Route
+          path="/sdashboard"
+          element={
+            <ProtectedRoute>
+              <SDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tdashboard"
+          element={
+            <ProtectedRoute>
+              <TDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tdashboard/reschedule"
+          element={
+            <ProtectedRoute>
+              <ReschedulePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/edit-profile"
+          element={
+            <ProtectedRoute>
+              <EditStudentProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/professor/edit-profile"
+          element={
+            <ProtectedRoute>
+              <EditProfessorProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-dashboard-timetable"
+          element={
+            <ProtectedRoute>
+              <TimetableUpload />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-dashboard-holidays"
+          element={
+            <ProtectedRoute>
+              <HolidaysUpload />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </div>
   );
 };
 

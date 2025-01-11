@@ -1,8 +1,11 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import axios from "axios";
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../context/StoreContext";
-  const Register = () => {
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
+const Register = () => {
   const {
     studentData,
     setStudentData,
@@ -12,6 +15,10 @@ import { StoreContext } from "../../context/StoreContext";
     setRoleData,
     url,
   } = useContext(StoreContext);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const navigate = useNavigate();
 
   const handleChange = (event) => {
     if (roleData.role === "student") {
@@ -34,7 +41,7 @@ import { StoreContext } from "../../context/StoreContext";
 
     if (roleData.role === "student") {
       // Check if passwords match
-      if (studentData.password !== studentData.confirmPassword) {
+      if (password !== confirmPassword) {
         alert("Passwords do not match!");
         return;
       }
@@ -45,36 +52,37 @@ import { StoreContext } from "../../context/StoreContext";
           first_name: studentData.first_name,
           last_name: studentData.last_name,
           email: studentData.email,
-          password: studentData.password,
+          password: password,
           student_id: studentData.student_id,
           branch: studentData.branch,
           semester: studentData.semester,
         });
 
         if (response.status === 200) {
-          alert("Registration successful!");
-          console.log("Response Data:", response.data);
           setStudentData({
             first_name: "",
             last_name: "",
             email: "",
-            password: "",
-            confirmPassword: "",
             branch: "",
             semester: "",
             student_id: "",
           });
+          setPassword("");
+          setConfirmPassword("");
+
+          toast.success(response.data.message);
+
+          navigate("/login");
         } else {
-          alert("Something went wrong!");
+          toast.error(response.data.message);
         }
       } catch (error) {
-        console.log("Error during registration:", error);
-        alert("Failed to register. Please try again.");
+        toast.error(response.data.message);
       }
     }
     if (roleData.role === "professor") {
       // Check if passwords match
-      if (professorData.password !== professorData.confirmPassword) {
+      if (password !== confirmPassword) {
         alert("Passwords do not match!");
         return;
       }
@@ -87,20 +95,22 @@ import { StoreContext } from "../../context/StoreContext";
             first_name: professorData.first_name,
             last_name: professorData.last_name,
             email: professorData.email,
-            password: professorData.password,
+            password: password,
           }
         );
 
         if (response.status === 200) {
-          alert("Registration successful!");
-          console.log("Response Data:", response.data);
           setProfessorData({
             first_name: "",
             last_name: "",
             email: "",
-            password: "",
-            confirmPassword: "",
           });
+          setPassword("");
+          setConfirmPassword("");
+
+          toast.success(response.data.message);
+
+          navigate("/login");
         } else {
           alert("Something went wrong!");
         }
@@ -203,12 +213,8 @@ import { StoreContext } from "../../context/StoreContext";
               type="password"
               name="password"
               placeholder="Password"
-              onChange={handleChange}
-              value={
-                roleData.role === "student"
-                  ? studentData.password
-                  : professorData.password
-              }
+              onChange={(e) => setPassword(e.target.value)}
+              value={password}
               required
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             />
@@ -223,12 +229,8 @@ import { StoreContext } from "../../context/StoreContext";
               type="password"
               name="confirmPassword"
               placeholder="Confirm Password"
-              onChange={handleChange}
-              value={
-                roleData.role === "student"
-                  ? studentData.confirmPassword
-                  : professorData.confirmPassword
-              }
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              value={confirmPassword}
               required
               className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             />
@@ -259,8 +261,19 @@ import { StoreContext } from "../../context/StoreContext";
                   <option value="CSE-AI">
                     Computer Science and Engineering (Artificial Intelligence)
                   </option>
-                  <option value="ECE">Electronics and Communication</option>
-                  <option value="EE">Electrical</option>
+                  <option value="ECE">
+                    Electronics and Communication Engineering
+                  </option>
+                  <option value="EE">Electrical Engineering</option>
+                  <option value="Mech">Mechanical Engineering</option>
+                  <option value="Civil">Civil Engineering</option>
+                  <option value="Civil">Aerospace Engineering</option>
+                  <option value="Meta">
+                    Metallurgical and Materials Engineering
+                  </option>
+                  <option value="Prod">
+                    Production and Industrial Engineering
+                  </option>
                 </select>
               </div>
 

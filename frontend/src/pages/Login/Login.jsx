@@ -3,6 +3,7 @@ import axios from "axios";
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../context/StoreContext";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const roles = [
   { name: "Student", value: "student", icon: assets.StudentIcon },
@@ -21,7 +22,7 @@ const Login = () => {
 
   const handleRoleSelect = (selectedRole) => {
     setRoleData((prev) => ({ ...prev, role: selectedRole }));
-   };
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -39,6 +40,8 @@ const Login = () => {
         // Save token to localStorage
         localStorage.setItem("token", response.data.token);
         setToken(response.data.token);
+
+        toast.success(response.data.message);
 
         navigate("/sdashboard");
       } catch (err) {
@@ -66,6 +69,8 @@ const Login = () => {
         // Save token to localStorage
         localStorage.setItem("token", response.data.token);
         setToken(response.data.token);
+
+        toast.success(response.data.message);
 
         navigate("/tdashboard");
       } catch (err) {
@@ -132,7 +137,11 @@ const Login = () => {
                       : "border-gray-300"
                   }`}
                 >
-                  <img src={role.icon} alt={role.name} className="w-12 h-12 mb-2" />
+                  <img
+                    src={role.icon}
+                    alt={role.name}
+                    className="w-12 h-12 mb-2"
+                  />
                   <span className="text-sm font-medium text-center text-gray-700">
                     {role.name}
                   </span>
@@ -157,7 +166,7 @@ const Login = () => {
                 </div>
               ))}
             </div>
-         </div>
+          </div>
           <div className="mb-4">
             <label className="block mb-2 text-sm font-medium text-indigo-600">
               Email
@@ -193,15 +202,6 @@ const Login = () => {
             {loading ? "Logging in..." : "Sign in"}
           </button>
         </form>
-        <div className="text-center text-sm text-indigo-600 mb-4">
-          or continue with
-        </div>
-        <button
-          type="button"
-          className="flex items-center justify-center w-full py-3 mb-4 text-black bg-white rounded-lg hover:bg-gray-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-black-300"
-        >
-          Sign in with Google
-        </button>
         <div className="text-center text-sm text-indigo-600">
           Don't have an account yet?{" "}
           <a href="/register" className="font-medium hover:underline">

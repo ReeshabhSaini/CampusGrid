@@ -8,8 +8,6 @@ const StoreContextProvider = (props) => {
     first_name: "",
     last_name: "",
     email: "",
-    password: "",
-    confirmPassword: "",
     branch: "",
     semester: "",
     student_id: "",
@@ -28,8 +26,6 @@ const StoreContextProvider = (props) => {
     first_name: "",
     last_name: "",
     email: "",
-    password: "",
-    confirmPassword: "",
   });
 
   const [rescheduleRequest, setRescheduleRequest] = useState({});

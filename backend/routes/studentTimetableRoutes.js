@@ -94,10 +94,6 @@ router.post("/reschedules", async (req, res) => {
         // Debug: Log data returned by query
         console.log("Fetched Data:", rescheduled_classes);
 
-        if (rescheduled_classes.length === 0) {
-            return res.status(404).json({ message: "No Rescheduled Classes found for the given branch and semester." });
-        }
-
         // Return fetched timetable
         return res.status(200).json({ message: "Timetable fetched successfully", rescheduled_classes });
     } catch (err) {
