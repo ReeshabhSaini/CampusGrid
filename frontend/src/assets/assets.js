@@ -5,7 +5,8 @@ import StudentIcon from "./StudentIcon.jpeg"
 import ProfessorIcon from "./ProfessorIcon.png"
 import AdminIcon from "./AdminIcon.png"
 import DefProfilePic from "./DefProfilePic.png"
-
+import ProfileIcon from "./ProfileIcon.png"
+import Timetable from "./TimetableIcon.png";
 const assets = {
     Logo,
     StartImage,
@@ -13,7 +14,9 @@ const assets = {
     StudentIcon,
     AdminIcon,
     ProfessorIcon,
-    DefProfilePic
+    DefProfilePic,
+    ProfileIcon,
+    Timetable
 }
 
 export { assets };

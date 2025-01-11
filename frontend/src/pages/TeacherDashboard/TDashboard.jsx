@@ -166,7 +166,7 @@ const TDashboard = () => {
               onClick={() => setActiveSection("Timetable")}
             >
               <img
-                src={assets.TimetableIcon}
+                src={assets.Timetable}
                 alt="Timetable Icon"
                 className="w-5 h-5 object-contain mr-2"
               />
