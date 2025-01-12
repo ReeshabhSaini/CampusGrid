@@ -95,6 +95,8 @@ const ReschedulePage = ({ event }) => {
         selected_time: selectedTime,
         type: rescheduleRequest.details.type,
         group: rescheduleRequest.details.group,
+        original_start_time: rescheduleRequest.details.start_time,
+        original_end_time: rescheduleRequest.details.end_time,
       });
 
       toast.success(response.data.message);

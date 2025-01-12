@@ -130,7 +130,7 @@ const Timetable = ({ branch, semester }) => {
 
           return {
             id: `rescheduled-${event.id}`,
-            title: `${event.courses.course_code} (${event.lecture_halls.hall_name})`,
+            title: `${event.courses.course_code} (${event.lecture_halls.hall_name}) (Rescheduled)`,
             start: startDate.toDate(),
             end: endDate.toDate(),
             type: "rescheduled",

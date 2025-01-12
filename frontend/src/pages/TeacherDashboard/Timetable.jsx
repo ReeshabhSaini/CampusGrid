@@ -164,6 +164,8 @@ const Timetable = () => {
             lectureHall: event.lecture_halls.hall_name,
             lectureHallId: event.lecture_halls.id,
             originalDate: event.original_date,
+            originalStartTime: event.original_start_time,
+            originalEndTime: event.original_end_time,
             rescheduledDate: event.rescheduled_date,
             reason: event.reason,
             newTime: event.new_time,
@@ -171,13 +173,49 @@ const Timetable = () => {
         };
       });
 
-      // Filter out the original events that have been rescheduled
       const filteredOriginalEvents = originalEvents.filter((event) => {
         return !rescheduled_classes.some((rescheduled) => {
-          const originalDate = moment(rescheduled.original_date).toDate();
+          const originalDate = moment(rescheduled.original_date);
+          const originalStartTime = moment(
+            rescheduled.original_start_time,
+            "HH:mm"
+          );
+          const originalEndTime = moment(
+            rescheduled.original_end_time,
+            "HH:mm"
+          );
+
+          // Combine the original date with start and end time
+          const originalDateTime = originalDate.set({
+            hour: originalStartTime.hours(),
+            minute: originalStartTime.minutes(),
+          });
+          const originalEndDateTime = originalDate.set({
+            hour: originalEndTime.hours(),
+            minute: originalEndTime.minutes(),
+          });
+
+          const eventStartTime = moment(event.start);
+          const eventEndTime = moment(event.end);
+
+          // Log the times for debugging
+          console.log(
+            `Event Start: ${eventStartTime.format(
+              "YYYY-MM-DD HH:mm"
+            )}, Event End: ${eventEndTime.format("YYYY-MM-DD HH:mm")}`
+          );
+          console.log(
+            `Original DateTime: ${originalDateTime.format(
+              "YYYY-MM-DD HH:mm"
+            )}, Original EndTime: ${originalEndDateTime.format(
+              "YYYY-MM-DD HH:mm"
+            )}`
+          );
+
+          // Exclude the event if its start time and end time match the original class's original times
           return (
-            event.start.toDateString() === originalDate.toDateString() &&
-            event.details.courseCode === rescheduled.courses.course_code
+            eventStartTime.isSame(originalDateTime) &&
+            eventEndTime.isSame(originalEndDateTime)
           );
         });
       });

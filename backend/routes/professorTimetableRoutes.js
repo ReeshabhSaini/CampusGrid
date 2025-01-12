@@ -81,6 +81,8 @@ router.post("/reschedules", async (req, res) => {
                 rescheduled_date,
                 reason,
                 new_time,
+                original_start_time,
+                original_end_time,
                 lecture_halls (
                     hall_name
                 ),
