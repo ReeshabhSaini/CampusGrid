@@ -215,16 +215,16 @@ const Timetable = ({ branch, semester }) => {
         backgroundColor = "#48bb78";
         break;
       case "rescheduled":
-        backgroundColor = "#f6ad55";
+        backgroundColor = "#f59e0b";
         break;
       default:
-        backgroundColor = "#3182ce";
+        backgroundColor = "#34d399";
         break;
     }
 
     return {
       style: {
-        backgroundColor: isSelected ? "#2b6cb0" : backgroundColor,
+        backgroundColor: backgroundColor,
         color: "white",
         borderRadius: "5px",
         padding: "4px",
