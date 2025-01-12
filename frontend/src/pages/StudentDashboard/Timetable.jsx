@@ -269,7 +269,7 @@ const Timetable = ({ branch, semester }) => {
             formats={formats}
             onSelectEvent={handleEventClick}
             min={new Date(2024, 11, 22, 8, 0)} // Set minimum time to 8 AM
-            max={new Date(2024, 11, 22, 17, 0)} // Set maximum time to 5 PM
+            max={new Date(2024, 11, 22, 18, 0)} // Set maximum time to 6 PM
           />
         </div>
       </div>
