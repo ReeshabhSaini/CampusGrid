@@ -36,18 +36,18 @@ const Timetable = ({ branch, semester }) => {
           lab_group: studentData.lab_group,
         });
 
-        // const response2 = await axios.post(`${url}/api/student/reschedules`, {
-        //   branch: studentData.branch,
-        //   semester: studentData.semester,
-        //   class_group: studentData.class_group,
-        //   tutorial_group: studentData.tutorial_group,
-        //   lab_group: studentData.lab_group,
-        // });
+        const response2 = await axios.post(`${url}/api/student/reschedules`, {
+          branch: studentData.branch,
+          semester: studentData.semester,
+          class_group: studentData.class_group,
+          tutorial_group: studentData.tutorial_group,
+          lab_group: studentData.lab_group,
+        });
 
         const response3 = await axios.get(`${url}/api/student/holidays`);
 
-        const { classes } = response1.data;
-        // const { rescheduled_classes } = response2.data;
+        const { classes } = response1.data.response;
+        const { rescheduled_classes } = response2.data;
         const { holidays } = response3.data;
 
         // Process holiday dates into a set for quick lookup
@@ -86,11 +86,19 @@ const Timetable = ({ branch, semester }) => {
                 "minutes"
               );
 
+            // Add a type field to specify class, tutorial, or lab
+            const type = event.courses.course_code.includes("T")
+              ? "tutorial"
+              : event.courses.course_code.includes("L")
+              ? "lab"
+              : "class"; // Use 'class' if neither
+
             originalEvents.push({
               id: `${event.id}-${i}`,
               title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
               start: startDate.toDate(),
               end: endDate.toDate(),
+              type: type, // Add type to the event
               details: {
                 courseName: event.courses.course_name,
                 branch: event.courses.branch,
@@ -105,40 +113,41 @@ const Timetable = ({ branch, semester }) => {
           });
         }
 
-        // // Process rescheduled classes, excluding those on holidays
-        // const rescheduledEvents = rescheduled_classes
-        //   .filter(
-        //     (event) =>
-        //       !holidayDates.has(
-        //         moment(event.rescheduled_date).format("YYYY-MM-DD")
-        //       )
-        //   )
-        //   .map((event) => {
-        //     const startDate = moment(event.rescheduled_date).set({
-        //       hour: parseInt(event.new_time.split(":")[0], 10),
-        //       minute: parseInt(event.new_time.split(":")[1], 10),
-        //     });
+        // Process rescheduled classes, excluding those on holidays
+        const rescheduledEvents = rescheduled_classes
+          .filter(
+            (event) =>
+              !holidayDates.has(
+                moment(event.rescheduled_date).format("YYYY-MM-DD")
+              )
+          )
+          .map((event) => {
+            const startDate = moment(event.rescheduled_date).set({
+              hour: parseInt(event.new_time.split(":")[0], 10),
+              minute: parseInt(event.new_time.split(":")[1], 10),
+            });
 
-        //     const endDate = moment(startDate).add(1, "hour");
+            const endDate = moment(startDate).add(1, "hour");
 
-        //     return {
-        //       id: `rescheduled-${event.id}`,
-        //       title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
-        //       start: startDate.toDate(),
-        //       end: endDate.toDate(),
-        //       details: {
-        //         courseName: event.courses.course_name,
-        //         branch: event.courses.branch,
-        //         semester: event.courses.semester,
-        //         courseCode: event.courses.course_code,
-        //         lectureHall: event.lecture_halls.hall_name,
-        //         originalDate: event.original_date,
-        //         rescheduledDate: event.rescheduled_date,
-        //         reason: event.reason,
-        //         newTime: event.new_time,
-        //       },
-        //     };
-        //   });
+            return {
+              id: `rescheduled-${event.id}`,
+              title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
+              start: startDate.toDate(),
+              end: endDate.toDate(),
+              type: "rescheduled", // Add rescheduled type
+              details: {
+                courseName: event.courses.course_name,
+                branch: event.courses.branch,
+                semester: event.courses.semester,
+                courseCode: event.courses.course_code,
+                lectureHall: event.lecture_halls.hall_name,
+                originalDate: event.original_date,
+                rescheduledDate: event.rescheduled_date,
+                reason: event.reason,
+                newTime: event.new_time,
+              },
+            };
+          });
 
         // Process holiday events
         const holidayEvents = holidays.map((holiday) => {
@@ -148,7 +157,7 @@ const Timetable = ({ branch, semester }) => {
 
           return {
             id: `holiday-${holiday.id}`,
-            title: `Holiday: ${holiday.description}`,
+            title: holiday.description,
             start: startDate.toDate(),
             end: endDate.toDate(),
             allDay: true,
@@ -160,7 +169,7 @@ const Timetable = ({ branch, semester }) => {
         const finalEvents = [
           ...holidayEvents,
           ...originalEvents,
-          // ...rescheduledEvents,
+          ...rescheduledEvents,
         ];
 
         setEvents(finalEvents);
@@ -176,27 +185,56 @@ const Timetable = ({ branch, semester }) => {
   }, [studentData.branch, studentData.semester, url]);
 
   const handleEventClick = (event) => {
-    setSelectedEvent(event);
+    // Check if it's a holiday and display holiday details
+    if (event.isHoliday) {
+      setSelectedEvent({
+        ...event,
+        details: {
+          description: event.title, // Use the title as description
+          holidayDate: moment(event.start).format("YYYY-MM-DD"),
+        },
+      });
+    } else {
+      // For class, tutorial, lab, or rescheduled events
+      setSelectedEvent(event);
+    }
   };
 
   const closeModal = () => {
     setSelectedEvent(null);
   };
 
-  const eventStyleGetter = (event, start, end, isSelected) => ({
-    style: {
-      backgroundColor: event.isHoliday
-        ? "#d97706"
-        : isSelected
-        ? "#1d4ed8"
-        : "#3174ad",
-      color: "white",
-      borderRadius: "5px",
-      padding: "4px",
-      textAlign: "center",
-      border: isSelected ? "2px solid #2563eb" : "none",
-    },
-  });
+  const eventStyleGetter = (event, start, end, isSelected) => {
+    let backgroundColor;
+    switch (event.type) {
+      case "class":
+        backgroundColor = "#3182ce"; // Blue for regular classes
+        break;
+      case "tutorial":
+        backgroundColor = "#9f7aea"; // Purple for tutorials
+        break;
+      case "lab":
+        backgroundColor = "#48bb78"; // Green for labs
+        break;
+      case "rescheduled":
+        backgroundColor = "#f6ad55"; // Orange for rescheduled events
+        break;
+      default:
+        backgroundColor = "#3182ce"; // Default to blue
+        break;
+    }
+
+    return {
+      style: {
+        backgroundColor: isSelected ? "#2b6cb0" : backgroundColor, // Highlight selected event
+        color: "white",
+        borderRadius: "5px",
+        padding: "4px",
+        textAlign: "center",
+        border: isSelected ? "2px solid #2563eb" : "none",
+      },
+    };
+  };
 
   const formats = {
     timeGutterFormat: (date, culture, localizer) =>
@@ -236,46 +274,78 @@ const Timetable = ({ branch, semester }) => {
         </div>
       </div>
 
-      {/* Modal for Event Details */}
       {selectedEvent && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-96">
-            <h3 className="text-xl font-bold mb-4">Class Details</h3>
-            <p>
-              <strong>Course Name:</strong> {selectedEvent.details.courseName}
-            </p>
-            <p>
-              <strong>Branch:</strong> {selectedEvent.details.branch}
-            </p>
-            <p>
-              <strong>Semester:</strong> {selectedEvent.details.semester}
-            </p>
-            <p>
-              <strong>Course Code:</strong> {selectedEvent.details.courseCode}
-            </p>
-            <p>
-              <strong>Lecture Hall:</strong> {selectedEvent.details.lectureHall}
-            </p>
-            {/* {selectedEvent.details.originalDate && (
-              <p>
-                <strong>Original Date:</strong>{" "}
-                {selectedEvent.details.originalDate}
-              </p>
+            <h3 className="text-xl font-bold mb-4">
+              {selectedEvent.isHoliday ? "Holiday Details" : "Class Details"}
+            </h3>
+
+            {selectedEvent.isHoliday ? (
+              <>
+                <p>
+                  <strong>Description:</strong>{" "}
+                  {selectedEvent.details.description}
+                </p>
+                <p>
+                  <strong>Date:</strong> {selectedEvent.details.holidayDate}
+                </p>
+              </>
+            ) : (
+              <>
+                <p>
+                  <strong>Course Name:</strong>{" "}
+                  {selectedEvent.details.courseName}
+                </p>
+                <p>
+                  <strong>Branch:</strong> {selectedEvent.details.branch}
+                </p>
+                <p>
+                  <strong>Semester:</strong> {selectedEvent.details.semester}
+                </p>
+                <p>
+                  <strong>Course Code:</strong>{" "}
+                  {selectedEvent.details.courseCode}
+                </p>
+                <p>
+                  <strong>Lecture Hall:</strong>{" "}
+                  {selectedEvent.details.lectureHall}
+                </p>
+                <p>
+                  <strong>Day of Week:</strong>{" "}
+                  {selectedEvent.details.dayOfWeek}
+                </p>
+                <p>
+                  <strong>Start Time:</strong> {selectedEvent.details.startTime}
+                </p>
+                <p>
+                  <strong>End Time:</strong> {selectedEvent.details.endTime}
+                </p>
+                {selectedEvent.details.rescheduledDate && (
+                  <>
+                    <hr className="my-4" />
+                    <p>
+                      <strong>Original Date:</strong>{" "}
+                      {selectedEvent.details.originalDate}
+                    </p>
+                    <p>
+                      <strong>Rescheduled Date:</strong>{" "}
+                      {selectedEvent.details.rescheduledDate}
+                    </p>
+                    <p>
+                      <strong>Reason:</strong> {selectedEvent.details.reason}
+                    </p>
+                    <p>
+                      <strong>New Time:</strong> {selectedEvent.details.newTime}
+                    </p>
+                  </>
+                )}
+              </>
             )}
-            {selectedEvent.details.rescheduledDate && (
-              <p>
-                <strong>Rescheduled Date:</strong>{" "}
-                {selectedEvent.details.rescheduledDate}
-              </p>
-            )}
-            {selectedEvent.details.reason && (
-              <p>
-                <strong>Reason:</strong> {selectedEvent.details.reason}
-              </p>
-            )} */}
+
             <button
+              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg"
               onClick={closeModal}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
               Close
             </button>
