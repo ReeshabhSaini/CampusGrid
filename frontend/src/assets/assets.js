@@ -7,6 +7,7 @@ import AdminIcon from "./AdminIcon.png"
 import DefProfilePic from "./DefProfilePic.png"
 import ProfileIcon from "./ProfileIcon.png"
 import Timetable from "./TimetableIcon.png";
+import Holidays from "./Holidays.png"
 const assets = {
     Logo,
     StartImage,
@@ -16,7 +17,8 @@ const assets = {
     ProfessorIcon,
     DefProfilePic,
     ProfileIcon,
-    Timetable
+    Timetable,
+    Holidays
 }
 
 export { assets };

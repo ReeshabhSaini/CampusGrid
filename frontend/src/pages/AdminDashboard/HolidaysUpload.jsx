@@ -34,39 +34,55 @@ const HolidaysUpload = () => {
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Upload Holidays</h2>
-      {holidays.map((holiday, index) => (
-        <div key={index} className="mb-2 flex gap-2">
-          <input
-            type="date"
-            value={holiday.date}
-            onChange={(e) => handleChange(index, "date", e.target.value)}
-            className="border px-2 py-1 rounded-md"
-          />
-          <input
-            type="text"
-            placeholder="Description"
-            value={holiday.description}
-            onChange={(e) => handleChange(index, "description", e.target.value)}
-            className="border px-2 py-1 rounded-md"
-          />
+    <div className="min-h-screen  mt-10">
+      <div className="max-w-3xl w-full p-8 bg-yellow-50 rounded-lg shadow-lg mx-auto">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
+          Upload Holidays
+        </h2>
+        <div className="space-y-4">
+          {holidays.map((holiday, index) => (
+            <div key={index} className="flex flex-col gap-4 sm:flex-row sm:gap-6">
+              <div className="flex-1">
+                <input
+                  type="date"
+                  value={holiday.date}
+                  onChange={(e) => handleChange(index, "date", e.target.value)}
+                  className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="flex-1">
+                <input
+                  type="text"
+                  placeholder="Description"
+                  value={holiday.description}
+                  onChange={(e) =>
+                    handleChange(index, "description", e.target.value)
+                  }
+                  className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
-      <button
-        onClick={handleAddRow}
-        className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 mb-4"
-      >
-        Add Holiday
-      </button>
-      <button
-        onClick={handleUpload}
-        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-      >
-        Upload
-      </button>
+
+        <div className="mt-6 flex justify-between">
+          <button
+            onClick={handleAddRow}
+            className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-200"
+          >
+            Add Holiday
+          </button>
+          <button
+            onClick={handleUpload}
+            className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
+          >
+            Upload
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
 
 export default HolidaysUpload;
+
