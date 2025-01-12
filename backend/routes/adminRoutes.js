@@ -69,7 +69,7 @@ router.get("/get-professors", async (req, res) => {
 
 router.post("/upload-timetable", async (req, res) => {
     try {
-        let { day_of_week, courses_id, start_time, end_time, lecture_hall_id, professor_id } = req.body;
+        let { day_of_week, courses_id, type, group, start_time, end_time, lecture_hall_id, professor_id } = req.body;
 
         // Ensure start_time and end_time are in 'time' format
         if (typeof start_time !== 'string' || typeof end_time !== 'string') {
@@ -84,6 +84,8 @@ router.post("/upload-timetable", async (req, res) => {
             {
                 day_of_week,
                 courses_id,
+                type,
+                group,
                 start_time: start_time,
                 end_time: end_time,
                 lecture_hall_id,
@@ -107,7 +109,6 @@ router.post("/upload-timetable", async (req, res) => {
         });
     }
 });
-
 
 router.post("/upload-holidays", async (req, res) => {
     try {

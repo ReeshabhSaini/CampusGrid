@@ -29,19 +29,25 @@ const Timetable = ({ branch, semester }) => {
     const fetchTimetableAndHolidays = async () => {
       try {
         const response1 = await axios.post(`${url}/api/student/timetable`, {
-          branch: "ECE",
-          semester: "3",
+          branch: studentData.branch,
+          semester: studentData.semester,
+          class_group: studentData.class_group,
+          tutorial_group: studentData.tutorial_group,
+          lab_group: studentData.lab_group,
         });
 
-        const response2 = await axios.post(`${url}/api/student/reschedules`, {
-          branch: "ECE",
-          semester: "3",
-        });
+        // const response2 = await axios.post(`${url}/api/student/reschedules`, {
+        //   branch: studentData.branch,
+        //   semester: studentData.semester,
+        //   class_group: studentData.class_group,
+        //   tutorial_group: studentData.tutorial_group,
+        //   lab_group: studentData.lab_group,
+        // });
 
         const response3 = await axios.get(`${url}/api/student/holidays`);
 
         const { classes } = response1.data;
-        const { rescheduled_classes } = response2.data;
+        // const { rescheduled_classes } = response2.data;
         const { holidays } = response3.data;
 
         // Process holiday dates into a set for quick lookup
@@ -99,40 +105,40 @@ const Timetable = ({ branch, semester }) => {
           });
         }
 
-        // Process rescheduled classes, excluding those on holidays
-        const rescheduledEvents = rescheduled_classes
-          .filter(
-            (event) =>
-              !holidayDates.has(
-                moment(event.rescheduled_date).format("YYYY-MM-DD")
-              )
-          )
-          .map((event) => {
-            const startDate = moment(event.rescheduled_date).set({
-              hour: parseInt(event.new_time.split(":")[0], 10),
-              minute: parseInt(event.new_time.split(":")[1], 10),
-            });
+        // // Process rescheduled classes, excluding those on holidays
+        // const rescheduledEvents = rescheduled_classes
+        //   .filter(
+        //     (event) =>
+        //       !holidayDates.has(
+        //         moment(event.rescheduled_date).format("YYYY-MM-DD")
+        //       )
+        //   )
+        //   .map((event) => {
+        //     const startDate = moment(event.rescheduled_date).set({
+        //       hour: parseInt(event.new_time.split(":")[0], 10),
+        //       minute: parseInt(event.new_time.split(":")[1], 10),
+        //     });
 
-            const endDate = moment(startDate).add(1, "hour");
+        //     const endDate = moment(startDate).add(1, "hour");
 
-            return {
-              id: `rescheduled-${event.id}`,
-              title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
-              start: startDate.toDate(),
-              end: endDate.toDate(),
-              details: {
-                courseName: event.courses.course_name,
-                branch: event.courses.branch,
-                semester: event.courses.semester,
-                courseCode: event.courses.course_code,
-                lectureHall: event.lecture_halls.hall_name,
-                originalDate: event.original_date,
-                rescheduledDate: event.rescheduled_date,
-                reason: event.reason,
-                newTime: event.new_time,
-              },
-            };
-          });
+        //     return {
+        //       id: `rescheduled-${event.id}`,
+        //       title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
+        //       start: startDate.toDate(),
+        //       end: endDate.toDate(),
+        //       details: {
+        //         courseName: event.courses.course_name,
+        //         branch: event.courses.branch,
+        //         semester: event.courses.semester,
+        //         courseCode: event.courses.course_code,
+        //         lectureHall: event.lecture_halls.hall_name,
+        //         originalDate: event.original_date,
+        //         rescheduledDate: event.rescheduled_date,
+        //         reason: event.reason,
+        //         newTime: event.new_time,
+        //       },
+        //     };
+        //   });
 
         // Process holiday events
         const holidayEvents = holidays.map((holiday) => {
@@ -154,7 +160,7 @@ const Timetable = ({ branch, semester }) => {
         const finalEvents = [
           ...holidayEvents,
           ...originalEvents,
-          ...rescheduledEvents,
+          // ...rescheduledEvents,
         ];
 
         setEvents(finalEvents);
@@ -250,7 +256,7 @@ const Timetable = ({ branch, semester }) => {
             <p>
               <strong>Lecture Hall:</strong> {selectedEvent.details.lectureHall}
             </p>
-            {selectedEvent.details.originalDate && (
+            {/* {selectedEvent.details.originalDate && (
               <p>
                 <strong>Original Date:</strong>{" "}
                 {selectedEvent.details.originalDate}
@@ -266,7 +272,7 @@ const Timetable = ({ branch, semester }) => {
               <p>
                 <strong>Reason:</strong> {selectedEvent.details.reason}
               </p>
-            )}
+            )} */}
             <button
               onClick={closeModal}
               className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"

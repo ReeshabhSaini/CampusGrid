@@ -75,7 +75,7 @@ const Timetable = () => {
         allDay: true,
       }));
 
-      // Extract holiday dates for filtering
+      // Extract holiday dates for easy comparison later
       const holidayDates = holidays.map((holiday) =>
         moment(holiday.start).format("YYYY-MM-DD")
       );
@@ -97,6 +97,11 @@ const Timetable = () => {
               minute: parseInt(event.start_time.split(":")[1], 10),
             });
 
+          // Skip events that fall on holidays
+          if (holidayDates.includes(startDate.format("YYYY-MM-DD"))) {
+            return;
+          }
+
           const endDate = startDate
             .clone()
             .add(
@@ -110,27 +115,27 @@ const Timetable = () => {
               "minutes"
             );
 
-          // Filter out timetable events that fall on holiday dates
-          if (!holidayDates.includes(startDate.format("YYYY-MM-DD"))) {
-            originalEvents.push({
-              id: `${event.id}-${i}`,
-              title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
-              start: startDate.toDate(),
-              end: endDate.toDate(),
-              details: {
-                courseId: event.courses.id,
-                courseName: event.courses.course_name,
-                branch: event.courses.branch,
-                semester: event.courses.semester,
-                courseCode: event.courses.course_code,
-                lectureHall: event.lecture_halls.hall_name,
-                lectureHallId: event.lecture_halls.id,
-                dayOfWeek: event.day_of_week,
-                startTime: event.start_time,
-                endTime: event.end_time,
-              },
-            });
-          }
+          originalEvents.push({
+            id: `${event.id}-${i}`,
+            title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
+            start: startDate.toDate(),
+            end: endDate.toDate(),
+            details: {
+              id: event.id,
+              courseCode: event.courses.course_code,
+              courseId: event.courses.id,
+              courseName: event.courses.course_name,
+              branch: event.courses.branch,
+              semester: event.courses.semester,
+              type: event.type,
+              group: event.group,
+              lectureHall: event.lecture_halls.hall_name,
+              lectureHallId: event.lecture_halls.id,
+              dayOfWeek: event.day_of_week,
+              startTime: event.start_time,
+              endTime: event.end_time,
+            },
+          });
         });
       }
 
@@ -149,11 +154,13 @@ const Timetable = () => {
           end: endDate.toDate(),
           details: {
             id: event.id,
+            courseCode: event.courses.course_code,
             courseId: event.courses.id,
             courseName: event.courses.course_name,
             branch: event.courses.branch,
             semester: event.courses.semester,
-            courseCode: event.courses.course_code,
+            type: event.type,
+            group: event.group,
             lectureHall: event.lecture_halls.hall_name,
             lectureHallId: event.lecture_halls.id,
             originalDate: event.original_date,
@@ -380,6 +387,12 @@ const Timetable = () => {
               </p>
               <p>
                 <strong>Semester:</strong> {selectedEvent.details.semester}
+              </p>
+              <p>
+                <strong>Type:</strong> {selectedEvent.details.type}
+              </p>
+              <p>
+                <strong>Group:</strong> {selectedEvent.details.group}
               </p>
               <p>
                 <strong>Course Code:</strong> {selectedEvent.details.courseCode}

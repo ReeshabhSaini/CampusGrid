@@ -20,6 +20,8 @@ router.post("/timetable", async (req, res) => {
                 day_of_week,
                 start_time,
                 end_time,
+                type,
+                group,
                 courses (
                     id,
                     course_code,
@@ -37,19 +39,12 @@ router.post("/timetable", async (req, res) => {
                     last_name
                 )
             `)
-            .eq("professors.id", id)
+            .eq("professor_id", id)
 
 
         if (error) {
             console.error("Error fetching timetable:", error);
             return res.status(500).json({ message: "Failed to fetch timetable", error });
-        }
-
-        // Debug: Log data returned by query
-        console.log("Fetched Data:", classes);
-
-        if (classes.length === 0) {
-            return res.status(404).json({ message: "No timetable found." });
         }
 
         // Return fetched timetable
@@ -74,6 +69,8 @@ router.post("/reschedules", async (req, res) => {
             .from("class_rescheduling")
             .select(`
                 id,
+                type,
+                group,
                 courses (
                     course_code,
                     course_name,
@@ -101,9 +98,6 @@ router.post("/reschedules", async (req, res) => {
             return res.status(500).json({ message: "Failed to fetch timetable", error });
         }
 
-        // Debug: Log data returned by query
-        console.log("Fetched Data:", rescheduled_classes);
-
         // Return fetched timetable
         return res.status(200).json({ message: "Timetable fetched successfully", rescheduled_classes });
     } catch (err) {
@@ -127,10 +121,6 @@ router.get("/holidays", async (req, res) => {
             return res.status(500).json({ message: "Failed to fetch holidays", error });
         }
 
-        if (holidays.length === 0) {
-            return res.status(404).json({ message: "No holidays found." });
-        }
-
         // Return the fetched holidays
         return res.status(200).json({ message: "Holidays fetched successfully", holidays });
     } catch (err) {
@@ -145,8 +135,6 @@ router.delete("/cancel-reschedule", async (req, res) => {
     if (!rescheduleId) {
         return res.status(400).json({ message: "Reschedule ID is required" });
     }
-
-    console.log("Canceling reschedule with ID:", rescheduleId);
 
     try {
         // Check if the reschedule exists

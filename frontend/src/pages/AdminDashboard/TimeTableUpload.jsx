@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { StoreContext } from "../../context/StoreContext";
+
 function capitalizeFirstLetter(string) {
   if (!string) return "";
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
@@ -19,6 +20,7 @@ const TimetableUpload = () => {
   const [courses, setCourses] = useState([]);
   const [lectureHalls, setLectureHalls] = useState([]);
   const [professors, setProfessors] = useState([]);
+  const [groups, setGroups] = useState([]);
 
   const { url } = useContext(StoreContext);
 
@@ -27,6 +29,8 @@ const TimetableUpload = () => {
     day_of_week: "",
     branch: "",
     semester: "",
+    type: "",
+    group: "",
     courses_id: "",
     start_time: "",
     end_time: "",
@@ -79,6 +83,19 @@ const TimetableUpload = () => {
     }
   }, [formData.branch, formData.semester]);
 
+  // Update groups based on type
+  useEffect(() => {
+    if (formData.type === "class") {
+      setGroups(["G1", "G2"]);
+    } else if (formData.type === "tutorial") {
+      setGroups(["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8"]);
+    } else if (formData.type === "lab") {
+      setGroups(["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8"]);
+    } else {
+      setGroups([]);
+    }
+  }, [formData.type]);
+
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -103,13 +120,15 @@ const TimetableUpload = () => {
           branch: "",
           semester: "",
           courses_id: "",
+          type: "",
+          group: "",
           start_time: "",
           end_time: "",
           lecture_hall_id: "",
           professor_id: "",
         });
-        setSemesters([]);
         setCourses([]);
+        setGroups([]);
       } else {
         alert("Failed to add timetable entry.");
       }
@@ -125,12 +144,14 @@ const TimetableUpload = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Day of the Week */}
         <div>
-          <label className="block font-medium mb-2">Day of the Week</label>
+          <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+            Day of the Week
+          </label>
           <select
             name="day_of_week"
             value={formData.day_of_week}
             onChange={handleChange}
-            className="border px-2 py-1 rounded-md w-full"
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             required
           >
             <option value="">Select Day</option>
@@ -143,13 +164,15 @@ const TimetableUpload = () => {
         </div>
 
         {/* Branch */}
-        <div>
-          <label className="block font-medium mb-2">Branch</label>
+        <div className="mb-4">
+          <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+            Branch
+          </label>
           <select
             name="branch"
-            value={formData.branch}
             onChange={handleChange}
-            className="border px-2 py-1 rounded-md w-full"
+            value={formData.branch}
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             required
           >
             <option value="" disabled>
@@ -162,19 +185,30 @@ const TimetableUpload = () => {
             <option value="CSE-AI">
               Computer Science and Engineering (Artificial Intelligence)
             </option>
-            <option value="ECE">Electronics and Communication</option>
-            <option value="EE">Electrical</option>
+            <option value="ECE">
+              Electronics and Communication Engineering
+            </option>
+            <option value="EE">Electrical Engineering</option>
+            <option value="Mech">Mechanical Engineering</option>
+            <option value="Civil">Civil Engineering</option>
+            <option value="Civil">Aerospace Engineering</option>
+            <option value="Meta">
+              Metallurgical and Materials Engineering
+            </option>
+            <option value="Prod">Production and Industrial Engineering</option>
           </select>
         </div>
 
         {/* Semester */}
         <div>
-          <label className="block font-medium mb-2">Semester</label>
+          <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+            Semester
+          </label>
           <select
             name="semester"
             value={formData.semester}
             onChange={handleChange}
-            className="border px-2 py-1 rounded-md w-full"
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             required
           >
             <option value="" disabled>
@@ -193,12 +227,14 @@ const TimetableUpload = () => {
 
         {/* Course */}
         <div>
-          <label className="block font-medium mb-2">Course</label>
+          <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+            Course
+          </label>
           <select
             name="courses_id"
             value={formData.courses_id}
             onChange={handleChange}
-            className="border px-2 py-1 rounded-md w-full"
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             required
           >
             <option value="">Select Course</option>
@@ -210,40 +246,88 @@ const TimetableUpload = () => {
           </select>
         </div>
 
+        {/* Type */}
+        <div className="mb-4">
+          <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+            Select Entry Type
+          </label>
+          <select
+            name="type"
+            onChange={handleChange}
+            value={formData.type}
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
+            required
+          >
+            <option value="" disabled>
+              Select Entry Type
+            </option>
+            <option value="class">Class</option>
+            <option value="tutorial">Tutorial</option>
+            <option value="lab">Lab</option>
+          </select>
+        </div>
+
+        {/* Group */}
+        <div>
+          <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+            Group
+          </label>
+          <select
+            name="group"
+            value={formData.group}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
+            required
+          >
+            <option value="">Select Group</option>
+            {groups.map((group) => (
+              <option key={group} value={group}>
+                {group}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Start Time */}
         <div>
-          <label className="block font-medium mb-2">Start Time</label>
+          <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+            Start Time
+          </label>
           <input
             type="time"
             name="start_time"
             value={formData.start_time}
             onChange={handleChange}
-            className="border px-2 py-1 rounded-md w-full"
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             required
           />
         </div>
 
         {/* End Time */}
         <div>
-          <label className="block font-medium mb-2">End Time</label>
+          <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+            End Time
+          </label>
           <input
             type="time"
             name="end_time"
             value={formData.end_time}
             onChange={handleChange}
-            className="border px-2 py-1 rounded-md w-full"
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             required
           />
         </div>
 
         {/* Lecture Hall */}
         <div>
-          <label className="block font-medium mb-2">Lecture Hall</label>
+          <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+            Lecture Hall
+          </label>
           <select
             name="lecture_hall_id"
             value={formData.lecture_hall_id}
             onChange={handleChange}
-            className="border px-2 py-1 rounded-md w-full"
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             required
           >
             <option value="">Select Lecture Hall</option>
@@ -257,12 +341,14 @@ const TimetableUpload = () => {
 
         {/* Professor */}
         <div>
-          <label className="block font-medium mb-2">Professor</label>
+          <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+            Professor
+          </label>
           <select
             name="professor_id"
             value={formData.professor_id}
             onChange={handleChange}
-            className="border px-2 py-1 rounded-md w-full"
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             required
           >
             <option value="">Select Professor</option>
@@ -277,7 +363,7 @@ const TimetableUpload = () => {
         {/* Submit Button */}
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          className="w-full py-3 mb-4 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
         >
           Add Timetable Entry
         </button>
