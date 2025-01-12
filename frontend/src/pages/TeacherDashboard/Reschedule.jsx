@@ -93,6 +93,8 @@ const ReschedulePage = ({ event }) => {
         professor_id: professorData.id,
         lecture_hall_id: rescheduleRequest.details.lectureHallId,
         selected_time: selectedTime,
+        type: rescheduleRequest.details.type,
+        group: rescheduleRequest.details.group,
       });
 
       toast.success(response.data.message);
@@ -157,11 +159,17 @@ const ReschedulePage = ({ event }) => {
             <strong>Semester:</strong> {rescheduleRequest.details.semester}
           </p>
           <p className="text-lg">
+            <strong>Type:</strong> {rescheduleRequest.details.type}
+          </p>
+          <p className="text-lg">
+            <strong>Group:</strong> {rescheduleRequest.details.group}
+          </p>
+          <p className="text-lg">
             <strong>Course Code:</strong> {rescheduleRequest.details.courseCode}
           </p>
           <p className="text-lg">
             <strong>Lecture Hall:</strong>{" "}
-            {rescheduleRequest.details.lectureHallName}
+            {rescheduleRequest.details.lectureHall}
           </p>
           <p className="text-lg">
             <strong>Original Date:</strong>{" "}

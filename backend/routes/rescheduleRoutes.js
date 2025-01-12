@@ -187,6 +187,8 @@ router.post('/reschedule/request', async (req, res) => {
         professor_id,
         lecture_hall_id,
         selected_time,
+        type,
+        group
     } = req.body;
 
     // Validate the request body
@@ -197,7 +199,9 @@ router.post('/reschedule/request', async (req, res) => {
         !reason ||
         !professor_id ||
         !lecture_hall_id ||
-        !selected_time
+        !selected_time ||
+        !type ||
+        !group
     ) {
         return res.status(400).json({ error: 'All fields are required.' });
     }
@@ -222,6 +226,8 @@ router.post('/reschedule/request', async (req, res) => {
                     professor_id,
                     lecture_hall_id,
                     new_time,
+                    type,
+                    group,
                 },
             ])
             .select('id') // Return the inserted ID
