@@ -319,6 +319,9 @@ router.post("/student/update-profile", async (req, res) => {
             semester,
             student_id,
             id,
+            class_group,
+            tutorial_group,
+            lab_group
         } = req.body;
 
         // Validate required fields
@@ -339,6 +342,9 @@ router.post("/student/update-profile", async (req, res) => {
                 branch,
                 semester,
                 student_id,
+                class_group,
+                tutorial_group,
+                lab_group
             })
             .eq("id", id);
 

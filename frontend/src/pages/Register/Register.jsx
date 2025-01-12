@@ -58,7 +58,7 @@ const Register = () => {
           semester: studentData.semester,
           class_group: studentData.class_group,
           tutorial_group: studentData.tutorial_group,
-          lab_group: studentData.tutorial_group,
+          lab_group: studentData.lab_group,
         });
 
         if (response.status === 200) {

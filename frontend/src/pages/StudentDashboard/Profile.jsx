@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { assets } from "../../assets/assets";
 import defaultImage from "../../assets/DefProfilePic.png";
+import { toast } from "react-toastify";
+
 const ProfilePicture = ({ src, alt }) => (
   <img
     src={src || defaultImage}
@@ -191,7 +193,7 @@ const EditProfileModal = ({ studentData, onClose, onSubmit }) => {
               <select
                 name="class_group"
                 onChange={handleChange}
-                value={studentData.class_group}
+                value={formData.class_group}
                 className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
                 required
               >
@@ -211,7 +213,7 @@ const EditProfileModal = ({ studentData, onClose, onSubmit }) => {
               <select
                 name="tutorial_group"
                 onChange={handleChange}
-                value={studentData.tutorial_group}
+                value={formData.tutorial_group}
                 className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
                 required
               >
@@ -237,7 +239,7 @@ const EditProfileModal = ({ studentData, onClose, onSubmit }) => {
               <select
                 name="lab_group"
                 onChange={handleChange}
-                value={studentData.lab_group}
+                value={formData.lab_group}
                 className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
                 required
               >
@@ -321,7 +323,7 @@ const Profile = () => {
       );
 
       if (response.data.status) {
-        alert("Profile updated successfully!");
+        toast.success(response.data.message);
         closeModal();
         window.location.reload(); // Reload the page to reflect the changes
       } else {
