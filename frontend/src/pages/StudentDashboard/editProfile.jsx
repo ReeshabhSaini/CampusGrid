@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { StoreContext } from "../../context/StoreContext";
+import { toast } from "react-toastify";
 
 function decodeJWT(token) {
   try {
@@ -24,6 +25,9 @@ const EditStudentProfile = () => {
     branch: "",
     semester: "",
     student_id: "",
+    class_group: "",
+    tutorial_group: "",
+    lab_group: "",
   });
 
   const navigate = useNavigate();
@@ -63,17 +67,20 @@ const EditStudentProfile = () => {
             branch: requiredData.branch || "",
             semester: requiredData.semester || "",
             student_id: requiredData.student_id || "",
+            class_group: requiredData.class_group || "",
+            tutorial_group: requiredData.tutorial_group || "",
+            lab_group: requiredData.lab_group || "",
           }));
         } else {
           console.error(
             "Error Fetching Student Details:",
             response.data.message
           );
-          alert("Failed to fetch student details.");
+          toast.error(response.data.message);
         }
       } catch (error) {
         console.error("Error fetching student details:", error);
-        alert("An error occurred. Please try again.");
+        toast.error(response.data.message);
         localStorage.removeItem("token");
         navigate("/login");
       }
@@ -116,7 +123,7 @@ const EditStudentProfile = () => {
       }
     } catch (error) {
       console.error("Error submitting profile update:", error);
-      alert("An error occurred. Please try again.");
+      toast.error(response.data.message);
     }
   };
 
@@ -189,7 +196,7 @@ const EditStudentProfile = () => {
           <select
             name="branch"
             onChange={handleChange}
-            value={formData.branch}
+            value={studentData.branch}
             className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
             required
           >
@@ -203,8 +210,17 @@ const EditStudentProfile = () => {
             <option value="CSE-AI">
               Computer Science and Engineering (Artificial Intelligence)
             </option>
-            <option value="ECE">Electronics and Communication</option>
-            <option value="EE">Electrical</option>
+            <option value="ECE">
+              Electronics and Communication Engineering
+            </option>
+            <option value="EE">Electrical Engineering</option>
+            <option value="Mech">Mechanical Engineering</option>
+            <option value="Civil">Civil Engineering</option>
+            <option value="Civil">Aerospace Engineering</option>
+            <option value="Meta">
+              Metallurgical and Materials Engineering
+            </option>
+            <option value="Prod">Production and Industrial Engineering</option>
           </select>
         </div>
 
@@ -231,6 +247,78 @@ const EditStudentProfile = () => {
             <option value="6">6th</option>
             <option value="7">7th</option>
             <option value="8">8th</option>
+          </select>
+        </div>
+
+        {/* Class Group */}
+        <div className="mb-4">
+          <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+            Class Group
+          </label>
+          <select
+            name="class_group"
+            onChange={handleChange}
+            value={studentData.class_group}
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
+            required
+          >
+            <option value="" disabled>
+              Select Class Group
+            </option>
+            <option value="G1">G1</option>
+            <option value="G2">G2</option>
+          </select>
+        </div>
+
+        {/* Tutorial Group */}
+        <div className="mb-4">
+          <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+            Tutorial Group
+          </label>
+          <select
+            name="tutorial_group"
+            onChange={handleChange}
+            value={studentData.tutorial_group}
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
+            required
+          >
+            <option value="" disabled>
+              Select Tutorial Group
+            </option>
+            <option value="G1">G1</option>
+            <option value="G2">G2</option>
+            <option value="G3">G3</option>
+            <option value="G4">G4</option>
+            <option value="G5">G5</option>
+            <option value="G6">G6</option>
+            <option value="G7">G7</option>
+            <option value="G8">G8</option>
+          </select>
+        </div>
+
+        {/* Lab Group */}
+        <div className="mb-4">
+          <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+            Lab Group
+          </label>
+          <select
+            name="lab_group"
+            onChange={handleChange}
+            value={studentData.lab_group}
+            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
+            required
+          >
+            <option value="" disabled>
+              Select Lab Group
+            </option>
+            <option value="G1">G1</option>
+            <option value="G2">G2</option>
+            <option value="G3">G3</option>
+            <option value="G4">G4</option>
+            <option value="G5">G5</option>
+            <option value="G6">G6</option>
+            <option value="G7">G7</option>
+            <option value="G8">G8</option>
           </select>
         </div>
 

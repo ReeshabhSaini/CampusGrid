@@ -36,11 +36,6 @@ const Register = () => {
     }
   };
 
-  const handleRoleChange = (event) => {
-    const { name, value } = event.target;
-    setRoleData((prev) => ({ ...prev, [name]: value }));
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -61,6 +56,9 @@ const Register = () => {
           student_id: studentData.student_id,
           branch: studentData.branch,
           semester: studentData.semester,
+          class_group: studentData.class_group,
+          tutorial_group: studentData.tutorial_group,
+          lab_group: studentData.tutorial_group,
         });
 
         if (response.status === 200) {
@@ -71,6 +69,9 @@ const Register = () => {
             branch: "",
             semester: "",
             student_id: "",
+            class_group: "",
+            tutorial_group: "",
+            lab_group: "",
           });
           setPassword("");
           setConfirmPassword("");

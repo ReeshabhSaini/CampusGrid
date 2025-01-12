@@ -3,7 +3,7 @@ import { StoreContext } from "../../context/StoreContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { assets } from "../../assets/assets";
-import defaultImage from '../../assets/DefProfilePic.png';
+import defaultImage from "../../assets/DefProfilePic.png";
 const ProfilePicture = ({ src, alt }) => (
   <img
     src={src || defaultImage}
@@ -11,7 +11,6 @@ const ProfilePicture = ({ src, alt }) => (
     className="w-32 h-32 rounded-full object-cover"
   />
 );
-
 
 const CoursesList = ({ courses }) => (
   <div className="bg-yellow-50 shadow-md rounded-lg p-4 border border-gray-300 w-full mx-auto">
@@ -46,6 +45,9 @@ const EditProfileModal = ({ studentData, onClose, onSubmit }) => {
     branch: studentData.branch || "",
     semester: studentData.semester || "",
     student_id: studentData.student_id || "",
+    class_group: studentData.class_group || "",
+    tutorial_group: studentData.tutorial_group || "",
+    lab_group: studentData.lab_group || "",
   });
 
   const handleChange = (e) => {
@@ -63,11 +65,19 @@ const EditProfileModal = ({ studentData, onClose, onSubmit }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="p-6 rounded-lg w-1/2 shadow-md" style={{ backgroundColor: '#f7ffcc' }}>
+      <div
+        className="p-6 rounded-lg w-1/2 shadow-md"
+        style={{ backgroundColor: "#f7ffcc" }}
+      >
         <h3 className="text-2xl font-bold mb-4">Edit Profile</h3>
         <form onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="first_name" className="block text-sm font-medium text-indigo-600">First Name</label>
+            <label
+              htmlFor="first_name"
+              className="block text-sm font-medium text-indigo-600"
+            >
+              First Name
+            </label>
             <input
               type="text"
               id="first_name"
@@ -78,7 +88,12 @@ const EditProfileModal = ({ studentData, onClose, onSubmit }) => {
             />
           </div>
           <div>
-            <label htmlFor="last_name" className="block text-sm font-medium text-indigo-600">Last Name</label>
+            <label
+              htmlFor="last_name"
+              className="block text-sm font-medium text-indigo-600"
+            >
+              Last Name
+            </label>
             <input
               type="text"
               id="last_name"
@@ -89,7 +104,12 @@ const EditProfileModal = ({ studentData, onClose, onSubmit }) => {
             />
           </div>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-indigo-600">Email</label>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-indigo-600"
+            >
+              Email
+            </label>
             <input
               type="email"
               id="email"
@@ -99,30 +119,146 @@ const EditProfileModal = ({ studentData, onClose, onSubmit }) => {
               className="w-full p-3 border rounded-md"
             />
           </div>
-          <div>
-            <label htmlFor="branch" className="block text-sm font-medium text-indigo-600">Branch</label>
-            <input
-              type="text"
-              id="branch"
+          {/* Branch */}
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+              Branch
+            </label>
+            <select
               name="branch"
-              value={formData.branch}
               onChange={handleChange}
-              className="w-full p-3 border rounded-md"
-            />
+              value={studentData.branch}
+              className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
+              required
+            >
+              <option value="" disabled>
+                Select Your Branch
+              </option>
+              <option value="CSE">Computer Science and Engineering</option>
+              <option value="CSE-DS">
+                Computer Science and Engineering (Data Science)
+              </option>
+              <option value="CSE-AI">
+                Computer Science and Engineering (Artificial Intelligence)
+              </option>
+              <option value="ECE">
+                Electronics and Communication Engineering
+              </option>
+              <option value="EE">Electrical Engineering</option>
+              <option value="Mech">Mechanical Engineering</option>
+              <option value="Civil">Civil Engineering</option>
+              <option value="Civil">Aerospace Engineering</option>
+              <option value="Meta">
+                Metallurgical and Materials Engineering
+              </option>
+              <option value="Prod">
+                Production and Industrial Engineering
+              </option>
+            </select>
           </div>
-          <div>
-            <label htmlFor="semester" className="block text-sm font-medium text-indigo-600">Semester</label>
-            <input
-              type="text"
-              id="semester"
+          {/* Semester */}
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+              Semester
+            </label>
+            <select
               name="semester"
-              value={formData.semester}
               onChange={handleChange}
-              className="w-full p-3 border rounded-md"
-            />
+              value={formData.semester}
+              className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
+              required
+            >
+              <option value="" disabled>
+                Select Semester
+              </option>
+              <option value="1">1st</option>
+              <option value="2">2nd</option>
+              <option value="3">3rd</option>
+              <option value="4">4th</option>
+              <option value="5">5th</option>
+              <option value="6">6th</option>
+              <option value="7">7th</option>
+              <option value="8">8th</option>
+            </select>
+          </div>
+          {/* Class Group */}
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+              Class Group
+            </label>
+            <select
+              name="class_group"
+              onChange={handleChange}
+              value={studentData.class_group}
+              className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
+              required
+            >
+              <option value="" disabled>
+                Select Class Group
+              </option>
+              <option value="G1">G1</option>
+              <option value="G2">G2</option>
+            </select>
+          </div>
+
+          {/* Tutorial Group */}
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+              Tutorial Group
+            </label>
+            <select
+              name="tutorial_group"
+              onChange={handleChange}
+              value={studentData.tutorial_group}
+              className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
+              required
+            >
+              <option value="" disabled>
+                Select Tutorial Group
+              </option>
+              <option value="G1">G1</option>
+              <option value="G2">G2</option>
+              <option value="G3">G3</option>
+              <option value="G4">G4</option>
+              <option value="G5">G5</option>
+              <option value="G6">G6</option>
+              <option value="G7">G7</option>
+              <option value="G8">G8</option>
+            </select>
+          </div>
+
+          {/* Lab Group */}
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+              Lab Group
+            </label>
+            <select
+              name="lab_group"
+              onChange={handleChange}
+              value={studentData.lab_group}
+              className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
+              required
+            >
+              <option value="" disabled>
+                Select Lab Group
+              </option>
+              <option value="G1">G1</option>
+              <option value="G2">G2</option>
+              <option value="G3">G3</option>
+              <option value="G4">G4</option>
+              <option value="G5">G5</option>
+              <option value="G6">G6</option>
+              <option value="G7">G7</option>
+              <option value="G8">G8</option>
+            </select>
           </div>
           <div>
-            <label htmlFor="student_id" className="block text-sm font-medium text-indigo-600">Student ID</label>
+            <label
+              htmlFor="student_id"
+              className="block text-sm font-medium text-indigo-600"
+            >
+              Student ID
+            </label>
             <input
               type="text"
               id="student_id"
@@ -203,10 +339,14 @@ const Profile = () => {
       <h2 className="text-3xl font-bold mb-6 text-left">Profile Section</h2>
       <div className="bg-gradient-to-r from-yellow-200 to-green-200 shadow-md rounded-lg p-6 flex flex-col items-center space-y-6 border border-gray-300 w-full">
         <div className="flex items-center space-x-6 w-full">
-          <ProfilePicture src="https://www.w3schools.com/w3images/avatar2.png" alt="Profile" />
+          <ProfilePicture
+            src="https://www.w3schools.com/w3images/avatar2.png"
+            alt="Profile"
+          />
           <div className="text-left border border-gray-300 rounded-lg p-4 shadow-md bg-yellow-50 w-full">
             <p className="text-lg font-normal text-gray-800">
-              <strong>Name:</strong> {studentData.first_name} {studentData.last_name}
+              <strong>Name:</strong> {studentData.first_name}{" "}
+              {studentData.last_name}
             </p>
             <p className="text-lg font-normal text-gray-800">
               <strong>Email:</strong> {studentData.email}
@@ -216,6 +356,15 @@ const Profile = () => {
             </p>
             <p className="text-lg font-normal text-gray-800">
               <strong>Semester:</strong> {studentData.semester}
+            </p>
+            <p className="text-lg font-normal text-gray-800">
+              <strong>Class Group:</strong> {studentData.class_group}
+            </p>
+            <p className="text-lg font-normal text-gray-800">
+              <strong>Tutorial Group:</strong> {studentData.tutorial_group}
+            </p>
+            <p className="text-lg font-normal text-gray-800">
+              <strong>Lab Group:</strong> {studentData.lab_group}
             </p>
             <p className="text-lg font-normal text-gray-800">
               <strong>Student ID:</strong> {studentData.student_id}

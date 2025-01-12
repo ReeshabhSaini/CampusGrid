@@ -59,6 +59,9 @@ const SDashboard = () => {
             branch: requiredData.branch,
             semester: requiredData.semester,
             student_id: requiredData.student_id,
+            class_group: requiredData.class_group,
+            tutorial_group: requiredData.tutorial_group,
+            lab_group: requiredData.lab_group,
           });
         } else {
           console.error(

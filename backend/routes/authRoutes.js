@@ -7,7 +7,7 @@ const router = express.Router();
 
 // POST: Register a Student
 router.post("/student/register", async (req, res) => {
-    const { first_name, last_name, email, password, student_id, branch, semester } = req.body;
+    const { first_name, last_name, email, password, student_id, branch, semester, class_group, tutorial_group, lab_group } = req.body;
 
     try {
         // Check if the user already exists
@@ -34,7 +34,7 @@ router.post("/student/register", async (req, res) => {
         const { data, error } = await supabase
             .from("students")
             .insert([
-                { first_name, last_name, email, password: hashedPassword, student_id, branch, semester }
+                { first_name, last_name, email, password: hashedPassword, student_id, branch, semester, class_group, tutorial_group, lab_group }
             ]);
 
         if (error) {
@@ -252,7 +252,7 @@ router.post("/student/details", async (req, res) => {
     try {
         const { data: student, error } = await supabase
             .from("students")
-            .select("id, first_name, last_name, email, branch, semester, student_id")
+            .select("id, first_name, last_name, email, branch, semester, student_id, class_group, tutorial_group, lab_group")
             .eq("id", id)
             .single();
 
@@ -267,7 +267,10 @@ router.post("/student/details", async (req, res) => {
             email: student.email,
             branch: student.branch,
             semester: student.semester,
-            student_id: student.student_id
+            student_id: student.student_id,
+            class_group: student.class_group,
+            tutorial_group: student.tutorial_group,
+            lab_group: student.lab_group
         }
 
         return res.status(200).json({ status: true, message: "Fetch Successful", requiredData });
