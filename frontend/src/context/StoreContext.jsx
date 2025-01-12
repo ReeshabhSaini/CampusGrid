@@ -10,6 +10,9 @@ const StoreContextProvider = (props) => {
     email: "",
     branch: "",
     semester: "",
+    class_group: "",
+    lab_group: "",
+    tutorial_group: "",
     student_id: "",
   });
 

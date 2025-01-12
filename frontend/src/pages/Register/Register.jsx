@@ -5,6 +5,11 @@ import { StoreContext } from "../../context/StoreContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
+const roles = [
+  { name: "Student", value: "student", icon: assets.StudentIcon },
+  { name: "Professor", value: "professor", icon: assets.ProfessorIcon },
+];
+
 const Register = () => {
   const {
     studentData,
@@ -121,6 +126,10 @@ const Register = () => {
     }
   };
 
+  const handleRoleSelect = (selectedRole) => {
+    setRoleData((prev) => ({ ...prev, role: selectedRole }));
+  };
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-cover bg-no-repeat bg-local">
       <div className="w-full max-w-md p-8 bg-opacity-90 rounded-lg m-5">
@@ -133,16 +142,46 @@ const Register = () => {
             <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
               Role
             </label>
-            <select
-              name="role"
-              onChange={handleRoleChange}
-              value={roleData.role}
-              className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
-              required
-            >
-              <option value="student">Student</option>
-              <option value="professor">Professor</option>
-            </select>
+            <div className="flex justify-around">
+              {roles.map((role) => (
+                <div
+                  key={role.value}
+                  onClick={() => handleRoleSelect(role.value)}
+                  className={`relative w-24 h-24 border rounded-lg cursor-pointer p-2 flex flex-col items-center justify-center ${
+                    roleData.role === role.value
+                      ? "border-indigo-600 bg-indigo-50"
+                      : "border-gray-300"
+                  }`}
+                >
+                  <img
+                    src={role.icon}
+                    alt={role.name}
+                    className="w-12 h-12 mb-2"
+                  />
+                  <span className="text-sm font-medium text-center text-gray-700">
+                    {role.name}
+                  </span>
+                  {roleData.role === role.value && (
+                    <div className="absolute top-1 right-1 w-4 h-4 bg-indigo-600 rounded-full flex items-center justify-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="2"
+                        stroke="white"
+                        className="w-3 h-3"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* First Name */}
@@ -300,6 +339,78 @@ const Register = () => {
                   <option value="6">6th</option>
                   <option value="7">7th</option>
                   <option value="8">8th</option>
+                </select>
+              </div>
+
+              {/* Class Group */}
+              <div className="mb-4">
+                <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+                  Class Group
+                </label>
+                <select
+                  name="class_group"
+                  onChange={handleChange}
+                  value={studentData.class_group}
+                  className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
+                  required
+                >
+                  <option value="" disabled>
+                    Select Class Group
+                  </option>
+                  <option value="G1">G1</option>
+                  <option value="G2">G2</option>
+                </select>
+              </div>
+
+              {/* Tutorial Group */}
+              <div className="mb-4">
+                <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+                  Tutorial Group
+                </label>
+                <select
+                  name="tutorial_group"
+                  onChange={handleChange}
+                  value={studentData.tutorial_group}
+                  className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
+                  required
+                >
+                  <option value="" disabled>
+                    Select Tutorial Group
+                  </option>
+                  <option value="G1">G1</option>
+                  <option value="G2">G2</option>
+                  <option value="G3">G3</option>
+                  <option value="G4">G4</option>
+                  <option value="G5">G5</option>
+                  <option value="G6">G6</option>
+                  <option value="G7">G7</option>
+                  <option value="G8">G8</option>
+                </select>
+              </div>
+
+              {/* Lab Group */}
+              <div className="mb-4">
+                <label className="block mb-2 text-sm font-medium text-indigo-600 text-left">
+                  Lab Group
+                </label>
+                <select
+                  name="lab_group"
+                  onChange={handleChange}
+                  value={studentData.lab_group}
+                  className="w-full p-3 border rounded-md focus:ring-2 focus:ring-indigo-300 focus:outline-none"
+                  required
+                >
+                  <option value="" disabled>
+                    Select Lab Group
+                  </option>
+                  <option value="G1">G1</option>
+                  <option value="G2">G2</option>
+                  <option value="G3">G3</option>
+                  <option value="G4">G4</option>
+                  <option value="G5">G5</option>
+                  <option value="G6">G6</option>
+                  <option value="G7">G7</option>
+                  <option value="G8">G8</option>
                 </select>
               </div>
 
