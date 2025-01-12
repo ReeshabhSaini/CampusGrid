@@ -60,7 +60,9 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="grid min-h-screen w-full md:grid-cols-[auto_1fr] gap-4"> {/* Added gap here */}
+    <div className="grid min-h-screen w-full md:grid-cols-[auto_1fr] gap-4">
+      {" "}
+      {/* Added gap here */}
       {/* Sidebar */}
       <div
         className={`bg-transparent transition-all duration-300 ease-in-out ${
@@ -95,8 +97,10 @@ const AdminDashboard = () => {
               <img
                 src={assets.Timetable}
                 alt="Timetable Icon"
-                className="w-6 h-6 mr-2"
+                className="w-6 h-6 mr-2 cursor-pointer"
+                onClick={() => setActiveSection("Timetable")}
               />
+
               <button
                 className={`flex items-center text-left px-4 py-2 rounded-md transition-all duration-300 ${
                   activeSection === "Timetable"
@@ -112,7 +116,8 @@ const AdminDashboard = () => {
               <img
                 src={assets.Holidays}
                 alt="Holidays Icon"
-                className="w-6 h-6 mr-2"
+                className="w-6 h-6 mr-2 cursor-pointer"
+                onClick={() => setActiveSection("Holidays")}
               />
               <button
                 className={`flex items-center text-left px-4 py-2 rounded-md transition-all duration-300 ${
@@ -128,7 +133,6 @@ const AdminDashboard = () => {
           </nav>
         </div>
       </div>
-  
       {/* Main Content */}
       <div className="flex flex-col">
         {/* Header */}
@@ -152,7 +156,7 @@ const AdminDashboard = () => {
               />
             </svg>
           </button>
-  
+
           <div className="flex items-center space-x-4 ml-auto">
             <div className="w-8 h-8 bg-transparent rounded-full" />
             <button
@@ -163,7 +167,7 @@ const AdminDashboard = () => {
             </button>
           </div>
         </header>
-  
+
         {/* Main Content */}
         <main className="flex flex-1 flex-col p-4 m-5 border rounded-lg shadow-lg">
           {renderSection()}
@@ -171,8 +175,6 @@ const AdminDashboard = () => {
       </div>
     </div>
   );
-  
 };
 
 export default AdminDashboard;
-
