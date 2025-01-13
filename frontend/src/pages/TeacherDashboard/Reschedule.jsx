@@ -27,8 +27,10 @@ const AutoResizeTextarea = ({ value, onChange, placeholder }) => {
       className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition duration-300 ease-in-out text-gray-800 placeholder-gray-400 resize-none overflow-hidden"
       value={value}
       onInput={handleInput}
-      onChange={onChange}
-      placeholder={placeholder || "Enter your reason here..."}
+      placeholder={
+        placeholder ||
+        "Enter your reason here only after making sure right slots are selected...."
+      }
       rows={2} // Start with a single row
     />
   );
@@ -82,7 +84,7 @@ const ReschedulePage = ({ event }) => {
 
   const fetchAvailableHalls = async (timeSlot) => {
     if (!timeSlot || !selectedDate) return;
-    setShowLoadingScreen(true);
+    setLoadingHalls(true); // Set loadingHalls to true
 
     try {
       const response = await axios.post(`${url}/api/get/available/halls`, {
@@ -98,8 +100,7 @@ const ReschedulePage = ({ event }) => {
           "Failed to fetch lecture halls. Please try again."
       );
     } finally {
-      setShowLoadingScreen(false);
-      setLoadingHalls(false);
+      setLoadingHalls(false); // Set loadingHalls to false
     }
   };
 
@@ -223,7 +224,9 @@ const ReschedulePage = ({ event }) => {
 
   return (
     <div className="flex flex-col items-center p-4 w-full">
-      <h1 className="text-4xl font-extrabold text-black-700 mb-6 text-center">Reschedule Event</h1>
+      <h1 className="text-4xl font-extrabold text-black-700 mb-6 text-center">
+        Reschedule Event
+      </h1>
       <div className="flex space-x-4 w-full">
         {/* Box 1: Details */}
         <div className="flex-1 border rounded-lg shadow p-4 h-[500px] max-h-[500px] overflow-y-auto">
@@ -324,98 +327,113 @@ const ReschedulePage = ({ event }) => {
           />
         </div>
 
-        {/* Box 3: Selection */}
         <div className="flex-1 border rounded-lg shadow p-4 h-[500px] max-h-[500px] overflow-y-auto">
-          <h2 className="text-3xl font-bold mb-4 text-black-600">Make a Selection</h2>
-          {!selectedHall && !reason ? (
-            <div>
-              {showLectureHalls ? (
-                <div>
-                  <h3 className="font-semibold">Select Lecture Hall:</h3>
-                  <div className="h-[350px] max-h-[350px] overflow-y-auto border">
-                    {lectureHalls.length > 0 ? (
-                      lectureHalls.map((hall, idx) => (
-                        <button
-                          key={idx}
-                          className={`block w-full p-2 my-1 ${
-                            selectedHall === hall
-                              ? "bg-blue-500 text-white"
-                              : "bg-yellow-100 border-2 border-solid border-black p-1 rounded-lg"
-                          }`}
-                          onClick={() => handleSelectHall(hall)}
-                        >
-                          {hall}
-                        </button>
-                      ))
-                    ) : (
-                      <p>No lecture halls available</p>
-                    )}
-                  </div>
-                  <button
-                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-                    onClick={() => {
-                      setSelectedTime("");
-                      setShowTimeSlots(true);
-                      setShowLectureHalls(false);
-                    }}
-                  >
-                    Select Different Time Slot
-                  </button>
-                </div>
-              ) : showTimeSlots ? (
-                <div>
-                  <h3 className="font-semibold">Select Time Slot:</h3>
-                  {timeSlots.length > 0 ? (
-                    timeSlots.map((slot, idx) => (
-                      <button
-                        key={idx}
-                        className={`block w-full p-2 my-1 ${
-                          selectedTime === slot
-                            ? "bg-blue-500 text-white"
-                            : "bg-yellow-100 border-2 border-solid border-black p-1 rounded-lg"
-                        }`}
-                        onClick={() => handleSelectTime(slot)}
-                      >
-                        {slot}
-                      </button>
-                    ))
-                  ) : (
-                    <p>No time slots available</p>
-                  )}
-                </div>
-              ) : null}
+          <h2 className="text-3xl font-bold mb-4 text-black-600">
+            Make a Selection
+          </h2>
+          {loadingSlots ? (
+            <div className="flex flex-col items-center">
+              <LoadingSpinner />
+              <p>Loading available time slots...</p>
+            </div>
+          ) : loadingHalls ? (
+            <div className="flex flex-col items-center">
+              <LoadingSpinner />
+              <p>Loading available lecture halls...</p>
             </div>
           ) : (
             <div>
-              <h3 className="font-semibold">Reason for Reschedule:</h3>
-              <AutoResizeTextarea
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="Enter your reason here only after making sure right slots are selected...."
-              />
+              {!selectedHall && !reason ? (
+                <div>
+                  {showLectureHalls ? (
+                    <div>
+                      <h3 className="font-semibold">Select Lecture Hall:</h3>
+                      <div className="h-[350px] max-h-[350px] overflow-y-auto border">
+                        {lectureHalls.length > 0 ? (
+                          lectureHalls.map((hall, idx) => (
+                            <button
+                              key={idx}
+                              className={`block w-full p-2 my-1 ${
+                                selectedHall === hall
+                                  ? "bg-blue-500 text-white"
+                                  : "bg-yellow-100 border-2 border-solid border-black p-1 rounded-lg"
+                              }`}
+                              onClick={() => handleSelectHall(hall)}
+                            >
+                              {hall}
+                            </button>
+                          ))
+                        ) : (
+                          <p>No lecture halls available</p>
+                        )}
+                      </div>
+                      <button
+                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+                        onClick={() => {
+                          setSelectedTime("");
+                          setShowTimeSlots(true);
+                          setShowLectureHalls(false);
+                        }}
+                      >
+                        Select Different Time Slot
+                      </button>
+                    </div>
+                  ) : showTimeSlots ? (
+                    <div>
+                      <h3 className="font-semibold">Select Time Slot:</h3>
+                      {timeSlots.length > 0 ? (
+                        timeSlots.map((slot, idx) => (
+                          <button
+                            key={idx}
+                            className={`block w-full p-2 my-1 ${
+                              selectedTime === slot
+                                ? "bg-blue-500 text-white"
+                                : "bg-yellow-100 border-2 border-solid border-black p-1 rounded-lg"
+                            }`}
+                            onClick={() => handleSelectTime(slot)}
+                          >
+                            {slot}
+                          </button>
+                        ))
+                      ) : (
+                        <p>No time slots available</p>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+                <div>
+                  <h3 className="font-semibold">Reason for Reschedule:</h3>
+                  <AutoResizeTextarea
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)} // Corrected here
+                    placeholder="Enter your reason here only after making sure right slots are selected...."
+                  />
 
-              <div className="mt-4 flex space-x-4">
-                <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded"
-                  onClick={() => {
-                    setSelectedTime("");
-                    setSelectedHall("");
-                    setShowTimeSlots(true);
-                    setShowLectureHalls(false);
-                  }}
-                >
-                  Select Different Time Slot
-                </button>
-                <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded"
-                  onClick={() => {
-                    setSelectedHall("");
-                    setShowLectureHalls(true);
-                  }}
-                >
-                  Select Different Lecture Hall
-                </button>
-              </div>
+                  <div className="mt-4 flex space-x-4">
+                    <button
+                      className="px-4 py-2 bg-blue-500 text-white rounded"
+                      onClick={() => {
+                        setSelectedTime("");
+                        setSelectedHall("");
+                        setShowTimeSlots(true);
+                        setShowLectureHalls(false);
+                      }}
+                    >
+                      Select Different Time Slot
+                    </button>
+                    <button
+                      className="px-4 py-2 bg-blue-500 text-white rounded"
+                      onClick={() => {
+                        setSelectedHall("");
+                        setShowLectureHalls(true);
+                      }}
+                    >
+                      Select Different Lecture Hall
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
