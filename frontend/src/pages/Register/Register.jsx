@@ -40,20 +40,20 @@ const Register = () => {
     event.preventDefault();
   
     // Email validation patterns
-    const studentEmailPattern = /^bt\d+@pec\.edu\.in$/; // Student email must start with 'bt' followed by digits
-    const professorEmailPattern = /^[a-zA-Z0-9._%+-]+@pec\.edu\.in$/; // Professor email must be a valid email with @pec.edu.in
+    const studentEmailPattern = /^[a-zA-Z0-9._%+-]+@pec\.edu\.in$/; // Student email must end with @pec.edu.in
+    const professorEmailPattern = /^[a-zA-Z0-9._%+-]+@pec\.edu\.in$/; // Professor email must end with @pec.edu.in
   
     const email =
       roleData.role === "student" ? studentData.email : professorData.email;
   
     // Validate based on role
     if (roleData.role === "student" && !studentEmailPattern.test(email)) {
-      alert("Student email must start with 'bt' followed by digits and end with '@pec.edu.in'");
+      alert("Student email must be a valid email ending with '@pec.edu.in'");
       return;
     }
-    
+  
     if (roleData.role === "professor" && !professorEmailPattern.test(email)) {
-      alert("Professor email must follow the format 'username@pec.edu.in'");
+      alert("Professor email must be a valid email ending with '@pec.edu.in'");
       return;
     }
   
