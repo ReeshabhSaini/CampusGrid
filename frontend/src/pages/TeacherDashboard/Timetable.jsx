@@ -175,46 +175,33 @@ const Timetable = () => {
 
       const filteredOriginalEvents = originalEvents.filter((event) => {
         return !rescheduled_classes.some((rescheduled) => {
-          const originalDate = moment(rescheduled.original_date);
-          const originalStartTime = moment(
-            rescheduled.original_start_time,
-            "HH:mm"
+          const originalDate = moment(rescheduled.original_date).format(
+            "YYYY-MM-DD"
           );
-          const originalEndTime = moment(
-            rescheduled.original_end_time,
-            "HH:mm"
+          const originalStartDateTime = moment(
+            `${originalDate} ${rescheduled.original_start_time}`,
+            "YYYY-MM-DD HH:mm"
           );
-
-          // Combine the original date with start and end time
-          const originalDateTime = originalDate.set({
-            hour: originalStartTime.hours(),
-            minute: originalStartTime.minutes(),
-          });
-          const originalEndDateTime = originalDate.set({
-            hour: originalEndTime.hours(),
-            minute: originalEndTime.minutes(),
-          });
+          const originalEndDateTime = moment(
+            `${originalDate} ${rescheduled.original_end_time}`,
+            "YYYY-MM-DD HH:mm"
+          );
 
           const eventStartTime = moment(event.start);
           const eventEndTime = moment(event.end);
 
-          // Log the times for debugging
-          console.log(
-            `Event Start: ${eventStartTime.format(
-              "YYYY-MM-DD HH:mm"
-            )}, Event End: ${eventEndTime.format("YYYY-MM-DD HH:mm")}`
-          );
-          console.log(
-            `Original DateTime: ${originalDateTime.format(
-              "YYYY-MM-DD HH:mm"
-            )}, Original EndTime: ${originalEndDateTime.format(
-              "YYYY-MM-DD HH:mm"
-            )}`
-          );
+          // Debug: Log for mismatched events
+          console.log("Comparing Event and Rescheduled Details:");
+          console.log({
+            eventStart: eventStartTime.format("YYYY-MM-DD HH:mm"),
+            eventEnd: eventEndTime.format("YYYY-MM-DD HH:mm"),
+            rescheduledStart: originalStartDateTime.format("YYYY-MM-DD HH:mm"),
+            rescheduledEnd: originalEndDateTime.format("YYYY-MM-DD HH:mm"),
+          });
 
-          // Exclude the event if its start time and end time match the original class's original times
+          // Check if event matches the rescheduled class's original time
           return (
-            eventStartTime.isSame(originalDateTime) &&
+            eventStartTime.isSame(originalStartDateTime) &&
             eventEndTime.isSame(originalEndDateTime)
           );
         });
