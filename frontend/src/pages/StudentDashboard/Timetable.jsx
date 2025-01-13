@@ -46,31 +46,34 @@ const Timetable = ({ branch, semester }) => {
 
         const response3 = await axios.get(`${url}/api/student/holidays`);
 
-        const { classes, tutorials, labs } = response1.data.response;
+        const { classes } = response1.data.response;
         const { rescheduled_classes } = response2.data;
         const { holidays } = response3.data;
 
+        // Process holiday dates into a set for quick lookup
         const holidayDates = new Set(
           holidays.map((holiday) =>
             moment(holiday.holiday_date).format("YYYY-MM-DD")
           )
         );
 
-        const processEvents = (eventList, type) => {
-          const weeksToReplicate = 4; // Number of weeks to replicate the timetable
-          const currentWeekStart = moment().startOf("week");
-
-          return eventList.flatMap((event) => {
+        // Process timetable events, excluding those on holidays
+        const originalEvents = [];
+        for (let i = 0; i < 4; i++) {
+          const weekStart = moment().startOf("week").add(i, "weeks");
+          classes.forEach((event) => {
             const dayIndex = daysOfWeek.indexOf(event.day_of_week);
-            const baseStartDate = currentWeekStart
-              .clone()
-              .add(dayIndex, "days")
-              .set({
-                hour: parseInt(event.start_time.split(":")[0], 10),
-                minute: parseInt(event.start_time.split(":")[1], 10),
-              });
+            const classDate = weekStart.clone().add(dayIndex, "days");
 
-            const baseEndDate = baseStartDate
+            // Skip this class if it falls on a holiday
+            if (holidayDates.has(classDate.format("YYYY-MM-DD"))) return;
+
+            const startDate = classDate.clone().set({
+              hour: parseInt(event.start_time.split(":")[0], 10),
+              minute: parseInt(event.start_time.split(":")[1], 10),
+            });
+
+            const endDate = startDate
               .clone()
               .add(
                 parseInt(event.end_time.split(":")[0], 10) -
@@ -83,74 +86,70 @@ const Timetable = ({ branch, semester }) => {
                 "minutes"
               );
 
-            // Generate events for 4 weeks
-            return Array.from({ length: weeksToReplicate }, (_, weekIndex) => {
-              const startDate = baseStartDate.clone().add(weekIndex, "weeks");
-              const endDate = baseEndDate.clone().add(weekIndex, "weeks");
+            // Add a type field to specify class, tutorial, or lab
+            const type = event.courses.course_code.includes("T")
+              ? "tutorial"
+              : event.courses.course_code.includes("L")
+              ? "lab"
+              : "class"; // Use 'class' if neither
 
-              return {
-                id: `${type}-${event.id}-${weekIndex}`, // Unique ID for each week
-                title: `${event.courses.course_code} (${event.lecture_halls.hall_name})`,
-                start: startDate.toDate(),
-                end: endDate.toDate(),
-                type: type,
-                details: {
-                  id: event.id,
-                  courseCode: event.courses.course_code,
-                  courseName: event.courses.course_name,
-                  branch: event.courses.branch,
-                  semester: event.courses.semester,
-                  lectureHall: event.lecture_halls.hall_name,
-                  type: event.type,
-                  group: event.group,
-                  dayOfWeek: event.day_of_week,
-                  startTime: event.start_time,
-                  endTime: event.end_time,
-                },
-              };
+            originalEvents.push({
+              id: `${event.id}-${i}`,
+              title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
+              start: startDate.toDate(),
+              end: endDate.toDate(),
+              type: type, // Add type to the event
+              details: {
+                courseName: event.courses.course_name,
+                branch: event.courses.branch,
+                semester: event.courses.semester,
+                courseCode: event.courses.course_code,
+                lectureHall: event.lecture_halls.hall_name,
+                dayOfWeek: event.day_of_week,
+                startTime: event.start_time,
+                endTime: event.end_time,
+              },
             });
           });
-        };
+        }
 
-        const originalEvents = [
-          ...processEvents(classes, "class"),
-          ...processEvents(tutorials, "tutorial"),
-          ...processEvents(labs, "lab"),
-        ].filter(
-          (event) => !holidayDates.has(moment(event.start).format("YYYY-MM-DD"))
-        );
+        // Process rescheduled classes, excluding those on holidays
+        const rescheduledEvents = rescheduled_classes
+          .filter(
+            (event) =>
+              !holidayDates.has(
+                moment(event.rescheduled_date).format("YYYY-MM-DD")
+              )
+          )
+          .map((event) => {
+            const startDate = moment(event.rescheduled_date).set({
+              hour: parseInt(event.new_time.split(":")[0], 10),
+              minute: parseInt(event.new_time.split(":")[1], 10),
+            });
 
-        const rescheduledEvents = rescheduled_classes.map((event) => {
-          const startDate = moment(event.rescheduled_date).set({
-            hour: parseInt(event.new_time.split(":")[0], 10),
-            minute: parseInt(event.new_time.split(":")[1], 10),
+            const endDate = moment(startDate).add(1, "hour");
+
+            return {
+              id: `rescheduled-${event.id}`,
+              title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
+              start: startDate.toDate(),
+              end: endDate.toDate(),
+              type: "rescheduled", // Add rescheduled type
+              details: {
+                courseName: event.courses.course_name,
+                branch: event.courses.branch,
+                semester: event.courses.semester,
+                courseCode: event.courses.course_code,
+                lectureHall: event.lecture_halls.hall_name,
+                originalDate: event.original_date,
+                rescheduledDate: event.rescheduled_date,
+                reason: event.reason,
+                newTime: event.new_time,
+              },
+            };
           });
 
-          const endDate = moment(startDate).add(1, "hour");
-
-          return {
-            id: `rescheduled-${event.id}`,
-            title: `${event.courses.course_code} (${event.lecture_halls.hall_name}) (Rescheduled)`,
-            start: startDate.toDate(),
-            end: endDate.toDate(),
-            type: "rescheduled",
-            details: {
-              id: event.id,
-              courseCode: event.courses.course_code,
-              courseName: event.courses.course_name,
-              branch: event.courses.branch,
-              semester: event.courses.semester,
-              type: event.type,
-              group: event.group,
-              lectureHall: event.lecture_halls.hall_name,
-              originalDate: event.original_date,
-              rescheduledDate: event.rescheduled_date,
-              reason: event.reason,
-              newTime: event.new_time,
-            },
-          };
-        });
-
+        // Process holiday events
         const holidayEvents = holidays.map((holiday) => {
           const holidayDate = moment(holiday.holiday_date);
           const startDate = holidayDate.clone().set({ hour: 0, minute: 0 });
@@ -166,6 +165,7 @@ const Timetable = ({ branch, semester }) => {
           };
         });
 
+        // Combine events (only non-holiday classes + reschedules + holidays)
         const finalEvents = [
           ...holidayEvents,
           ...originalEvents,
@@ -185,15 +185,17 @@ const Timetable = ({ branch, semester }) => {
   }, [studentData.branch, studentData.semester, url]);
 
   const handleEventClick = (event) => {
+    // Check if it's a holiday and display holiday details
     if (event.isHoliday) {
       setSelectedEvent({
         ...event,
         details: {
-          description: event.title,
+          description: event.title, // Use the title as description
           holidayDate: moment(event.start).format("YYYY-MM-DD"),
         },
       });
     } else {
+      // For class, tutorial, lab, or rescheduled events
       setSelectedEvent(event);
     }
   };
@@ -206,25 +208,28 @@ const Timetable = ({ branch, semester }) => {
     let backgroundColor;
     switch (event.type) {
       case "class":
-        backgroundColor = "#3182ce";
+        backgroundColor = "#3182ce"; // Blue for regular classes
         break;
       case "tutorial":
-        backgroundColor = "#9f7aea";
+        backgroundColor = "#9f7aea"; // Purple for tutorials
         break;
       case "lab":
-        backgroundColor = "#48bb78";
+        backgroundColor = "#48bb78"; // Green for labs
         break;
       case "rescheduled":
-        backgroundColor = "#f59e0b";
+        backgroundColor = "#f6ad55"; // Orange for rescheduled events
         break;
       default:
-        backgroundColor = "#34d399";
+        backgroundColor = "#3182ce"; // Default to blue
         break;
+      
     }
-
+    if (event.id.startsWith("holiday")) {
+      backgroundColor = "#34d399"; // Green for holidays
+    } 
     return {
       style: {
-        backgroundColor: backgroundColor,
+        backgroundColor: isSelected ? "#2b6cb0" : backgroundColor, // Highlight selected event
         color: "white",
         borderRadius: "5px",
         padding: "4px",
@@ -246,10 +251,14 @@ const Timetable = ({ branch, semester }) => {
 
   return (
     <div className="flex">
+      {/* Main Content */}
       <div className="flex-1 p-4">
+        {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Student Timetable</h2>
         </div>
+
+        {/* Calendar */}
         <div className="bg-white shadow-md rounded-lg p-4">
           <Calendar
             localizer={localizer}
@@ -258,12 +267,12 @@ const Timetable = ({ branch, semester }) => {
             endAccessor="end"
             style={{ height: 500 }}
             eventPropGetter={eventStyleGetter}
-            views={["month", "week", "day"]}
+            views={[ "week", "day"]}
             defaultView="week"
             formats={formats}
             onSelectEvent={handleEventClick}
-            min={new Date(2024, 11, 22, 8, 0)}
-            max={new Date(2024, 11, 22, 18, 0)}
+            min={new Date(2024, 11, 22, 8, 0)} // Set minimum time to 8 AM
+            max={new Date(2024, 11, 22, 17, 0)} // Set maximum time to 5 PM
           />
         </div>
       </div>
@@ -292,7 +301,10 @@ const Timetable = ({ branch, semester }) => {
                   {selectedEvent.details.courseName}
                 </p>
                 <p>
-                  <strong>Type:</strong> {selectedEvent.details.type}
+                  <strong>Branch:</strong> {selectedEvent.details.branch}
+                </p>
+                <p>
+                  <strong>Semester:</strong> {selectedEvent.details.semester}
                 </p>
                 <p>
                   <strong>Course Code:</strong>{" "}
