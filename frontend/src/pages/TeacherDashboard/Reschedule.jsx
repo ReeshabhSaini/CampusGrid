@@ -9,6 +9,31 @@ import { toast } from "react-toastify";
 
 const localizer = momentLocalizer(moment);
 
+const AutoResizeTextarea = ({ value, onChange, placeholder }) => {
+  const textareaRef = React.useRef(null);
+
+  const handleInput = (e) => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto"; // Reset height
+      textarea.style.height = `${textarea.scrollHeight}px`; // Adjust to fit content
+    }
+    if (onChange) onChange(e); // Call the onChange prop
+  };
+
+  return (
+    <textarea
+      ref={textareaRef}
+      className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition duration-300 ease-in-out text-gray-800 placeholder-gray-400 resize-none overflow-hidden"
+      value={value}
+      onInput={handleInput}
+      onChange={onChange}
+      placeholder={placeholder || "Enter your reason here..."}
+      rows={2} // Start with a single row
+    />
+  );
+};
+
 const ReschedulePage = ({ event }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [timeSlots, setTimeSlots] = useState([]);
@@ -19,7 +44,7 @@ const ReschedulePage = ({ event }) => {
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [loadingHalls, setLoadingHalls] = useState(false);
   const [showLoadingScreen, setShowLoadingScreen] = useState(false);
-  const [showTimeSlots, setShowTimeSlots] = useState(true);
+  const [showTimeSlots, setShowTimeSlots] = useState(false);
   const [showLectureHalls, setShowLectureHalls] = useState(false);
   const navigate = useNavigate();
   const { url, rescheduleRequest, setRescheduleRequest, professorData } =
@@ -138,6 +163,56 @@ const ReschedulePage = ({ event }) => {
     setSelectedHall(hall);
     setShowLectureHalls(false); // Hide lecture halls after selection
   };
+  const CustomToolbar = ({ label, onNavigate }) => (
+    <div className="flex justify-between items-center py-2 px-4 bg-gray-100 shadow-md rounded-lg">
+      <button
+        onClick={() => onNavigate("PREV")}
+        className="text-2xl text-blue-600 hover:text-blue-800 transition duration-200"
+      >
+        <FaArrowLeft />
+      </button>
+      <span className="font-bold text-lg">{label}</span>
+      <button
+        onClick={() => onNavigate("NEXT")}
+        className="text-2xl text-blue-600 hover:text-blue-800 transition duration-200"
+      >
+        <FaArrowRight />
+      </button>
+      <div className="ml-4">
+        <button
+          onClick={() => {
+            setView("day");
+            onNavigate("TODAY");
+          }}
+          className={`px-2 py-1 ${
+            view === "day" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+        >
+          Day
+        </button>
+        <button
+          onClick={() => {
+            setView("week");
+            onNavigate("TODAY");
+          }}
+          className={`px-2 py-1 ${
+            view === "week" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+        >
+          Week
+        </button>
+        <button
+          onClick={() => {
+            setView("day");
+            onNavigate("TODAY");
+          }}
+          className="ml-2 px-2 py-1 bg-blue-600 text-white"
+        >
+          Today
+        </button>
+      </div>
+    </div>
+  );
 
   // Loading Spinner component using Tailwind CSS
   const LoadingSpinner = () => (
@@ -147,13 +222,12 @@ const ReschedulePage = ({ event }) => {
   );
 
   return (
-    <div className="p-6 min-h-screen" style={{ background: "transparent" }}>
-      <h2 className="text-4xl font-extrabold text-black-700 mb-6 text-center">
-        Reschedule Event
-      </h2>
-      <div className="flex flex-row">
-        <div className="flex-1 shadow-lg rounded-lg p-4">
-          <h3 className="text-3xl font-bold mb-4 text-blue-600">Details</h3>
+    <div className="flex flex-col items-center p-4 w-full">
+      <h1 className="text-4xl font-extrabold text-black-700 mb-6 text-center">Reschedule Event</h1>
+      <div className="flex space-x-4 w-full">
+        {/* Box 1: Details */}
+        <div className="flex-1 border rounded-lg shadow p-4 h-[500px] max-h-[500px] overflow-y-auto">
+          <h2 className="text-3xl font-bold mb-4 text-black-600">Details</h2>
           <p className="text-lg">
             <strong>Course Name:</strong> {rescheduleRequest.details.courseName}
           </p>
@@ -197,40 +271,52 @@ const ReschedulePage = ({ event }) => {
           )}
         </div>
 
-        <div className="flex-1 shadow-lg rounded-lg p-4">
-          <h3 className="text-3xl font-bold mb-4 text-blue-600">
-            Select New Date:
-          </h3>
+        {/* Box 2: Calendar */}
+        <div className="flex-1 border rounded-lg shadow p-4 h-[500px] max-h-[500px] overflow-y-auto">
+          <h2 className="text-3xl font-bold mb-4 text-black-600">Calendar</h2>
           <Calendar
             localizer={localizer}
             selectable
             onSelectSlot={handleSelectDate}
-            onDrillDown={handleSelectDate}
-            defaultView="month"
-            views={["month"]}
-            defaultDate={new Date()}
-            dayPropGetter={dayPropGetter}
-            style={{ height: 400 }}
-            startAccessor="start"
-            endAccessor="end"
-            className="rounded-lg border border-gray-300"
+            style={{ height: "400px" }}
+            dayPropGetter={(date) => {
+              const today = moment().startOf("day");
+              const isToday = today.isSame(date, "day");
+              const isSelected = moment(selectedDate).isSame(date, "day");
+              const isOriginal = moment(rescheduleRequest.start).isSame(
+                date,
+                "day"
+              );
+
+              return {
+                style: {
+                  backgroundColor: isToday
+                    ? "lightblue"
+                    : isSelected
+                    ? "lightgreen"
+                    : isOriginal
+                    ? "lightcoral"
+                    : undefined,
+                  color:
+                    isToday || isSelected || isOriginal ? "white" : undefined,
+                },
+              };
+            }}
             components={{
-              toolbar: ({ onNavigate }) => (
-                <div className="flex justify-between mb-4">
+              toolbar: (props) => (
+                <div className="flex justify-between items-center py-2 px-4 bg-transparent shadow-md rounded-lg">
                   <button
-                    onClick={() => onNavigate("PREV")}
-                    className="text-blue-500 hover:text-blue-700"
+                    onClick={() => props.onNavigate("PREV")}
+                    className="text-2xl text-blue-600 hover:text-blue-800 transition duration-200"
                   >
-                    &larr;
+                    &lt;
                   </button>
-                  <span className="font-semibold text-blue-600">
-                    {moment(selectedDate).format("MMMM YYYY")}
-                  </span>
+                  <span className="font-bold text-lg">{props.label}</span>
                   <button
-                    onClick={() => onNavigate("NEXT")}
-                    className="text-blue-500 hover:text-blue-700"
+                    onClick={() => props.onNavigate("NEXT")}
+                    className="text-2xl text-blue-600 hover:text-blue-800 transition duration-200"
                   >
-                    &rarr;
+                    &gt;
                   </button>
                 </div>
               ),
@@ -238,128 +324,104 @@ const ReschedulePage = ({ event }) => {
           />
         </div>
 
-        <div className="flex-1 shadow-lg rounded-lg p-4 space-y-6">
-          {!showLoadingScreen ? (
-            <>
-              {showTimeSlots && (
+        {/* Box 3: Selection */}
+        <div className="flex-1 border rounded-lg shadow p-4 h-[500px] max-h-[500px] overflow-y-auto">
+          <h2 className="text-3xl font-bold mb-4 text-black-600">Make a Selection</h2>
+          {!selectedHall && !reason ? (
+            <div>
+              {showLectureHalls ? (
                 <div>
-                  <h3 className="text-3xl font-bold text-blue-600">
-                    Select a Time Slot:
-                  </h3>
-                  <ul className="space-y-2">
-                    {loadingSlots && (
-                      <p className="text-blue-500">Loading slots...</p>
-                    )}
-                    {timeSlots.map((slot, index) => (
-                      <li
-                        key={index}
-                        className={`cursor-pointer p-2 border rounded-lg transition-transform duration-300 ease-in-out ${
-                          selectedTime === slot
-                            ? "bg-blue-100 border-blue-500 scale-105"
-                            : "border-gray-300"
-                        }`}
-                        onClick={() => handleSelectTime(slot)}
-                      >
-                        {slot}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {showLectureHalls && selectedTime && (
-                <div>
-                  <h3 className="text-3xl font-bold text-blue-600">
-                    Select a Lecture Hall:
-                  </h3>
-                  <ul className="space-y-2">
-                    {loadingHalls && (
-                      <p className="text-blue-500">Loading halls...</p>
-                    )}
+                  <h3 className="font-semibold">Select Lecture Hall:</h3>
+                  <div className="h-[350px] max-h-[350px] overflow-y-auto border">
                     {lectureHalls.length > 0 ? (
-                      lectureHalls.map((hall) => (
-                        <li
-                          key={hall}
-                          className={`cursor-pointer p-2 border rounded-lg transition-transform duration-300 ease-in-out ${
+                      lectureHalls.map((hall, idx) => (
+                        <button
+                          key={idx}
+                          className={`block w-full p-2 my-1 ${
                             selectedHall === hall
-                              ? "bg-green-100 border-green-500 scale-105"
-                              : "border-gray-300"
+                              ? "bg-blue-500 text-white"
+                              : "bg-yellow-100 border-2 border-solid border-black p-1 rounded-lg"
                           }`}
                           onClick={() => handleSelectHall(hall)}
                         >
                           {hall}
-                        </li>
+                        </button>
                       ))
                     ) : (
-                      <p className="text-red-500">
-                        No lecture halls available. Please choose a different
-                        time slot.
-                      </p>
+                      <p>No lecture halls available</p>
                     )}
-                  </ul>
+                  </div>
+                  <button
+                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+                    onClick={() => {
+                      setSelectedTime("");
+                      setShowTimeSlots(true);
+                      setShowLectureHalls(false);
+                    }}
+                  >
+                    Select Different Time Slot
+                  </button>
                 </div>
-              )}
-
-              {selectedTime && !selectedHall && (
-                <button
-                  onClick={() => {
-                    setShowTimeSlots(true); // Show time slots again
-                    setShowLectureHalls(false); // Hide lecture halls
-                  }}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300"
-                >
-                  Back to Time Slots
-                </button>
-              )}
-
-              {selectedHall && (
+              ) : showTimeSlots ? (
                 <div>
-                  <div>
-                    <label
-                      className="block font-bold text-blue-600 mb-2 text-3xl"
-                      htmlFor="reason"
-                    >
-                      Reason for Rescheduling:
-                    </label>
-                    <textarea
-                      id="reason"
-                      value={reason}
-                      onChange={(e) => setReason(e.target.value)}
-                      className="w-full border rounded-lg px-4 py-2 text-gray-700 bg-yellow-50 focus:ring-2 focus:ring-blue-400 shadow-sm hover:bg-gray-50 transition-all"
-                      placeholder="Provide a reason for rescheduling..."
-                    />
-                  </div>
-                  <div className="flex space-x-4">
-                    <button
-                      onClick={() => {
-                        setShowTimeSlots(true); // Show time slots again
-                        setShowLectureHalls(false); // Hide lecture halls
-                      }}
-                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300"
-                    >
-                      Back to Time Slots
-                    </button>
-                    <button
-                      onClick={() => setSelectedHall("")}
-                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300"
-                    >
-                      Back to Lecture Halls
-                    </button>
-                  </div>
+                  <h3 className="font-semibold">Select Time Slot:</h3>
+                  {timeSlots.length > 0 ? (
+                    timeSlots.map((slot, idx) => (
+                      <button
+                        key={idx}
+                        className={`block w-full p-2 my-1 ${
+                          selectedTime === slot
+                            ? "bg-blue-500 text-white"
+                            : "bg-yellow-100 border-2 border-solid border-black p-1 rounded-lg"
+                        }`}
+                        onClick={() => handleSelectTime(slot)}
+                      >
+                        {slot}
+                      </button>
+                    ))
+                  ) : (
+                    <p>No time slots available</p>
+                  )}
                 </div>
-              )}
-            </>
+              ) : null}
+            </div>
           ) : (
-            <div className="text-center">
-              <p className="text-blue-500 font-semibold">
-                Fetching available lecture halls...
-              </p>
-              <LoadingSpinner />
+            <div>
+              <h3 className="font-semibold">Reason for Reschedule:</h3>
+              <AutoResizeTextarea
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="Enter your reason here only after making sure right slots are selected...."
+              />
+
+              <div className="mt-4 flex space-x-4">
+                <button
+                  className="px-4 py-2 bg-blue-500 text-white rounded"
+                  onClick={() => {
+                    setSelectedTime("");
+                    setSelectedHall("");
+                    setShowTimeSlots(true);
+                    setShowLectureHalls(false);
+                  }}
+                >
+                  Select Different Time Slot
+                </button>
+                <button
+                  className="px-4 py-2 bg-blue-500 text-white rounded"
+                  onClick={() => {
+                    setSelectedHall("");
+                    setShowLectureHalls(true);
+                  }}
+                >
+                  Select Different Lecture Hall
+                </button>
+              </div>
             </div>
           )}
         </div>
       </div>
 
+      {/* Reschedule Button */}
       <div className="mt-8 flex justify-center space-x-4">
         <button
           onClick={handleReschedule}

@@ -268,11 +268,15 @@ const Timetable = () => {
   const eventStyleGetter = (event, start, end, isSelected) => {
     let backgroundColor;
     if (event.id.startsWith("holiday")) {
-      backgroundColor = "#34d399"; // Green for holidays
+      backgroundColor = isSelected ? "#7600BC" :"#34d399"; // Green for holidays
     } else if (event.title.includes("(Rescheduled)")) {
-      backgroundColor = "#f59e0b"; // Orange for rescheduled
-    } else {
-      backgroundColor = isSelected ? "#1d4ed8" : "#3174ad";
+      backgroundColor = isSelected ? "#7600BC" :"#f59e0b"; // Orange for rescheduled
+    } else if (event.details.type=="tutorial") {
+      backgroundColor = isSelected ? "#7600BC" :"#228B22"; //Dark green for tutorial
+    } else if (event.details.type=="lab") {
+      backgroundColor = isSelected ? "#7600BC" : "#E6B400"; //Dark yellow for tutorial
+    }else {
+      backgroundColor = isSelected ? "#7600BC" : "#1d4ed8";
     }
     return {
       style: {
