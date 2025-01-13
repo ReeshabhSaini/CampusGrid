@@ -38,14 +38,32 @@ const Register = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
+    // Email validation patterns
+    const studentEmailPattern = /^bt\d+@pec\.edu\.in$/; // Student email must start with 'bt' followed by digits
+    const professorEmailPattern = /^[a-zA-Z0-9._%+-]+@pec\.edu\.in$/; // Professor email must be a valid email with @pec.edu.in
+  
+    const email =
+      roleData.role === "student" ? studentData.email : professorData.email;
+  
+    // Validate based on role
+    if (roleData.role === "student" && !studentEmailPattern.test(email)) {
+      alert("Student email must start with 'bt' followed by digits and end with '@pec.edu.in'");
+      return;
+    }
+    
+    if (roleData.role === "professor" && !professorEmailPattern.test(email)) {
+      alert("Professor email must follow the format 'username@pec.edu.in'");
+      return;
+    }
+  
     if (roleData.role === "student") {
       // Check if passwords match
       if (password !== confirmPassword) {
         alert("Passwords do not match!");
         return;
       }
-
+  
       try {
         // Sending data to the backend
         const response = await axios.post(`${url}/api/auth/student/register`, {
@@ -60,7 +78,7 @@ const Register = () => {
           tutorial_group: studentData.tutorial_group,
           lab_group: studentData.lab_group,
         });
-
+  
         if (response.status === 200) {
           setStudentData({
             first_name: "",
@@ -75,9 +93,9 @@ const Register = () => {
           });
           setPassword("");
           setConfirmPassword("");
-
+  
           toast.success(response.data.message);
-
+  
           navigate("/login");
         } else {
           toast.error(response.data.message);
@@ -86,13 +104,14 @@ const Register = () => {
         toast.error(response.data.message);
       }
     }
+  
     if (roleData.role === "professor") {
       // Check if passwords match
       if (password !== confirmPassword) {
         alert("Passwords do not match!");
         return;
       }
-
+  
       try {
         // Sending data to the backend
         const response = await axios.post(
@@ -104,7 +123,7 @@ const Register = () => {
             password: password,
           }
         );
-
+  
         if (response.status === 200) {
           setProfessorData({
             first_name: "",
@@ -113,9 +132,9 @@ const Register = () => {
           });
           setPassword("");
           setConfirmPassword("");
-
+  
           toast.success(response.data.message);
-
+  
           navigate("/login");
         } else {
           alert("Something went wrong!");
@@ -126,7 +145,7 @@ const Register = () => {
       }
     }
   };
-
+  
   const handleRoleSelect = (selectedRole) => {
     setRoleData((prev) => ({ ...prev, role: selectedRole }));
   };
