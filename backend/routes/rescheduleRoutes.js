@@ -1,12 +1,6 @@
 import express from "express";
 import supabase from "../config/supabaseClient.js";
 const router = express.Router();
-// Utility to add one hour to a time
-const addHour = (time) => {
-    const [hour, minute, second] = time.split(":").map(Number);
-    const newHour = hour + 1;
-    return `${newHour.toString().padStart(2, "0")}:${minute}:${second}`;
-};
 
 // Endpoint to fetch available time slots
 router.post("/get/available/slots", async (req, res) => {
@@ -19,9 +13,6 @@ router.post("/get/available/slots", async (req, res) => {
 
         const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
         const selectedDay = daysOfWeek[new Date(selectedDate).getDay()].toLowerCase();
-
-        console.log(selectedDay);
-
 
         const workingHours = [
             { start: "08:00:00", end: "09:00:00" },
@@ -46,7 +37,7 @@ router.post("/get/available/slots", async (req, res) => {
 
         const { data: professorRescheduledSlots, error: professorRescheduleError } = await supabase
             .from("class_rescheduling")
-            .select("new_time")
+            .select("new_start_time, new_end_time")
             .eq("rescheduled_date", selectedDate)
             .eq("professor_id", professorId);
 
@@ -54,14 +45,8 @@ router.post("/get/available/slots", async (req, res) => {
 
         const allProfessorBusySlots = [
             ...professorBusySlots.map(slot => ({ start: slot.start_time, end: slot.end_time })),
-            ...professorRescheduledSlots.map(slot => ({ start: slot.new_time, end: addHour(slot.new_time) })),
+            ...professorRescheduledSlots.map(slot => ({ start: slot.new_start_time, end: slot.new_end_time })),
         ];
-
-        console.log("Professor Time Slots:")
-
-        console.log(professorBusySlots)
-        console.log(professorRescheduledSlots)
-        console.log(allProfessorBusySlots)
 
         // Fetch student's busy slots
         const { data: studentBusySlots, error: studentBusyError } = await supabase
@@ -75,7 +60,7 @@ router.post("/get/available/slots", async (req, res) => {
 
         const { data: studentRescheduledSlots, error: studentRescheduleError } = await supabase
             .from("class_rescheduling")
-            .select("new_time, courses(id, branch, semester)")
+            .select("new_start_time, new_end_time, courses(id, branch, semester)")
             .eq("rescheduled_date", selectedDate)
             .eq("courses.branch", branch)
             .eq("courses.semester", semester);
@@ -84,14 +69,8 @@ router.post("/get/available/slots", async (req, res) => {
 
         const allStudentBusySlots = [
             ...studentBusySlots.map(slot => ({ start: slot.start_time, end: slot.end_time })),
-            ...studentRescheduledSlots.map(slot => ({ start: slot.new_time, end: addHour(slot.new_time) })),
+            ...studentRescheduledSlots.map(slot => ({ start: slot.new_start_time, end: slot.new_end_time })),
         ];
-
-        console.log("Student Time Slots:")
-
-        console.log(studentBusySlots);
-        console.log(studentRescheduledSlots);
-        console.log(allStudentBusySlots);
 
         // Calculate free slots
         const freeSlots = workingHours.filter(slot => {
@@ -104,79 +83,12 @@ router.post("/get/available/slots", async (req, res) => {
             return isProfessorFree && isStudentFree;
         }).map(slot => `${slot.start} - ${slot.end}`); // Convert objects to strings
 
-        console.log(freeSlots); // Ensure this is an array of objects or strings
-
         res.status(200).json({ freeSlots });
     } catch (error) {
         console.error("Error fetching available slots:", error.message);
         res.status(500).json({ error: "Failed to fetch available time slots." });
     }
 });
-
-// // Endpoint to fetch available lecture halls
-// router.post("/get/available/halls", async (req, res) => {
-//     try {
-//         const { selectedDate, selectedTimeSlot } = req.body;
-
-//         if (!selectedDate || !selectedTimeSlot) {
-//             return res.status(400).json({ error: "Missing required fields." }); { }
-//         }
-
-//         // Convert selected date to day of the week
-//         const daysOfWeek = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-//         const selectedDay = daysOfWeek[new Date(selectedDate).getDay()];
-
-//         console.log(selectedDay);
-
-//         // Parse selected time slot to start and end time
-//         const [startTime, endTime] = selectedTimeSlot.split(" - ");
-//         if (!startTime || !endTime) {
-//             return res.status(400).json({ error: "Invalid time slot format." });
-//         }
-
-//         // Get all lecture halls
-//         const { data: allHalls, error: hallsError } = await supabase
-//             .from("lecture_halls")
-//             .select("id, hall_name");
-
-//         if (hallsError) throw hallsError;
-
-//         // Fetch busy halls from timetable for the selected day and time slot
-//         const { data: busyHallsFromTimeTable, error: timetableError } = await supabase
-//             .from("time_table")
-//             .select("lecture_hall_id")
-//             .eq("day_of_week", selectedDay)
-//             .or(`start_time.lt.${endTime},end_time.gt.${startTime}`);
-
-//         if (timetableError) throw timetableError;
-
-//         // Fetch busy halls from rescheduling for the selected date and time slot
-//         const { data: busyHallsFromRescheduling, error: rescheduleError } = await supabase
-//             .from("class_rescheduling")
-//             .select("lecture_hall_id")
-//             .eq("rescheduled_date", selectedDate)
-//             .or(`new_time.lt.${endTime},new_time.gt.${startTime}`);
-
-//         if (rescheduleError) throw rescheduleError;
-
-//         // Combine all busy hall IDs from timetable and rescheduling
-//         const busyHallIds = new Set([
-//             ...busyHallsFromTimeTable.map(hall => hall.lecture_hall_id),
-//             ...busyHallsFromRescheduling.map(hall => hall.lecture_hall_id),
-//         ]);
-
-//         // Filter out the busy halls from all available halls
-//         const availableHalls = allHalls.filter(hall => !busyHallIds.has(hall.id));
-
-//         // Send available halls in the response
-//         res.status(200).json({
-//             availableHalls: availableHalls.map(hall => hall.hall_name) // Returning hall names
-//         });
-//     } catch (error) {
-//         console.error("Error fetching available halls:", error.message);
-//         res.status(500).json({ error: "Failed to fetch available lecture halls." });
-//     }
-// });
 
 // Endpoint to fetch available lecture halls
 router.post("/get/available/halls", async (req, res) => {
@@ -191,20 +103,20 @@ router.post("/get/available/halls", async (req, res) => {
         const daysOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
         const selectedDay = daysOfWeek[new Date(selectedDate).getDay()];
 
-        // Parse selected time slot to start and end time
+        // Parse selected time slot into start and end times
         const [startTime, endTime] = selectedTimeSlot.split(" - ");
         if (!startTime || !endTime) {
             return res.status(400).json({ error: "Invalid time slot format." });
         }
 
-        // Get all lecture halls
+        // Fetch all lecture halls
         const { data: allHalls, error: hallsError } = await supabase
             .from("lecture_halls")
             .select("id, hall_name");
 
         if (hallsError) throw hallsError;
 
-        // Fetch busy halls from timetable for the selected day and time slot
+        // Fetch busy halls from the timetable for the selected day and time slot
         const { data: busyHallsStartOverlap, error: startOverlapError } = await supabase
             .from("time_table")
             .select("lecture_hall_id")
@@ -232,7 +144,7 @@ router.post("/get/available/halls", async (req, res) => {
 
         if (withinSlotError) throw withinSlotError;
 
-        // Combine all busy halls from the timetable
+        // Combine all busy halls from timetable
         const busyHallsFromTimeTable = [
             ...busyHallsStartOverlap,
             ...busyHallsEndOverlap,
@@ -242,47 +154,36 @@ router.post("/get/available/halls", async (req, res) => {
         // Fetch busy halls from rescheduling for the selected date and time slot
         const { data: busyHallsRescheduleStartOverlap, error: rescheduleStartError } = await supabase
             .from("class_rescheduling")
-            .select("lecture_hall_id, new_time")
+            .select("lecture_hall_id")
             .eq("rescheduled_date", selectedDate)
-            .lte("new_time", startTime)
-            .gt("new_time", startTime);
+            .lte("new_start_time", startTime)
+            .gt("new_end_time", startTime);
 
         if (rescheduleStartError) throw rescheduleStartError;
 
         const { data: busyHallsRescheduleEndOverlap, error: rescheduleEndError } = await supabase
             .from("class_rescheduling")
-            .select("lecture_hall_id, new_time")
+            .select("lecture_hall_id")
             .eq("rescheduled_date", selectedDate)
-            .lt("new_time", endTime)
-            .gte("new_time", endTime);
+            .lt("new_start_time", endTime)
+            .gte("new_end_time", endTime);
 
         if (rescheduleEndError) throw rescheduleEndError;
 
         const { data: busyHallsRescheduleWithinSlot, error: rescheduleWithinSlotError } = await supabase
             .from("class_rescheduling")
-            .select("lecture_hall_id, new_time")
-            .eq("rescheduled_date", selectedDate);
+            .select("lecture_hall_id")
+            .eq("rescheduled_date", selectedDate)
+            .gte("new_start_time", startTime)
+            .lte("new_end_time", endTime);
 
         if (rescheduleWithinSlotError) throw rescheduleWithinSlotError;
-
-        // Filter within slot
-        const filteredBusyHallsWithinSlot = busyHallsRescheduleWithinSlot.filter(hall => {
-            const newTimeStart = moment(hall.new_time, "HH:mm");
-            const newTimeEnd = newTimeStart.clone().add(1, "hour");
-
-            return (
-                (newTimeStart.isSameOrAfter(moment(startTime, "HH:mm")) &&
-                    newTimeStart.isBefore(moment(endTime, "HH:mm"))) ||
-                (newTimeEnd.isAfter(moment(startTime, "HH:mm")) &&
-                    newTimeEnd.isSameOrBefore(moment(endTime, "HH:mm")))
-            );
-        });
 
         // Combine all busy halls from rescheduling
         const busyHallsFromRescheduling = [
             ...busyHallsRescheduleStartOverlap,
             ...busyHallsRescheduleEndOverlap,
-            ...filteredBusyHallsWithinSlot,
+            ...busyHallsRescheduleWithinSlot,
         ];
 
         // Combine all busy hall IDs from timetable and rescheduling
@@ -292,11 +193,14 @@ router.post("/get/available/halls", async (req, res) => {
         ]);
 
         // Filter out the busy halls from all available halls
-        const availableHalls = allHalls.filter(hall => !busyHallIds.has(hall.id));
+        const availableHalls = allHalls
+            .filter(hall => !busyHallIds.has(hall.id))
+            .map(hall => hall.hall_name)
+            .sort((a, b) => a.localeCompare(b)); // Sort lexicographically
 
         // Send available halls in the response
         res.status(200).json({
-            availableHalls: availableHalls.map(hall => hall.hall_name), // Returning hall names
+            availableHalls, // Returning hall names in lexicographical order
         });
     } catch (error) {
         console.error("Error fetching available halls:", error.message);
@@ -312,7 +216,7 @@ router.post('/reschedule/request', async (req, res) => {
         rescheduled_date,
         reason,
         professor_id,
-        lecture_hall_id,
+        lecture_hall,
         selected_time,
         type,
         group,
@@ -327,7 +231,7 @@ router.post('/reschedule/request', async (req, res) => {
         !rescheduled_date ||
         !reason ||
         !professor_id ||
-        !lecture_hall_id ||
+        !lecture_hall ||
         !selected_time ||
         !type ||
         !group ||
@@ -338,16 +242,26 @@ router.post('/reschedule/request', async (req, res) => {
     }
 
     // Parse selected time slot to start and end time
-    const [new_time, endTime] = selected_time.split(" - ");
-    if (!new_time || !endTime) {
+    const [new_start_time, new_end_time] = selected_time.split(" - ");
+    if (!new_start_time || !new_end_time) {
         return res.status(400).json({ error: "Invalid time slot format." });
     }
 
-    console.log("Start Time: ", original_start_time);
-    console.log("End Time: ", original_end_time);
-
     try {
-        console.log(new_time);
+        // Fetch lecture hall ID based on hall name
+        const { data: lectureHalls, error: hallError } = await supabase
+            .from("lecture_halls")
+            .select("id")
+            .eq("hall_name", lecture_hall)
+            .single(); // Ensure we get only one result
+
+        if (hallError || !lectureHalls) {
+            console.error('Error fetching lecture hall:', hallError);
+            return res.status(400).json({ error: 'Invalid lecture hall name.' });
+        }
+
+        const lecture_hall_id = lectureHalls.id;
+
         // Insert the rescheduling request into the database
         const { data, error } = await supabase
             .from('class_rescheduling')
@@ -359,14 +273,15 @@ router.post('/reschedule/request', async (req, res) => {
                     reason,
                     professor_id,
                     lecture_hall_id,
-                    new_time,
+                    new_start_time,
+                    new_end_time,
                     type,
                     group,
                     original_start_time,
                     original_end_time
                 },
             ])
-            .select('id') // Return the inserted ID
+            .select('id'); // Return the inserted ID
 
         if (error) {
             console.error('Supabase insert error:', error);
@@ -383,6 +298,5 @@ router.post('/reschedule/request', async (req, res) => {
         res.status(500).json({ error: 'An unexpected error occurred.' });
     }
 });
-
 
 export default router;

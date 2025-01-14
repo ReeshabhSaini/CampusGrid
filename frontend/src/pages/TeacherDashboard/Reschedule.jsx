@@ -49,8 +49,7 @@ const ReschedulePage = ({ event }) => {
   const [showTimeSlots, setShowTimeSlots] = useState(false);
   const [showLectureHalls, setShowLectureHalls] = useState(false);
   const navigate = useNavigate();
-  const { url, rescheduleRequest, setRescheduleRequest, professorData } =
-    useContext(StoreContext);
+  const { url, rescheduleRequest, professorData } = useContext(StoreContext);
 
   const handleSelectDate = (slotInfo) => {
     setSelectedDate(slotInfo.start || slotInfo);
@@ -117,16 +116,13 @@ const ReschedulePage = ({ event }) => {
         rescheduled_date: moment(selectedDate).format("YYYY-MM-DD"),
         reason: reason,
         professor_id: professorData.id,
-        lecture_hall_id: rescheduleRequest.details.lectureHallId,
+        lecture_hall: selectedHall,
         selected_time: selectedTime,
         type: rescheduleRequest.details.type,
         group: rescheduleRequest.details.group,
         original_start_time: rescheduleRequest.details.startTime,
         original_end_time: rescheduleRequest.details.endTime,
       });
-
-      console.log(rescheduleRequest.details.startTime);
-      console.log(rescheduleRequest.details.endTime);
 
       toast.success(response.data.message);
       navigate("/tdashboard");

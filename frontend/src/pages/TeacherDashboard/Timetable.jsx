@@ -27,10 +27,9 @@ const Timetable = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [view, setView] = useState("day"); // Set default view to day
+  const [view, setView] = useState("day");
 
-  const { url, setToken, rescheduleRequest, setRescheduleRequest } =
-    useContext(StoreContext);
+  const { url, setToken, setRescheduleRequest } = useContext(StoreContext);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -117,7 +116,7 @@ const Timetable = () => {
 
           originalEvents.push({
             id: `${event.id}-${i}`,
-            title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
+            title: `${event.courses.course_code} (${event.lecture_halls.hall_name})`,
             start: startDate.toDate(),
             end: endDate.toDate(),
             details: {
@@ -141,15 +140,18 @@ const Timetable = () => {
 
       const rescheduledEvents = rescheduled_classes.map((event) => {
         const startDate = moment(event.rescheduled_date).set({
-          hour: parseInt(event.new_time.split(":")[0], 10),
-          minute: parseInt(event.new_time.split(":")[1], 10),
+          hour: parseInt(event.new_start_time.split(":")[0], 10),
+          minute: parseInt(event.new_start_time.split(":")[1], 10),
         });
 
-        const endDate = moment(startDate).add(1, "hour");
+        const endDate = moment(event.rescheduled_date).set({
+          hour: parseInt(event.new_end_time.split(":")[0], 10),
+          minute: parseInt(event.new_end_time.split(":")[1], 10),
+        });
 
         return {
           id: `rescheduled-${event.id}`,
-          title: `${event.courses.course_code} - ${event.lecture_halls.hall_name} (Rescheduled)`,
+          title: `${event.courses.course_code} (${event.lecture_halls.hall_name}) (Rescheduled)`,
           start: startDate.toDate(),
           end: endDate.toDate(),
           details: {
@@ -168,7 +170,8 @@ const Timetable = () => {
             originalEndTime: event.original_end_time,
             rescheduledDate: event.rescheduled_date,
             reason: event.reason,
-            newTime: event.new_time,
+            newStartTime: event.new_start_time,
+            newEndTime: event.new_end_time,
           },
         };
       });
@@ -189,15 +192,6 @@ const Timetable = () => {
 
           const eventStartTime = moment(event.start);
           const eventEndTime = moment(event.end);
-
-          // Debug: Log for mismatched events
-          console.log("Comparing Event and Rescheduled Details:");
-          console.log({
-            eventStart: eventStartTime.format("YYYY-MM-DD HH:mm"),
-            eventEnd: eventEndTime.format("YYYY-MM-DD HH:mm"),
-            rescheduledStart: originalStartDateTime.format("YYYY-MM-DD HH:mm"),
-            rescheduledEnd: originalEndDateTime.format("YYYY-MM-DD HH:mm"),
-          });
 
           // Check if event matches the rescheduled class's original time
           return (
@@ -268,14 +262,14 @@ const Timetable = () => {
   const eventStyleGetter = (event, start, end, isSelected) => {
     let backgroundColor;
     if (event.id.startsWith("holiday")) {
-      backgroundColor = isSelected ? "#7600BC" :"#34d399"; // Green for holidays
+      backgroundColor = isSelected ? "#7600BC" : "#34d399"; // Green for holidays
     } else if (event.title.includes("(Rescheduled)")) {
-      backgroundColor = isSelected ? "#7600BC" :"#f59e0b"; // Orange for rescheduled
-    } else if (event.details.type=="tutorial") {
-      backgroundColor = isSelected ? "#7600BC" :"#228B22"; //Dark green for tutorial
-    } else if (event.details.type=="lab") {
+      backgroundColor = isSelected ? "#7600BC" : "#f59e0b"; // Orange for rescheduled
+    } else if (event.details.type == "tutorial") {
+      backgroundColor = isSelected ? "#7600BC" : "#228B22"; //Dark green for tutorial
+    } else if (event.details.type == "lab") {
       backgroundColor = isSelected ? "#7600BC" : "#E6B400"; //Dark yellow for tutorial
-    }else {
+    } else {
       backgroundColor = isSelected ? "#7600BC" : "#1d4ed8";
     }
     return {

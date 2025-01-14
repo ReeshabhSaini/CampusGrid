@@ -11,9 +11,6 @@ router.post("/timetable", async (req, res) => {
         return res.status(400).json({ message: "Branch, Semester, and all group parameters (class, tutorial, lab) are required." });
     }
 
-    // Log input for debugging
-    console.log("Received parameters:", { branch, semester, class_group, tutorial_group, lab_group });
-
     // Helper function to fetch timetable data
     const fetchTimetable = async (type, group) => {
         return supabase
@@ -30,6 +27,7 @@ router.post("/timetable", async (req, res) => {
                     semester
                 ),
                 lecture_halls (
+                    id,
                     hall_name
                 ),
                 type,
@@ -66,8 +64,6 @@ router.post("/timetable", async (req, res) => {
             labs: labs || []
         };
 
-        // Return successful response
-        console.log("Fetched timetable data:", response);
         return res.status(200).json({ message: "Timetable fetched successfully", response });
 
     } catch (err) {
@@ -85,9 +81,6 @@ router.post("/reschedules", async (req, res) => {
         return res.status(400).json({ message: "Branch, Semester, and Groups are required." });
     }
 
-    // Log input for debugging
-    console.log("Received parameters:", { branch, semester, class_group, tutorial_group, lab_group });
-
     // Helper function to fetch reschedules for a specific type and group
     const fetchReschedulesByTypeAndGroup = async (type, group) => {
         return supabase
@@ -103,8 +96,10 @@ router.post("/reschedules", async (req, res) => {
                 original_date,
                 rescheduled_date,
                 reason,
-                new_time,
+                new_start_time,
+                new_end_time,
                 lecture_halls (
+                    id,
                     hall_name
                 ),
                 type,
@@ -128,11 +123,6 @@ router.post("/reschedules", async (req, res) => {
             console.error("Error fetching rescheduled classes:", error);
             return res.status(500).json({ message: "Failed to fetch rescheduled classes", error });
         }
-
-        // Log the fetched data for debugging
-        console.log("Fetched classes:", classes);
-        console.log("Fetched tutorials:", tutorials);
-        console.log("Fetched labs:", labs);
 
         // Return the fetched reschedules as a structured response
         return res.status(200).json({

@@ -22,7 +22,8 @@ const StoreContextProvider = (props) => {
 
   const [selectedClass, setSelectedClass] = useState({});
 
-  const url = "https://campus-grid-backend.onrender.com";
+  // const url = "https://campus-grid-backend.onrender.com";
+  const url = "http://localhost:4000";
 
   const [professorData, setProfessorData] = useState({
     id: "",

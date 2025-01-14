@@ -49,7 +49,7 @@ const Timetable = ({ branch, semester }) => {
 
         const response3 = await axios.get(`${url}/api/student/holidays`);
 
-        const { classes } = response1.data.response;
+        const { classes, tutorials, labs } = response1.data.response;
         const { rescheduled_classes } = response2.data;
         const { holidays } = response3.data;
 
@@ -59,58 +59,64 @@ const Timetable = ({ branch, semester }) => {
           )
         );
 
-        const originalEvents = [];
+        const allEvents = [];
+
+        // Function to create event for a given type (class, tutorial, lab)
+        const createEvent = (event, weekStart, i, type) => {
+          const dayIndex = daysOfWeek.indexOf(event.day_of_week);
+          const classDate = weekStart.clone().add(dayIndex, "days");
+
+          if (holidayDates.has(classDate.format("YYYY-MM-DD"))) return;
+
+          const startDate = classDate.clone().set({
+            hour: parseInt(event.start_time.split(":")[0], 10),
+            minute: parseInt(event.start_time.split(":")[1], 10),
+          });
+
+          const endDate = startDate
+            .clone()
+            .add(
+              parseInt(event.end_time.split(":")[0], 10) -
+                parseInt(event.start_time.split(":")[0], 10),
+              "hours"
+            )
+            .add(
+              parseInt(event.end_time.split(":")[1], 10) -
+                parseInt(event.start_time.split(":")[1], 10),
+              "minutes"
+            );
+
+          allEvents.push({
+            id: `${event.id}-${i}`,
+            title: `${event.courses.course_code} (${event.lecture_halls.hall_name})`,
+            start: startDate.toDate(),
+            end: endDate.toDate(),
+            type: type,
+            details: {
+              id: event.id,
+              courseId: event.courses.id,
+              courseCode: event.courses.course_code,
+              courseName: event.courses.course_name,
+              branch: event.courses.branch,
+              semester: event.courses.semester,
+              lectureHall: event.lecture_halls.hall_name,
+              lectureHallId: event.lecture_halls.id,
+              dayOfWeek: event.day_of_week,
+              startTime: event.start_time,
+              endTime: event.end_time,
+              type: event.type,
+              group: event.group,
+            },
+          });
+        };
+
         for (let i = 0; i < 4; i++) {
           const weekStart = moment().startOf("week").add(i, "weeks");
-          classes.forEach((event) => {
-            const dayIndex = daysOfWeek.indexOf(event.day_of_week);
-            const classDate = weekStart.clone().add(dayIndex, "days");
-
-            if (holidayDates.has(classDate.format("YYYY-MM-DD"))) return;
-
-            const startDate = classDate.clone().set({
-              hour: parseInt(event.start_time.split(":")[0], 10),
-              minute: parseInt(event.start_time.split(":")[1], 10),
-            });
-
-            const endDate = startDate
-              .clone()
-              .add(
-                parseInt(event.end_time.split(":")[0], 10) -
-                  parseInt(event.start_time.split(":")[0], 10),
-                "hours"
-              )
-              .add(
-                parseInt(event.end_time.split(":")[1], 10) -
-                  parseInt(event.start_time.split(":")[1], 10),
-                "minutes"
-              );
-
-            const type = event.courses.course_code.includes("T")
-              ? "tutorial"
-              : event.courses.course_code.includes("L")
-              ? "lab"
-              : "class";
-
-            originalEvents.push({
-              id: `${event.id}-${i}`,
-              title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
-              start: startDate.toDate(),
-              end: endDate.toDate(),
-              type: type,
-              details: {
-                courseName: event.courses.course_name,
-                branch: event.courses.branch,
-                semester: event.courses.semester,
-                courseCode: event.courses.course_code,
-                lectureHall: event.lecture_halls.hall_name,
-                dayOfWeek: event.day_of_week,
-                startTime: event.start_time,
-                endTime: event.end_time,
-                type: type,
-              },
-            });
-          });
+          classes.forEach((event) => createEvent(event, weekStart, i, "class"));
+          tutorials.forEach((event) =>
+            createEvent(event, weekStart, i, "tutorial")
+          );
+          labs.forEach((event) => createEvent(event, weekStart, i, "lab"));
         }
 
         const rescheduledEvents = rescheduled_classes
@@ -122,29 +128,37 @@ const Timetable = ({ branch, semester }) => {
           )
           .map((event) => {
             const startDate = moment(event.rescheduled_date).set({
-              hour: parseInt(event.new_time.split(":")[0], 10),
-              minute: parseInt(event.new_time.split(":")[1], 10),
+              hour: parseInt(event.new_start_time.split(":")[0], 10),
+              minute: parseInt(event.new_start_time.split(":")[1], 10),
             });
 
-            const endDate = moment(startDate).add(1, "hour");
+            const endDate = moment(event.rescheduled_date).set({
+              hour: parseInt(event.new_end_time.split(":")[0], 10),
+              minute: parseInt(event.new_end_time.split(":")[1], 10),
+            });
 
             return {
               id: `rescheduled-${event.id}`,
-              title: `${event.courses.course_code} - ${event.lecture_halls.hall_name}`,
+              title: `${event.courses.course_code} (${event.lecture_halls.hall_name}) (Rescheduled)`,
               start: startDate.toDate(),
               end: endDate.toDate(),
               type: "rescheduled",
               details: {
+                id: event.id,
+                courseId: event.courses.id,
+                courseCode: event.courses.course_code,
                 courseName: event.courses.course_name,
                 branch: event.courses.branch,
                 semester: event.courses.semester,
-                courseCode: event.courses.course_code,
                 lectureHall: event.lecture_halls.hall_name,
+                lectureHallId: event.lecture_halls.id,
                 originalDate: event.original_date,
                 rescheduledDate: event.rescheduled_date,
                 reason: event.reason,
-                newTime: event.new_time,
-                type: "rescheduled",
+                newStartTime: event.new_start_time,
+                newEndTime: event.new_end_time,
+                type: event.type,
+                group: event.group,
               },
             };
           });
@@ -166,7 +180,7 @@ const Timetable = ({ branch, semester }) => {
 
         const finalEvents = [
           ...holidayEvents,
-          ...originalEvents,
+          ...allEvents,
           ...rescheduledEvents,
         ];
 
@@ -202,29 +216,20 @@ const Timetable = ({ branch, semester }) => {
 
   const eventStyleGetter = (event, start, end, isSelected) => {
     let backgroundColor;
-    switch (event.type) {
-      case "class":
-        backgroundColor = "#3182ce";
-        break;
-      case "tutorial":
-        backgroundColor = "#9f7aea";
-        break;
-      case "lab":
-        backgroundColor = "#48bb78";
-        break;
-      case "rescheduled":
-        backgroundColor = "#f6ad55";
-        break;
-      default:
-        backgroundColor = "#3182ce";
-        break;
-    }
     if (event.id.startsWith("holiday")) {
-      backgroundColor = "#34d399";
+      backgroundColor = isSelected ? "#7600BC" : "#34d399"; // Green for holidays
+    } else if (event.title.includes("(Rescheduled)")) {
+      backgroundColor = isSelected ? "#7600BC" : "#f59e0b"; // Orange for rescheduled
+    } else if (event.details.type == "tutorial") {
+      backgroundColor = isSelected ? "#7600BC" : "#228B22"; //Dark green for tutorial
+    } else if (event.details.type == "lab") {
+      backgroundColor = isSelected ? "#7600BC" : "#E6B400"; //Dark yellow for tutorial
+    } else {
+      backgroundColor = isSelected ? "#7600BC" : "#1d4ed8";
     }
     return {
       style: {
-        backgroundColor: isSelected ? "#2b6cb0" : backgroundColor,
+        backgroundColor,
         color: "white",
         borderRadius: "5px",
         padding: "4px",
@@ -243,56 +248,56 @@ const Timetable = ({ branch, semester }) => {
 
   if (loading) return <div>Loading timetable...</div>;
   if (error) return <div>{error}</div>;
-    const CustomToolbar = ({ label, onNavigate }) => (
-      <div className="flex justify-between items-center py-2 px-4 bg-gray-100 shadow-md rounded-lg">
+  const CustomToolbar = ({ label, onNavigate }) => (
+    <div className="flex justify-between items-center py-2 px-4 bg-gray-100 shadow-md rounded-lg">
+      <button
+        onClick={() => onNavigate("PREV")}
+        className="text-2xl text-blue-600 hover:text-blue-800 transition duration-200"
+      >
+        <FaArrowLeft />
+      </button>
+      <span className="font-bold text-lg">{label}</span>
+      <button
+        onClick={() => onNavigate("NEXT")}
+        className="text-2xl text-blue-600 hover:text-blue-800 transition duration-200"
+      >
+        <FaArrowRight />
+      </button>
+      <div className="ml-4">
         <button
-          onClick={() => onNavigate("PREV")}
-          className="text-2xl text-blue-600 hover:text-blue-800 transition duration-200"
+          onClick={() => {
+            setView("day");
+            onNavigate("TODAY");
+          }}
+          className={`px-2 py-1 ${
+            view === "day" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
         >
-          <FaArrowLeft />
+          Day
         </button>
-        <span className="font-bold text-lg">{label}</span>
         <button
-          onClick={() => onNavigate("NEXT")}
-          className="text-2xl text-blue-600 hover:text-blue-800 transition duration-200"
+          onClick={() => {
+            setView("week");
+            onNavigate("TODAY");
+          }}
+          className={`px-2 py-1 ${
+            view === "week" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
         >
-          <FaArrowRight />
+          Week
         </button>
-        <div className="ml-4">
-          <button
-            onClick={() => {
-              setView("day");
-              onNavigate("TODAY");
-            }}
-            className={`px-2 py-1 ${
-              view === "day" ? "bg-blue-600 text-white" : "bg-gray-200"
-            }`}
-          >
-            Day
-          </button>
-          <button
-            onClick={() => {
-              setView("week");
-              onNavigate("TODAY");
-            }}
-            className={`px-2 py-1 ${
-              view === "week" ? "bg-blue-600 text-white" : "bg-gray-200"
-            }`}
-          >
-            Week
-          </button>
-          <button
-            onClick={() => {
-              setView("day");
-              onNavigate("TODAY");
-            }}
-            className="ml-2 px-2 py-1 bg-blue-600 text-white"
-          >
-            Today
-          </button>
-        </div>
+        <button
+          onClick={() => {
+            setView("day");
+            onNavigate("TODAY");
+          }}
+          className="ml-2 px-2 py-1 bg-blue-600 text-white"
+        >
+          Today
+        </button>
       </div>
-    );
+    </div>
+  );
 
   return (
     <div className="flex">
@@ -368,19 +373,24 @@ const Timetable = ({ branch, semester }) => {
                   <strong>Lecture Hall:</strong>{" "}
                   {selectedEvent.details.lectureHall}
                 </p>
-                <p>
-                  <strong>Day of Week:</strong>{" "}
-                  {selectedEvent.details.dayOfWeek}
-                </p>
-                <p>
-                  <strong>Start Time:</strong> {selectedEvent.details.startTime}
-                </p>
-                <p>
-                  <strong>End Time:</strong> {selectedEvent.details.endTime}
-                </p>
-                <p>
-                  <strong>Type:</strong> {selectedEvent.details.type}
-                </p>
+                {!selectedEvent.details.rescheduledDate && (
+                  <>
+                    <p>
+                      <strong>Day of Week:</strong>{" "}
+                      {selectedEvent.details.dayOfWeek}
+                    </p>
+                    <p>
+                      <strong>Start Time:</strong>{" "}
+                      {selectedEvent.details.startTime}
+                    </p>
+                    <p>
+                      <strong>End Time:</strong> {selectedEvent.details.endTime}
+                    </p>
+                    <p>
+                      <strong>Type:</strong> {selectedEvent.details.type}
+                    </p>
+                  </>
+                )}
                 {selectedEvent.details.rescheduledDate && (
                   <>
                     <hr className="my-4" />
@@ -396,7 +406,8 @@ const Timetable = ({ branch, semester }) => {
                       <strong>Reason:</strong> {selectedEvent.details.reason}
                     </p>
                     <p>
-                      <strong>New Time:</strong> {selectedEvent.details.newTime}
+                      <strong>New Time:</strong>{" "}
+                      {selectedEvent.details.newStartTime}
                     </p>
                   </>
                 )}
