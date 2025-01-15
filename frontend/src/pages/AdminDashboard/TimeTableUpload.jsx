@@ -163,7 +163,9 @@ const TimetableUpload = () => {
 
   return (
     <div className="bg-yellow-100 p-6 rounded-lg shadow-md max-w-7xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4 text-center">Upload Timetable Entry</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">
+        Upload Timetable Entry
+      </h2>
       <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
         {/* Left Side */}
         {/* Branch */}
@@ -181,13 +183,17 @@ const TimetableUpload = () => {
                 Select Your Branch
               </option>
               <option value="CSE">Computer Science and Engineering</option>
-              <option value="CSE-DS">Computer Science and Engineering (Data Science)</option>
-              <option value="CSE-AI">Computer Science and Engineering (Artificial Intelligence)</option>
+              <option value="CSE-DS">
+                Computer Science and Engineering (Data Science)
+              </option>
+              <option value="CSE-AI">
+                Computer Science and Engineering (Artificial Intelligence)
+              </option>
               <option value="ECE">Electronics and Communication</option>
               <option value="EE">Electrical</option>
             </select>
           </div>
-  
+
           {/* Semester */}
           <div>
             <label className="block font-medium mb-2">Semester</label>
@@ -211,7 +217,7 @@ const TimetableUpload = () => {
               <option value="8">8th</option>
             </select>
           </div>
-  
+
           {/* Course */}
           <div>
             <label className="block font-medium mb-2">Course</label>
@@ -230,7 +236,7 @@ const TimetableUpload = () => {
               ))}
             </select>
           </div>
-  
+
           {/* Professor */}
           <div>
             <label className="block font-medium mb-2">Professor</label>
@@ -244,12 +250,14 @@ const TimetableUpload = () => {
               <option value="">Select Professor</option>
               {professors.map((prof) => (
                 <option key={prof.id} value={prof.id}>
-                  {prof.name}
+                  <>
+                    {prof.first_name} {prof.last_name}
+                  </>
                 </option>
               ))}
             </select>
           </div>
-  
+
           {/* Class Type */}
           <div>
             <label className="block font-medium mb-2">Class Type</label>
@@ -267,7 +275,7 @@ const TimetableUpload = () => {
             </select>
           </div>
         </div>
-  
+
         {/* Right Side */}
         <div className="space-y-4">
           {/* Group */}
@@ -288,7 +296,7 @@ const TimetableUpload = () => {
               ))}
             </select>
           </div>
-  
+
           {/* Day */}
           <div>
             <label className="block font-medium mb-2">Day</label>
@@ -307,7 +315,7 @@ const TimetableUpload = () => {
               ))}
             </select>
           </div>
-  
+
           {/* Start Time */}
           <div>
             <label className="block font-medium mb-2">Start Time</label>
@@ -324,7 +332,7 @@ const TimetableUpload = () => {
               className="border px-2 py-1 rounded-md w-full"
             />
           </div>
-  
+
           {/* End Time */}
           <div>
             <label className="block font-medium mb-2">End Time</label>
@@ -341,21 +349,29 @@ const TimetableUpload = () => {
               className="border px-2 py-1 rounded-md w-full bg-gray-200"
             />
           </div>
-  
+
           {/* Lecture Hall/Lab */}
           <div>
             <label className="block font-medium mb-2">
               {formData.class_type === "Lab" ? "Lab" : "Lecture Hall"}
             </label>
             <select
-              name={formData.class_type === "Lab" ? "lab_room" : "lecture_hall_id"}
-              value={formData.class_type === "Lab" ? formData.lab_room : formData.lecture_hall_id}
+              name={
+                formData.class_type === "Lab" ? "lab_room" : "lecture_hall_id"
+              }
+              value={
+                formData.class_type === "Lab"
+                  ? formData.lab_room
+                  : formData.lecture_hall_id
+              }
               onChange={handleChange}
               className="border px-2 py-1 rounded-md w-full"
               required
             >
               <option value="">
-                {formData.class_type === "Lab" ? "Select Lab" : "Select Lecture Hall"}
+                {formData.class_type === "Lab"
+                  ? "Select Lab"
+                  : "Select Lecture Hall"}
               </option>
               {formData.class_type === "Lab"
                 ? labs.map((lab) => (
@@ -371,7 +387,7 @@ const TimetableUpload = () => {
             </select>
           </div>
         </div>
-  
+
         {/* Submit Button */}
         <div className="col-span-2 mt-4">
           <button
@@ -384,7 +400,6 @@ const TimetableUpload = () => {
       </form>
     </div>
   );
-  
 };
 
 export default TimetableUpload;
