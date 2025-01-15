@@ -1,100 +1,96 @@
-# **Campus Grid**
+# **🌟 Campus Grid 🌟**
 
-## **Overview**
+## **📋 Overview**
 
-Campus Grid is a comprehensive academic management system designed to streamline timetable management, class rescheduling, and holiday updates for universities and colleges. It provides role-specific dashboards for students, professors, and administrators, ensuring tailored access and functionality for each user type.
-
----
-
-## **Features**
-
-### **Student Dashboard**
-
-- View updated timetables with rescheduled classes.
-- Access holiday updates.
-
-### **Professor Dashboard**
-
-- Reschedule future classes with reasons and updated timings.
-- View rescheduled classes and updated timetables.
-
-### **Admin Dashboard**
-
-- Upload and manage timetables for all courses and semesters.
-- Add and manage holiday entries.
+Campus Grid is a **comprehensive academic management system** designed to streamline timetable management, class rescheduling, and holiday updates for universities and colleges. It provides **role-specific dashboards** for students, professors, and administrators, ensuring tailored access and functionality for each user type.
 
 ---
 
-## **Technologies Used**
+## **✨ Features**
+
+### **🎓 Student Dashboard**
+
+- 🗓️ View updated timetables with rescheduled classes.
+- 🎉 Access holiday updates.
+
+### **👨‍🏫 Professor Dashboard**
+
+- 🔄 Reschedule future classes with reasons and updated timings.
+- 🗂️ View rescheduled classes and updated timetables.
+
+### **🛠️ Admin Dashboard**
+
+- 📤 Upload and manage timetables for all courses and semesters.
+- 📅 Add and manage holiday entries.
+
+---
+
+## **💻 Technologies Used**
 
 ### **Frontend**
 
-- **React** (deployed on Vercel).
+- ⚛️ **React** (deployed on Vercel).
 - Responsive user interface designed for role-specific dashboards.
 
 ### **Backend**
 
-- **Node.js** and **Express** (deployed on Render).
-- Integrated with **Supabase** for efficient database operations.
+- 🟢 **Node.js** and **Express** (deployed on Render).
+- Integrated with 🐘 **Supabase** for efficient database operations.
 
 ### **Database**
 
-- **PostgreSQL** (hosted on Supabase).
+- 📂 **PostgreSQL** (hosted on Supabase).
 
 ---
 
-## **Key Functionalities**
+## **⚙️ Key Functionalities**
 
-1. **Timetable Management**
+1. **🗓️ Timetable Management**
 
    - Fetch updated timetables dynamically from the backend.
    - Includes lecture hall, professor, and rescheduled class details.
 
-2. **Class Rescheduling**
+2. **🔄 Class Rescheduling**
 
    - Professors can reschedule future classes with specified reasons and updated timings.
 
-3. **Holiday Management**
+3. **🎉 Holiday Management**
 
    - Admins can add holidays directly through their dashboard.
 
-4. **Authentication and Authorization**
+4. **🔒 Authentication and Authorization**
+
    - Role-based redirection to dashboards for students, professors, and admins.
-   - JSON Web Tokens (JWT) for secure login sessions.
+   - 🛡️ JSON Web Tokens (JWT) for secure login sessions.
 
 ---
 
-## **Challenges Faced**
+## **🚧 Challenges Faced**
 
-- Managing merge conflicts during team collaboration.
-- Learning and integrating new technologies effectively.
-- Working with large datasets in a normalized database schema.
-
----
-
-## **Future Enhancements**
-
-- Attendance management system.
-- Grade reporting for students.
-- Enhanced caching for faster timetable updates.
+- ⚔️ Managing merge conflicts during team collaboration.
+- 📚 Learning and integrating new technologies effectively.
+- 📊 Working with large datasets in a normalized database schema.
 
 ---
 
-## **Getting Started**
+## **🚀 Future Enhancements**
 
-### Prerequisites
+- 📌 Attendance management system.
+- 📈 Grade reporting for students.
+- 🚀 Enhanced caching for faster timetable updates.
 
-- **Node.js** and **npm** installed.
-- Access to a Supabase project with the required database schema.
+---
 
-### Installation
+## **⚡ Getting Started**
+
+### **📂 Prerequisites**
+
+- 🖥️ **Node.js** and **npm** installed.
+- 🐘 Access to a Supabase project with the required database schema.
+
+### **📥 Installation**
 
 1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/your-username/campus-grid.git
-   cd campus-grid
-   ```
 
 2. Install dependencies for the frontend and backend:
 
@@ -112,7 +108,7 @@ Campus Grid is a comprehensive academic management system designed to streamline
 
 ---
 
-## **Database Schema**
+## **🗄️ Database Schema**
 
 ### **1. Table: `students`**
 
@@ -268,7 +264,11 @@ create table
      JWT_SECRET=<Your JWT Secret>
      ```
 
-5. Start the development servers:
+5. Change the URL inside the `StoreContext` file inside the frontend folder:
+
+   - Change `url` to: `http://localhost:4000`
+
+6. Start the development servers:
 
    ```bash
    # Start frontend
@@ -280,10 +280,6 @@ create table
    npm run server
    ```
 
-6. Change the URL inside the `StoreContext` file inside the frontend folder:
-
-   - Change `url` to: `http://localhost:4000`
-
 7. Access the application:
-   - Frontend: `http://localhost:5173`
-   - Backend API: `http://localhost:4000`
+   - **Frontend**: `http://localhost:5173`
+   - **Backend API**: `http://localhost:4000`
