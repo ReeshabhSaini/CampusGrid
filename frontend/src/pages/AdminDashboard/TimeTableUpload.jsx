@@ -42,7 +42,7 @@ const TimetableUpload = () => {
     end_time: new Date().setHours(9, 0, 0, 0),
     lecture_hall_id: "",
     professor_id: "",
-    class_type: "",
+    type: "",
     group: "",
   });
 
@@ -98,7 +98,7 @@ const TimetableUpload = () => {
     const startTime = date;
     let endTime;
 
-    if (formData.class_type === "Lab") {
+    if (formData.type === "Lab") {
       endTime = new Date(startTime.getTime() + 2 * 60 * 60 * 1000);
     } else {
       endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
@@ -118,10 +118,27 @@ const TimetableUpload = () => {
       return;
     }
 
+    // Convert Date objects to 'HH:MM:SS' format
+    const formatTime = (date) => {
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      const seconds = "00"; // Assuming no seconds are needed
+      return `${hours}:${minutes}:${seconds}`;
+    };
+
+    const formattedStartTime = formatTime(new Date(formData.start_time));
+    const formattedEndTime = formatTime(new Date(formData.end_time));
+
+    const dataToSend = {
+      ...formData,
+      start_time: formattedStartTime,
+      end_time: formattedEndTime,
+    };
+
     try {
       const response = await axios.post(
         `${url}/api/admin/upload-timetable`,
-        formData
+        dataToSend
       );
 
       if (response.data.status) {
@@ -135,7 +152,7 @@ const TimetableUpload = () => {
           end_time: new Date().setHours(9, 0, 0, 0),
           lecture_hall_id: "",
           professor_id: "",
-          class_type: "",
+          type: "",
           group: "",
         });
         setCourses([]);
@@ -143,19 +160,16 @@ const TimetableUpload = () => {
         alert("Failed to add timetable entry.");
       }
     } catch (error) {
-      console.log("Error submitting timetable entry:", error);
+      console.error("Error submitting timetable entry:", error);
       alert("An error occurred. Please try again.");
     }
   };
 
   const generateGroupOptions = () => {
     let groups = [];
-    if (formData.class_type === "Lecture") {
+    if (formData.type === "class") {
       groups = ["G1", "G2"];
-    } else if (
-      formData.class_type === "Tutorial" ||
-      formData.class_type === "Lab"
-    ) {
+    } else if (formData.type === "tutorial" || formData.type === "lab") {
       groups = ["G1", "G2", "G3", "G4", "G5", "G6"];
     }
     return groups;
@@ -262,16 +276,16 @@ const TimetableUpload = () => {
           <div>
             <label className="block font-medium mb-2">Class Type</label>
             <select
-              name="class_type"
-              value={formData.class_type}
+              name="type"
+              value={formData.type}
               onChange={handleChange}
               className="border px-2 py-1 rounded-md w-full"
               required
             >
               <option value="">Select Class Type</option>
-              <option value="Tutorial">Tutorial</option>
-              <option value="Lab">Lab</option>
-              <option value="Lecture">Lecture</option>
+              <option value="tutorial">Tutorial</option>
+              <option value="lab">Lab</option>
+              <option value="class">Lecture</option>
             </select>
           </div>
         </div>
@@ -353,14 +367,12 @@ const TimetableUpload = () => {
           {/* Lecture Hall/Lab */}
           <div>
             <label className="block font-medium mb-2">
-              {formData.class_type === "Lab" ? "Lab" : "Lecture Hall"}
+              {formData.type === "Lab" ? "Lab" : "Lecture Hall"}
             </label>
             <select
-              name={
-                formData.class_type === "Lab" ? "lab_room" : "lecture_hall_id"
-              }
+              name={formData.type === "Lab" ? "lab_room" : "lecture_hall_id"}
               value={
-                formData.class_type === "Lab"
+                formData.type === "Lab"
                   ? formData.lab_room
                   : formData.lecture_hall_id
               }
@@ -369,11 +381,9 @@ const TimetableUpload = () => {
               required
             >
               <option value="">
-                {formData.class_type === "Lab"
-                  ? "Select Lab"
-                  : "Select Lecture Hall"}
+                {formData.type === "Lab" ? "Select Lab" : "Select Lecture Hall"}
               </option>
-              {formData.class_type === "Lab"
+              {formData.type === "Lab"
                 ? labs.map((lab) => (
                     <option key={lab} value={lab}>
                       {lab}
