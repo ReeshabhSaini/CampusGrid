@@ -5,7 +5,7 @@ import axios from "axios";
 import { assets } from "../../assets/assets";
 
 const ProfilePicture = ({ src, alt }) => {
-  const defaultProfileImage = assets.DefProfilePic; 
+  const defaultProfileImage = assets.DefProfilePic;
   const imageSrc = src ? src : defaultProfileImage;
 
   return (
@@ -19,18 +19,18 @@ const ProfilePicture = ({ src, alt }) => {
   );
 };
 
-const CoursesList = ({ courses }) => (
-  <div className="bg-yellow-100 shadow-lg rounded-lg p-4 border border-gray-300 w-3/4 mx-auto">
-    <h3 className="text-2xl font-bold mb-4 text-center text-indigo-600">Courses</h3>
-    <ul className="list-disc list-inside space-y-2">
-      {courses.map((course, index) => (
-        <li key={index} className="text-lg text-gray-800">
-          {course}
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+// const CoursesList = ({ courses }) => (
+//   <div className="bg-yellow-100 shadow-lg rounded-lg p-4 border border-gray-300 w-3/4 mx-auto">
+//     <h3 className="text-2xl font-bold mb-4 text-center text-indigo-600">Courses</h3>
+//     <ul className="list-disc list-inside space-y-2">
+//       {courses.map((course, index) => (
+//         <li key={index} className="text-lg text-gray-800">
+//           {course}
+//         </li>
+//       ))}
+//     </ul>
+//   </div>
+// );
 
 function decodeJWT(token) {
   try {
@@ -67,10 +67,17 @@ const EditProfileModal = ({ professorData, onClose, onSubmit }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="p-6 rounded-lg w-1/2 shadow-lg bg-yellow-50">
-        <h3 className="text-2xl font-bold mb-4 text-indigo-600">Edit Profile</h3>
+        <h3 className="text-2xl font-bold mb-4 text-indigo-600">
+          Edit Profile
+        </h3>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">First Name</label>
+            <label
+              htmlFor="first_name"
+              className="block text-sm font-medium text-gray-700"
+            >
+              First Name
+            </label>
             <input
               type="text"
               id="first_name"
@@ -81,7 +88,12 @@ const EditProfileModal = ({ professorData, onClose, onSubmit }) => {
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">Last Name</label>
+            <label
+              htmlFor="last_name"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Last Name
+            </label>
             <input
               type="text"
               id="last_name"
@@ -92,7 +104,12 @@ const EditProfileModal = ({ professorData, onClose, onSubmit }) => {
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
             <input
               type="email"
               id="email"
@@ -101,7 +118,8 @@ const EditProfileModal = ({ professorData, onClose, onSubmit }) => {
               onChange={handleChange}
               className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
-          </div> <div className="flex justify-between mt-4">
+          </div>{" "}
+          <div className="flex justify-between mt-4">
             <button
               type="button"
               onClick={onClose}
@@ -140,14 +158,14 @@ const Profile = () => {
         navigate("/login");
         return;
       }
-  
+
       const { id } = decodedToken;
-  
+
       const response = await axios.post(
         `${url}/api/auth/professor/update-profile`,
         { ...formData, id }
       );
-  
+
       if (response.data.status) {
         alert("Profile updated successfully!");
         closeModal();
@@ -169,20 +187,26 @@ const Profile = () => {
       >
         Edit Profile
       </button>
-      <h2 className="text-3xl font-bold mb-6 text-center text-indigo-600">Profile Section</h2>
+      <h2 className="text-3xl font-bold mb-6 text-center text-indigo-600">
+        Profile Section
+      </h2>
       <div className="shadow-lg rounded-lg p-6 flex flex-col items-center space-y-6 border border-gray-300 w-3/4 mx-auto bg-green-50">
         <div className="flex flex-col md:flex-row items-center space-y-6 md:space-y-0 md:space-x-6 w-full ">
-          <ProfilePicture src="https://t3.ftcdn.net/jpg/03/45/75/94/360_F_345759488_gh3cxWU7DEnZJCmDiggHnsuM2zqpkTpG.jpg" alt="Profile" />
+          <ProfilePicture
+            src="https://t3.ftcdn.net/jpg/03/45/75/94/360_F_345759488_gh3cxWU7DEnZJCmDiggHnsuM2zqpkTpG.jpg"
+            alt="Profile"
+          />
           <div className="w-full md:w-3/4 text-left border border-gray-300 rounded-lg p-6 shadow-md bg-yellow-50">
             <p className="text-lg font-normal text-gray-800">
-              <strong>Name:</strong> {professorData.first_name} {professorData.last_name}
+              <strong>Name:</strong> {professorData.first_name}{" "}
+              {professorData.last_name}
             </p>
             <p className="text-lg font-normal text-gray-800">
               <strong>Email:</strong> {professorData.email}
             </p>
           </div>
         </div>
-        <CoursesList courses={professorData.courses || []} />
+        {/* <CoursesList courses={professorData.courses || []} /> */}
       </div>
 
       {isModalOpen && (

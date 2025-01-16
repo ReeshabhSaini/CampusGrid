@@ -14,18 +14,18 @@ const ProfilePicture = ({ src, alt }) => (
   />
 );
 
-const CoursesList = ({ courses }) => (
-  <div className="bg-yellow-50 shadow-md rounded-lg p-4 border border-gray-300 w-full mx-auto">
-    <h3 className="text-2xl font-bold mb-4 text-center">Courses</h3>
-    <ul className="list-disc list-inside space-y-2">
-      {courses.map((course, index) => (
-        <li key={index} className="text-lg text-gray-800">
-          {course}
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+// const CoursesList = ({ courses }) => (
+//   <div className="bg-yellow-50 shadow-md rounded-lg p-4 border border-gray-300 w-full mx-auto">
+//     <h3 className="text-2xl font-bold mb-4 text-center">Courses</h3>
+//     <ul className="list-disc list-inside space-y-2">
+//       {courses.map((course, index) => (
+//         <li key={index} className="text-lg text-gray-800">
+//           {course}
+//         </li>
+//       ))}
+//     </ul>
+//   </div>
+// );
 
 function decodeJWT(token) {
   try {
@@ -378,7 +378,7 @@ const Profile = () => {
             </p>
           </div>
         </div>
-        <CoursesList courses={studentData.courses || []} />
+        {/* <CoursesList courses={studentData.courses || []} /> */}
       </div>
 
       {isModalOpen && (
